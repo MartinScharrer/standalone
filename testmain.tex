@@ -2,9 +2,17 @@
 \documentclass{article}
 
 \usepackage{tikz}
+\usepackage{standalone}
+
+%\newsavebox{\testsb}
+%\sbox{\testsb}{\input{test}} % doesn't work (yet)
 
 \begin{document}
+  %\usebox\testsb
+  \par
   \input{test}
   \input{test}
+  \par
+  \input{test2}
 \end{document}
 
