@@ -4,12 +4,12 @@
 \def\sa@name{standalone}
 
 \newcommand{\sa@documentclass}[2][]{%
-  \let\document\sa@document
-  \let\enddocument\sa@enddocument
   \begingroup
   \def\@tempa{#2}%
   \ifx\@tempa\sa@name
     \endgroup
+    \let\document\sa@document
+    \let\enddocument\sa@enddocument
     \expandafter\sa@@documentclass
   \else
     \endgroup
@@ -51,8 +51,8 @@
 }
 
 \def\sa@@enddocument{%
-  \global\let\document\sa@orig@document
-  \global\let\enddocument\sa@orig@enddocument
+  %\let\document\sa@orig@document
+  \let\enddocument\sa@orig@enddocument
   \endinput
 }
 
