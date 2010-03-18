@@ -4,22 +4,24 @@
 \def\sa@name{standalone}
 
 \newcommand{\sa@documentclass}[2][]{%
+  \let\document\sa@document
+  \let\enddocument\sa@enddocument
   \begingroup
   \def\@tempa{#2}%
   \ifx\@tempa\sa@name
     \endgroup
-    \expandafter\sa@gobble
+    \expandafter\sa@@documentclass
   \else
     \endgroup
     \expandafter\@notprerr
   \fi
 }
 
+\def\sa@@documentclass{\sa@gobble}
+
 \AtBeginDocument{\let\documentclass\sa@documentclass}%
 
 \long\def\sa@gobble#1\begin#2{%
-  \let\document\sa@document
-  \let\enddocument\sa@enddocument
   \begingroup
   \def\@tempa{document}%
   \def\@tempb{#2}%
@@ -53,4 +55,17 @@
   \global\let\enddocument\sa@orig@enddocument
   \endinput
 }
+
+
+\def\sa@processpreamble{
+  \renewcommand\usepackage[2][]{%
+    \message{^^J%
+      INFO: Sub-file requires the following package(s):^^J
+      \space\space[##1]{##2}^^J%
+    }%
+  }%
+  \let\RequirePackage\usepackage
+}
+
+%\def\sa@@documentclass{\sa@processpreamble}
 
