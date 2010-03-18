@@ -1,0 +1,56 @@
+\newif\ifstandalone
+\standalonefalse
+
+\def\sa@name{standalone}
+
+\newcommand{\sa@documentclass}[2][]{%
+  \begingroup
+  \def\@tempa{#2}%
+  \ifx\@tempa\sa@name
+    \endgroup
+    \expandafter\sa@gobble
+  \else
+    \endgroup
+    \expandafter\@notprerr
+  \fi
+}
+
+\AtBeginDocument{\let\documentclass\sa@documentclass}%
+
+\long\def\sa@gobble#1\begin#2{%
+  \let\document\sa@document
+  \let\enddocument\sa@enddocument
+  \begingroup
+  \def\@tempa{document}%
+  \def\@tempb{#2}%
+  \ifx\@tempa\@tempb
+    \def\next{\begin{document}}%
+  \else
+    \def\next{\sa@gobble}%
+  \fi
+  \expandafter\endgroup
+  \next
+}
+
+\let\sa@orig@document\document
+\let\sa@orig@enddocument\enddocument
+
+\def\document{%
+  \sa@orig@document
+  \let\documentclass\sa@documentclass
+  \ignorespaces
+}
+
+\def\sa@document{%
+}
+
+\def\sa@enddocument{%
+  \aftergroup\sa@@enddocument
+}
+
+\def\sa@@enddocument{%
+  \global\let\document\sa@orig@document
+  \global\let\enddocument\sa@orig@enddocument
+  \endinput
+}
+
