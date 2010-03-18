@@ -44,11 +44,16 @@
 }
 
 \def\sa@document{%
+  \sa@atbegindocument
 }
 
 \def\sa@enddocument{%
+  \sa@atenddocument
   \aftergroup\sa@@enddocument
 }
+
+\def\sa@atbegindocument{\ignorespaces}%
+\def\sa@atenddocument{\unskip}%
 
 \def\sa@@enddocument{%
   %\let\document\sa@orig@document
@@ -56,8 +61,7 @@
   \endinput
 }
 
-
-\def\sa@processpreamble{
+\def\sa@processpreamble{%
   \renewcommand\usepackage[2][]{%
     \message{^^J%
       INFO: Sub-file requires the following package(s):^^J
