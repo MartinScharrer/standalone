@@ -22,6 +22,9 @@
   \next
 }
 
+\expandafter\ifx\csname standalone\endcsname\relax
+  \newenvironment{standalone}[1][]{}{}
+\fi
 %\def\standalone{}%
 %\def\endstandalone{}%
 %\def\standalone{\sa@orig@document}

@@ -1,19 +1,23 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{standalone}[2010/03/18 v0.1 Allow TeX snippets to be included or be compile standalone]
 
-\newenvironment{standalone}{\preview}{\endpreview}
-
 \def\sa@classoptionslist{}
 \RequirePackage{kvoptions}
 \SetupKeyvalOptions{prefix=sa@}
 \DeclareBoolOption[true]{preview}
+
+\def\sa@cls@document{\ifsa@preview\preview\fi}
+\def\sa@cls@enddocument{\ifsa@preview\endpreview\fi}
+
 \DeclareVoidOption{beamer}{%
   \def\sa@class{beamer}%
   \sa@previewfalse
-  \renewenvironment{standalone}{\begin{frame}}{\end{frame}}%
+  \newenvironment{standalone}[1][]{%
+  \begin{frame}[fragile,environment=standalone]}{\end{frame}}%
 }
 \DeclareStringOption[article]{class}
 \DeclareStringOption[]{classoptions}
+\DeclareStringOption[]{frameoptions}
 \DeclareDefaultOption{%
   \xdef\sa@classoptionslist{\sa@classoptionslist,\CurrentOption}%
 }
@@ -34,11 +38,11 @@
 \def\document{%
   \sa@orig@document
   \let\documentclass\sa@documentclass
-  \begin{standalone}%
+  \sa@cls@document
 }
 
 \def\enddocument{%
-  \end{standalone}%
+  \sa@cls@enddocument
   \sa@orig@enddocument
 }
 % vim: ft=tex
