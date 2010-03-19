@@ -1,0 +1,15 @@
+%&pdflatex
+\input{standalone}%
+
+\ifstandalone
+\documentclass{article}
+\usepackage{tikz}
+\usepackage{standalone}
+\fi
+
+\begin{standalone}%
+\begin{tikzpicture}
+  \draw (0,0) rectangle (1,1) node [midway] {Test3};
+\end{tikzpicture}%
+\end{standalone}%
+
