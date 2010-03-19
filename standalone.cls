@@ -1,21 +1,25 @@
+\NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{standalone}[2010/03/18 Allow TeX snippets to be included or be compile standalone]
 
-\newif\ifstandalone
-\standalonetrue
-
 \def\sa@class{article}
+\def\sa@classoptions{}
 \input{standalone.cfg}
 \RequirePackage[tightpage]{preview}
-\expandafter\LoadClass\expandafter{\sa@class}
+\expandafter\expandafter\expandafter\LoadClass
+\expandafter\expandafter\expandafter[%
+\expandafter\sa@classoptions\expandafter]\expandafter{\sa@class}
 
-\let\sa@orig@document\document
-\let\sa@orig@enddocument\enddocument
+\RequirePackage{standalone}[2010/03/18]
+\standalonetrue
 
 \def\document{%
-  \sa@orig@document\preview
+  \sa@orig@document
+  \let\documentclass\sa@documentclass
+  \preview
 }
 
 \def\enddocument{%
-  \endpreview\sa@orig@enddocument
+  \endpreview
+  \sa@orig@enddocument
 }
 % vim: ft=tex
