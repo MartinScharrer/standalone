@@ -1,5 +1,5 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{standalone}[2010/03/18 Allow TeX snippets to be included or be compile standalone]
+\ProvidesClass{standalone}[2010/03/18 v0.1 Allow TeX snippets to be included or be compile standalone]
 
 \def\sa@class{article}
 \def\sa@classoptions{}
