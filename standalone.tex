@@ -1,1 +1,12 @@
-\input{standalone.sty}%
+\expandafter\ifx\csname ifstandalone\endcsname\relax
+%
+\ProvidesFile{standalone.tex}[2010/03/19 Provides if-switch to show if file is compiled on its own]%
+\expandafter\newif\csname ifstandalone\endcsname
+%
+\expandafter\ifx\csname @twoclasseserror\endcsname\documentclass
+\else
+  \standalonetrue
+\fi
+%
+\fi
+% vim: ft=tex
