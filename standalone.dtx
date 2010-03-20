@@ -58,7 +58,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{182}
+% \CheckSum{181}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -120,11 +120,19 @@
 %
 % While it is possible to write a small `main' file for each picture file, this method is a little cumbersome and clutters
 % the directories with a lot of extra files. A second method is to place the `main' components, i.e. a preamble, directly into the
-% picture files and make the main document ignore this code sections. The |standalone| class is provided to minimise the extra preamble 
-% code needed in the picture files. It uses by default the |preview| package to create a output file which only contains the picture with no extra
-% margins, page numbers or anything else. The package |standalone| is then used in the main document to skip the extra preambles in all pictures files.
+% picture files and make the main document ignore this code sections.
+%
+% The package |standalone| can be used in the main document to skip all extra preambles in included files.
+% A |standalone| class is also provided to minimise the extra preamble code needed in this files.
+% It's usage is optional, but simplifies and standardises how picture files are compiled standalone.
+% The class uses by default the |preview| package to create a output file which only contains the picture with no extra
+% margins, page numbers or anything else. 
 % Both the class and the package read a configuration file |standalone.cfg| which allows the user to adjust settings and macros easily 
-% on a per compile directory base.
+% on a per directory base.
+%
+% \subsection*{Similar Packages}
+% The |docmute| package by T.M.\ Trzeciak is written with the same function as the |standalone| package. However, no special class file or 
+% configuration file is provided.
 %
 % \section{Usage}
 % \subsection{Quick instructions}
@@ -132,14 +140,26 @@
 % In the sub-files use the |standalone| \emph{class} using the normal \cs{documentclass} and load all packages needed for the particular 
 % file. Finally wrap the actual file content in a |document| environment.
 %
-% When the sub-file is compiled by its own the |\documentclass| and |document| environment will be active as normal. The main file, however,
+% When the sub-file is compiled on its own the |\documentclass| and |document| environment will be active as normal. The main file, however,
 % will skip everything from the |\documentclass| till the |\begin{document}|. The (now fake) |document| environment is redefined to be a simple 
 % TeX-group. Any code after the |\end{document}| will be ignored. The real |document| environment of the main file will be unaffected and will work as normal.
 %
-% \subsection{Options}
+% \subsection{Class Options}
 % The |standalone| class will load a real document class. By default this is |article|. The document class normally has not much
 % influence on sub-files like pictures, especially when the |preview| package is active. However, the used class can be adjusted by the user
 % with the |class=|\meta{class name} option.
+%
+% A special |beamer| option is provided to handle beamer frames and overlays correctly. See section~\ref{sec:beamer} for more information.
+%
+% All other used options are passed to the loaded class.
+%
+% \subsection{Package Options}
+% At the moment the |standalone| package does not provide any options.
+%
+% \subsection{Macros}
+%
+% \DescribeEnv{standalone}
+% A |standalone| environment is provided for use in the sub-files. % TODO: add info
 %
 % \DescribeMacro{\ifstandalone}
 % Both the class and the package provide the if-switch \cs{ifstandalone}, which can be used to only include code if the file is 
@@ -192,7 +212,40 @@
 %   \endinput
 % \end{lstlisting}
 %
-% \subsection{Usage with Beamer}
+%
+% \subsection{Usage of the package}
+% \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Use of \emph{standalone} package.}]
+%   % Main file
+%   % Real document class:
+%   \documentclass{article}
+%
+%   % Use the 'standalone' package:
+%   \usepackage{standalone}
+%
+%   % Load all packages needed for all sub-files:
+%   \usepackage{tikz}
+%
+%   % Inside the real 'document' environment read the sub-file with '\input'
+%   \begin{document}
+%   % ...
+%   \begin{figure}
+%     \input{subfile}
+%     \caption{A subfile}
+%   \end{figure}
+%   % ...
+%   \end{document}
+% \end{lstlisting}
+%
+%
+% \subsection{Support for Beamer Presentations}\label{sec:beamer}
+% Presentation can be written in \LaTeX\ using the |beamer| class. Each presentation frame is wrapped in a |frame| environment. Overlay effects
+% can be added using special macros. This effects result in multiple pages per frame. Pictures with such overlay effects can not be
+% compiled standalone using the normal settings. Instead the |standalone| class must load the |beamer| class and wrap the content also in
+% a |frame| environment while skipping the |preview| environment. To activate this settings load the |standalone| class with the |beamer| option.
+% Because the |frame| environment is quite special (it normally collects all it's content and calls the \cs{frame}) and must also support
+% verbatim content it is not easily possible to redefined the |document| environment to include |frame|. Also |frame| accepts options which |document| doesn't.
+% Therefore a second environment called |standalone| is used in the beamer picture files. It will be equal to |frame| in standalone mode, but
+% without effect otherwise.
 %
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Use of \emph{standalone} class.}]
 %   % Use of 'standalone' class with a beamer overlay:
@@ -239,29 +292,6 @@
 %   \ifstandalone
 %     % Used only if compiled standalone
 %   \fi
-% \end{lstlisting}
-%
-% \subsection{Usage of the package}
-% \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Use of \emph{standalone} package.}]
-%   % Main file
-%   % Real document class:
-%   \documentclass{article}
-%
-%   % Use the 'standalone' package:
-%   \usepackage{standalone}
-%
-%   % Load all packages needed for all sub-files:
-%   \usepackage{tikz}
-%
-%   % Inside the real 'document' environment read the sub-file with '\input'
-%   \begin{document}
-%   % ...
-%   \begin{figure}
-%     \input{subfile}
-%     \caption{A subfile}
-%   \end{figure}
-%   % ...
-%   \end{document}
 % \end{lstlisting}
 %
 % \StopEventually{}
@@ -434,7 +464,6 @@
   \begin{frame}[fragile,environment=standalone]}{\end{frame}}%
 }
 \DeclareStringOption[article]{class}
-\DeclareStringOption[]{classoptions}
 \DeclareStringOption[]{frameoptions}
 \DeclareDefaultOption{%
   \xdef\sa@classoptionslist{\sa@classoptionslist,\CurrentOption}%
@@ -445,7 +474,7 @@
 %
 %    \begin{macrocode}
 \let\@classoptionslist\sa@classoptionslist
-\xdef\@tempa{[\sa@classoptions]{\sa@class}}
+\xdef\@tempa{[\sa@classoptionslist]{\sa@class}}
 \expandafter\LoadClass\@tempa
 %    \end{macrocode}
 %
