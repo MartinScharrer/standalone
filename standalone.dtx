@@ -1,0 +1,284 @@
+% \iffalse meta-comment
+%
+% Copyright (c) 2010 by Martin Scharrer <martin@scharrer-online.de>
+% -----------------------------------------------------------------
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3c
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%
+%   http://www.latex-project.org/lppl.txt
+%
+% and version 1.3c or later is part of all distributions of LaTeX
+% version 2008/05/04 or later.
+%
+% This work has the LPPL maintenance status `maintained'.
+%
+% The Current Maintainer of this work is Martin Scharrer.
+%
+% This work consists of the files standalone.dtx, standalone.ins
+% and the derived file standalone.sty.
+%
+% $Id: skeleton.dtx 1057 2009-05-04 11:11:37Z martin $
+% \fi
+%
+% \iffalse
+%<cls|sty|cfg|tex>% $Id:$
+%<cls|sty>\NeedsTeXFormat{LaTeX2e}
+%<cls>\ProvidesClass{standalone}   [2010/03/20 v0.1 Allow TeX snippets to be included or be compile standalone]
+%<sty>\ProvidesPackage{standalone} [2010/03/20 v0.1 ]
+%<tex>\ProvidesFile{standalone.tex}[2010/03/20 v0.1 Provides if-switch to show if file is compiled on its own]%
+%<cfg>\ProvidesFile{standalone.cfg}[2010/03/20 v0.1 Default standalone configuration file]%
+%<*driver>
+\def\sa@fileversion{v0.1}
+\def\sa@filedate{2010/03/20}
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesFile{standalone.dtx}[2010/03/20 v0.1 DTX File for 'standalone' cls/sty/tex]
+\documentclass{ltxdoc}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{flafter,fnpos}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{placeins}
+\makeFNbottom
+\makeFNbelow
+
+\EnableCrossrefs
+%\CodelineIndex
+\RecordChanges
+%\OnlyDescription
+\begin{document}
+  \DocInput{\jobname.dtx}
+  \PrintChanges
+  %\newpage\PrintIndex
+\end{document}
+%</driver>
+% \fi
+%
+% \CheckSum{0}
+%
+% \CharacterTable
+%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%   Digits        \0\1\2\3\4\5\6\7\8\9
+%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%   Dollar        \$     Percent       \%     Ampersand     \&
+%   Acute accent  \'     Left paren    \(     Right paren   \)
+%   Asterisk      \*     Plus          \+     Comma         \,
+%   Minus         \-     Point         \.     Solidus       \/
+%   Colon         \:     Semicolon     \;     Less than     \<
+%   Equals        \=     Greater than  \>     Question mark \?
+%   Commercial at \@     Left bracket  \[     Backslash     \\
+%   Right bracket \]     Circumflex    \^     Underscore    \_
+%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%   Right brace   \}     Tilde         \~}
+%
+%
+% \changes{v0.1}{<+date+>}{First released version}
+% \changes{<+version+>}{<+date YYYY/MM/DD +>}{<+ Changes +>}
+%
+% \GetFileInfo{\jobname.dtx}
+%
+% \DoNotIndex{\newcommand,\newenvironment,\def,\edef,\xdef,\DeclareRobustCommand}
+% \DoNotIndex{\expandafter,\if,\else,\fi,\ifnum,\ifx,\let,\global,\long}
+% \DoNotIndex{\newcounter,\newcount,\message,\meaning,\noexpand,\relax,\value}
+% \DoNotIndex{\setcounter,\addtocounter,\advance,\afterassignment,\AtEndOfPackage}
+% \DoNotIndex{\ProvidesPackage,\providecommand,\RequirePackage,\empty,\begin,\end}
+% \DoNotIndex{\begingroup,\bgroup,\egroup,\endgroup,\csname,\endcsname,\@tempa,\@tempb}
+% \DoNotIndex{\ignorespaces,\lccode,\sffamily,\@gobble,\@ifundefined,\@for,\or}
+% \DoNotIndex{\@firstoftwo,\@ifnextchar,\@namedef,\@nameuse,\@secondoftwo}
+% \DoNotIndex{\@temptokena,\toks@,\BODY,\do,\g@addto@macro,\lowercase,\uppercase,\the}
+%
+% \ifpdf
+% \hypersetup{%
+%   pdfauthor   = {Martin Scharrer <martin@scharrer-online.de>},
+%   pdftitle    = {The standalone class and package},
+%   pdfsubject  = {Documentation of LaTeX class and package 'standalone'},
+%   pdfkeywords = {standalone, LaTeX, TeX}
+% }%
+% \fi
+% \clearpage
+% \null
+% \vspace*{-2em}
+% \begin{center}
+%   {\LARGE\sffamily The \emph{standalone} Class and Package\\}
+%   {\large Martin Scharrer \\\normalsize 
+%   \url{martin@scharrer-online.de}\\[.8ex]
+%   \url{http://www.ctan.org/pkg/standalone/}\\[1.2ex]}
+%   {\large Version \sa@fileversion\ -- \sa@filedate}\\
+% \end{center}
+% \vspace{1.2em}%
+%
+% \section{Introduction}
+%
+% \section{Usage}
+%
+% \StopEventually{}
+% \FloatBarrier
+% \clearpage
+%
+% \section{Implementation}
+%
+% \subsection{The Package File}
+% \iffalse
+%<*sty>
+% \fi
+%    \begin{macrocode}
+\expandafter\newif\csname ifstandalone\endcsname
+\standalonefalse
+
+\newcommand{\sa@documentclass}[2][]{%
+  \let\document\sa@document
+  \let\enddocument\sa@enddocument
+  \expandafter\sa@@documentclass
+}
+
+\def\sa@@documentclass{\begingroup\def\sa@gobbleto{document}\sa@gobble}
+
+\long\def\sa@gobble#1\begin#2{%
+  \def\@tempa{#2}%
+  \ifx\@tempa\sa@gobbleto
+    \def\next{\expandafter\endgroup\expandafter\begin\expandafter{\sa@gobbleto}}%
+  \else
+    \def\next{\sa@gobble}%
+  \fi
+  \next
+}
+
+\expandafter\ifx\csname standalone\endcsname\relax
+  \newenvironment{standalone}[1][]{}{}
+\fi
+
+\let\sa@orig@document\document
+\let\sa@orig@enddocument\enddocument
+
+\def\document{%
+  \sa@orig@document
+  \let\documentclass\sa@documentclass
+  \ignorespaces
+}
+
+\def\sa@document{%
+  \sa@atbegindocument
+}
+
+\def\sa@enddocument{%
+  \sa@atenddocument
+  \aftergroup\sa@@enddocument
+}
+
+\def\sa@atbegindocument{\ignorespaces}%
+\def\sa@atenddocument{\unskip}%
+
+\def\sa@@enddocument{%
+  %\let\document\sa@orig@document
+  \let\enddocument\sa@orig@enddocument
+  \endinput
+}
+
+\def\sa@processpreamble{%
+  \renewcommand\usepackage[2][]{%
+    \message{^^J%
+      INFO: Sub-file requires the following package(s):^^J
+      \space\space[##1]{##2}^^J%
+    }%
+  }%
+  \let\RequirePackage\usepackage
+}
+
+%\def\sa@@documentclass{\sa@processpreamble}
+%    \end{macrocode}
+%
+% \iffalse
+%</sty>
+% \fi
+% \subsection{The Class File}
+% \iffalse
+%<*cls>
+% \fi
+%    \begin{macrocode}
+\def\sa@classoptionslist{}
+\RequirePackage{kvoptions}
+\SetupKeyvalOptions{prefix=sa@}
+\DeclareBoolOption[true]{preview}
+
+\def\sa@cls@document{\ifsa@preview\preview\fi}
+\def\sa@cls@enddocument{\ifsa@preview\endpreview\fi}
+
+\DeclareVoidOption{beamer}{%
+  \def\sa@class{beamer}%
+  \sa@previewfalse
+  \newenvironment{standalone}[1][]{%
+  \begin{frame}[fragile,environment=standalone]}{\end{frame}}%
+}
+\DeclareStringOption[article]{class}
+\DeclareStringOption[]{classoptions}
+\DeclareStringOption[]{frameoptions}
+\DeclareDefaultOption{%
+  \xdef\sa@classoptionslist{\sa@classoptionslist,\CurrentOption}%
+}
+\input{standalone.cfg}
+\ProcessKeyvalOptions*\relax
+%
+\let\@classoptionslist\sa@classoptionslist
+\xdef\@tempa{[\sa@classoptions]{\sa@class}}
+\expandafter\LoadClass\@tempa
+%
+\ifsa@preview
+  \RequirePackage{preview}
+\fi
+%
+\RequirePackage{standalone}[2010/03/20]
+\standalonetrue
+%
+\def\document{%
+  \sa@orig@document
+  \let\documentclass\sa@documentclass
+  \sa@cls@document
+}
+%
+\def\enddocument{%
+  \sa@cls@enddocument
+  \sa@orig@enddocument
+}
+%    \end{macrocode}
+% \iffalse
+%</cls>
+% \fi
+%
+% \subsection{Simple TeX File}
+% \iffalse
+%<*tex>
+% \fi
+%    \begin{macrocode}
+\expandafter\ifx\csname ifstandalone\endcsname\relax
+%
+\expandafter\newif\csname ifstandalone\endcsname
+%
+\expandafter\ifx\csname @twoclasseserror\endcsname\documentclass
+\else
+  \standalonetrue
+\fi
+%
+\fi
+%    \end{macrocode}
+% \iffalse
+%</tex>
+% \fi
+%
+% \subsection{Config File}
+% \iffalse
+%<*cfg>
+% \fi
+%    \begin{macrocode}
+\PassOptionsToPackage{active,tightpage}{preview}%
+%    \end{macrocode}
+% \iffalse
+%</cfg>
+% \fi
+%
+%<cfg>% vim: ft=tex
+% \Finale
+% \endinput
