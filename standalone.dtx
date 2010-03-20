@@ -112,9 +112,41 @@
 % \vspace{1.2em}%
 %
 % \section{Introduction}
-% 
+% Larger \LaTeX{} documents can be split into multiple \TeX\ files which are then included in a main document with \cs{include}
+% for e.g.\ chapter files or \cs{input} for e.g.\ \TeX-coded pictures. Keeping pictures in their own sub-files improves readability 
+% of the main file and simplifies the sharing of them between different documents. However, during the, sometimes lengthly, 
+% drawing/coding process it has benefits to be able to compile the pictures on their own. The compile process is much quicker and
+% the resulting document only holds the picture which avoids constant page turning and zooming.
+%
+% While it is possible to write a small `main' file for each picture file, this method is a little cumbersome and clutters
+% the directories with a lot of extra files. A second method is to place the `main' components, i.e. a preamble, directly into the
+% picture files and make the main document ignore this code sections. The |standalone| class is provided to minimise the extra preamble 
+% code needed in the picture files. It uses by default the |preview| package to create a output file which only contains the picture with no extra
+% margins, page numbers or anything else. The package |standalone| is then used in the main document to skip the extra preambles in all pictures files.
+% Both the class and the package read a configuration file |standalone.cfg| which allows the user to adjust settings and macros easily 
+% on a per compile directory base.
 %
 % \section{Usage}
+% \subsection{Quick instructions}
+% Load the |standalone| \emph{package} and all packages needed by all the sub-files in the main document and include your picture or other sub-files using |\input| as normal.
+% In the sub-files use the |standalone| \emph{class} using the normal \cs{documentclass} and load all packages needed for the particular 
+% file. Finally wrap the actual file content in a |document| environment.
+%
+% When the sub-file is compiled by its own the |\documentclass| and |document| environment will be active as normal. The main file, however,
+% will skip everything from the |\documentclass| till the |\begin{document}|. The (now fake) |document| environment is redefined to be a simple 
+% TeX-group. Any code after the |\end{document}| will be ignored. The real |document| environment of the main file will be unaffected and will work as normal.
+%
+% \subsection{Options}
+% The |standalone| class will load a real document class. By default this is |article|. The document class normally has not much
+% influence on sub-files like pictures, especially when the |preview| package is active. However, the used class can be adjusted by the user
+% with the |class=|\meta{class name} option.
+%
+% \DescribeMacro{\ifstandalone}
+% Both the class and the package provide the if-switch \cs{ifstandalone}, which can be used to only include code if the file is 
+% compiled standalone. The switch is set to \cs{iftrue} by the class and to \cs{iffalse} by the package.
+%
+% The additional file |standalone.tex| also defines this switch by checking if \cs{documentclass} was already used. It can be included
+% with |\input{standalone}| and is intended for specialised files which do not use the |standalone| class.
 %
 % \def\lstlistingname{Example}
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Use of \emph{standalone} class.}]
@@ -200,6 +232,13 @@
 %     \only<2>{ Two }%
 %   \endgroup
 %   \endinput
+% \end{lstlisting}
+%
+% \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Usage of 'standalone.tex'.}]
+%   \input{standalone} % use before any '\documentclass'
+%   \ifstandalone
+%     % Used only if compiled standalone
+%   \fi
 % \end{lstlisting}
 %
 % \subsection{Usage of the package}
