@@ -35,6 +35,7 @@
 \ProvidesFile{standalone.dtx}[2010/03/20 v0.1 DTX File for 'standalone' cls/sty/tex]
 \documentclass{ltxdoc}
 \usepackage{ifpdf}
+\usepackage{listings}
 \usepackage{hyperref}
 \usepackage{tabularx}
 \usepackage{array}
@@ -111,6 +112,118 @@
 % \vspace{1.2em}%
 %
 % \section{Introduction}
+% 
+%
+% \section{Usage}
+%
+% \def\lstlistingname{Example}
+% \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Use of \emph{standalone} class.}]
+%   % A sub-file (e.g. picture) using the 'standalone' class:
+%   % Use 'standalone' as document class:
+%   \documentclass{standalone}
+%
+%   % Load packages needed for this TeX file:
+%   \usepackage{tikz}
+%
+%   % Surround TeX code with 'document' environment as usually:
+%   \begin{document}
+%   % Add your TeX code, e.g. a picture:
+%   \begin{tikzpicture}
+%     \draw (0,0) rectangle (2,1) node [midway] {Example};
+%   \end{tikzpicture}
+%   \end{document}
+% \end{lstlisting}
+%
+% \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Effective code if compiled standalone.}]
+%   \documentclass{article}
+%
+%   \input{standalone.cfg}
+%   % which by defaults loads: \usepackage[active,tightpage]{preview}
+%
+%   \usepackage{tikz}
+%
+%   \begin{document}
+%   \begin{preview}
+%   \begin{tikzpicture}
+%     \draw (0,0) rectangle (2,1) node [midway] {Example};
+%   \end{tikzpicture}
+%   \end{preview}
+%   \end{document}
+% \end{lstlisting}
+%
+% \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Effective code if included in a main document.}]
+%   \begingroup
+%   \begin{tikzpicture}
+%     \draw (0,0) rectangle (2,1) node [midway] {Example};
+%   \end{tikzpicture}
+%   \endgroup
+%   \endinput
+% \end{lstlisting}
+%
+% \subsection{Usage with Beamer}
+%
+% \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Use of \emph{standalone} class.}]
+%   % Use of 'standalone' class with a beamer overlay:
+%   \documentclass[beamer]{standalone}
+%
+%   % Load packages needed for this TeX file:
+%   \usepackage{tikz}
+%
+%   % Surround TeX code with 'document' environment as usually:
+%   \begin{document}
+%   \begin{standalone}[options, e.g. 'fragile' for verbatim content]
+%    % Add your TeX code:
+%     \only<1>{ One }%
+%     \only<2>{ Two }%
+%   \end{standalone}
+%   \end{document}
+% \end{lstlisting}
+%
+% \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Effective beamer code if compiled standalone.}]
+%   \documentclass{beamer}
+%
+%   \input{standalone.cfg}
+%
+%   \usepackage{tikz}
+%
+%   \begin{document}
+%   \begin{frame}[your options]
+%     \only<1>{ One }%
+%     \only<2>{ Two }%
+%   \end{frame}
+%   \end{document}
+% \end{lstlisting}
+%
+% \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Effective code if included in a beamer presentation.}]
+%   \begingroup
+%     \only<1>{ One }%
+%     \only<2>{ Two }%
+%   \endgroup
+%   \endinput
+% \end{lstlisting}
+%
+% \subsection{Usage of the package}
+% \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Use of \emph{standalone} package.}]
+%   % Main file
+%   % Real document class:
+%   \documentclass{article}
+%
+%   % Use the 'standalone' package:
+%   \usepackage{standalone}
+%
+%   % Load all packages needed for all sub-files:
+%   \usepackage{tikz}
+%
+%   % Inside the real 'document' environment read the sub-file with '\input'
+%   \begin{document}
+%   % ...
+%   \begin{figure}
+%     \input{subfile}
+%     \caption{A subfile}
+%   \end{figure}
+%   % ...
+%   \end{document}
+% \end{lstlisting}
 %
 % \StopEventually{}
 % \FloatBarrier
