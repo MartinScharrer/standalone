@@ -12,3 +12,7 @@ standalone.pdf: standalone.dtx
 
 test:
 	for T in test*.tex; do pdflatex -interaction=batchmode $$T && echo "OK" || echo "Failure"; done
+
+clean:
+	${RM} standalone.cfg standalone.tex standalone.sty standalone.cls *.log *.aux *.toc *.vrb *.nav *.pdf *.snm *.out *.fdb_latexmk *.glo
+
