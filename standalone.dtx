@@ -31,11 +31,11 @@
 %<tex>\ProvidesFile{standalone.tex}[2010/03/20 v0.1 Provides if-switch to show if file is compiled standalone]%
 %<cfg>\ProvidesFile{standalone.cfg}[2010/03/20 v0.1 Default configuration file for 'standalone' class and package]%
 %<*driver>
-\def\sa@fileversion{v0.1}
-\def\sa@filedate{2010/03/20}
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesFile{standalone.dtx}[2010/03/20 v0.1 DTX File for 'standalone' cls/sty/tex]
 \documentclass{ltxdoc}
+\usepackage{ifpdf}
+\usepackage{hyperref}
 \usepackage{tabularx}
 \usepackage{array}
 \usepackage{flafter,fnpos}
@@ -76,8 +76,7 @@
 %   Right brace   \}     Tilde         \~}
 %
 %
-% \changes{v0.1}{<+date+>}{First released version}
-% \changes{<+version+>}{<+date YYYY/MM/DD +>}{<+ Changes +>}
+% \changes{v0.1}{2010/03/20}{First released version}
 %
 % \GetFileInfo{\jobname.dtx}
 %
@@ -107,13 +106,11 @@
 %   {\large Martin Scharrer \\\normalsize 
 %   \url{martin@scharrer-online.de}\\[.8ex]
 %   \url{http://www.ctan.org/pkg/standalone/}\\[1.2ex]}
-%   {\large Version \sa@fileversion\ -- \sa@filedate}\\
+%   {\large Version \fileversion\ -- \filedate}\\
 % \end{center}
 % \vspace{1.2em}%
 %
 % \section{Introduction}
-%
-% \section{Usage}
 %
 % \StopEventually{}
 % \FloatBarrier
@@ -128,15 +125,28 @@
 %    \begin{macrocode}
 \expandafter\newif\csname ifstandalone\endcsname
 \standalonefalse
-
+%    \end{macrocode}
+%
+%  \begin{macro}{\sa@documentclass}
+%    \begin{macrocode}
 \newcommand{\sa@documentclass}[2][]{%
   \let\document\sa@document
   \let\enddocument\sa@enddocument
   \expandafter\sa@@documentclass
 }
-
-\def\sa@@documentclass{\begingroup\def\sa@gobbleto{document}\sa@gobble}
-
+%    \end{macrocode}
+%  \end{macro}
+%
+%  \begin{macro}{\sa@@documentclass}
+%    \begin{macrocode}
+\def\sa@@documentclass{%
+  \begingroup\def\sa@gobbleto{document}\sa@gobble
+}
+%    \end{macrocode}
+%  \end{macro}
+%
+%  \begin{macro}{\sa@gobble}
+%    \begin{macrocode}
 \long\def\sa@gobble#1\begin#2{%
   \def\@tempa{#2}%
   \ifx\@tempa\sa@gobbleto
@@ -146,38 +156,81 @@
   \fi
   \next
 }
-
+%    \end{macrocode}
+%  \end{macro}
+%
+%    \begin{macrocode}
 \expandafter\ifx\csname standalone\endcsname\relax
   \newenvironment{standalone}[1][]{}{}
 \fi
-
+%    \end{macrocode}
+%
+%  \begin{macro}{\sa@orig@document}
+%    \begin{macrocode}
 \let\sa@orig@document\document
+%  \end{macro}
+%
+%  \begin{macro}{\sa@orig@enddocument}
+%    \begin{macrocode}
 \let\sa@orig@enddocument\enddocument
-
+%    \end{macrocode}
+%  \end{macro}
+%
+%  \begin{macro}{\document}
+%    \begin{macrocode}
 \def\document{%
   \sa@orig@document
   \let\documentclass\sa@documentclass
   \ignorespaces
 }
-
+%    \end{macrocode}
+%  \end{macro}
+%
+%  \begin{macro}{\sa@document}
+%    \begin{macrocode}
 \def\sa@document{%
   \sa@atbegindocument
 }
-
+%    \end{macrocode}
+%  \end{macro}
+%
+%  \begin{macro}{\sa@enddocument}
+%    \begin{macrocode}
 \def\sa@enddocument{%
   \sa@atenddocument
   \aftergroup\sa@@enddocument
 }
-
-\def\sa@atbegindocument{\ignorespaces}%
-\def\sa@atenddocument{\unskip}%
-
+%    \end{macrocode}
+%  \end{macro}
+%
+%  \begin{macro}{\sa@atbegindocument}
+%    \begin{macrocode}
+\def\sa@atbegindocument{%
+  \ignorespaces
+}%
+%    \end{macrocode}
+%  \end{macro}
+%
+%  \begin{macro}{\sa@atenddocument}
+%    \begin{macrocode}
+\def\sa@atenddocument{%
+  \unskip
+}%
+%    \end{macrocode}
+%  \end{macro}
+%
+%  \begin{macro}{\sa@@enddocument}
+%    \begin{macrocode}
 \def\sa@@enddocument{%
   %\let\document\sa@orig@document
   \let\enddocument\sa@orig@enddocument
   \endinput
 }
-
+%    \end{macrocode}
+%  \end{macro}
+%
+%  \begin{macro}{\sa@processpreamble}
+%    \begin{macrocode}
 \def\sa@processpreamble{%
   \renewcommand\usepackage[2][]{%
     \message{^^J%
@@ -187,13 +240,17 @@
   }%
   \let\RequirePackage\usepackage
 }
-
-%\def\sa@@documentclass{\sa@processpreamble}
+%    \end{macrocode}
+%  \end{macro}
+%
+%    \begin{macrocode}
+%%\def\sa@@documentclass{\sa@processpreamble}
 %    \end{macrocode}
 %
 % \iffalse
 %</sty>
 % \fi
+%
 % \subsection{The Class File}
 % \iffalse
 %<*cls>
@@ -203,10 +260,21 @@
 \RequirePackage{kvoptions}
 \SetupKeyvalOptions{prefix=sa@}
 \DeclareBoolOption[true]{preview}
-
+%    \end{macrocode}
+%
+%  \begin{macro}{\sa@cls@document}
+%    \begin{macrocode}
 \def\sa@cls@document{\ifsa@preview\preview\fi}
+%    \end{macrocode}
+%  \end{macro}
+%
+%  \begin{macro}{\sa@cls@enddocument}
+%    \begin{macrocode}
 \def\sa@cls@enddocument{\ifsa@preview\endpreview\fi}
-
+%    \end{macrocode}
+%  \end{macro}
+%
+%    \begin{macrocode}
 \DeclareVoidOption{beamer}{%
   \def\sa@class{beamer}%
   \sa@previewfalse
@@ -221,29 +289,44 @@
 }
 \input{standalone.cfg}
 \ProcessKeyvalOptions*\relax
+%    \end{macrocode}
 %
+%    \begin{macrocode}
 \let\@classoptionslist\sa@classoptionslist
 \xdef\@tempa{[\sa@classoptions]{\sa@class}}
 \expandafter\LoadClass\@tempa
+%    \end{macrocode}
 %
+%    \begin{macrocode}
 \ifsa@preview
   \RequirePackage{preview}
 \fi
+%    \end{macrocode}
 %
+%    \begin{macrocode}
 \RequirePackage{standalone}[2010/03/20]
 \standalonetrue
+%    \end{macrocode}
 %
+%  \begin{macro}{\document}
+%    \begin{macrocode}
 \def\document{%
   \sa@orig@document
   \let\documentclass\sa@documentclass
   \sa@cls@document
 }
+%    \end{macrocode}
+%  \end{macro}
 %
+%  \begin{macro}{\enddocument}
+%    \begin{macrocode}
 \def\enddocument{%
   \sa@cls@enddocument
   \sa@orig@enddocument
 }
 %    \end{macrocode}
+%  \end{macro}
+%
 % \iffalse
 %</cls>
 % \fi
@@ -254,14 +337,17 @@
 % \fi
 %    \begin{macrocode}
 \expandafter\ifx\csname ifstandalone\endcsname\relax
-%
+%    \end{macrocode}
+%    \begin{macrocode}
 \expandafter\newif\csname ifstandalone\endcsname
-%
+%    \end{macrocode}
+%    \begin{macrocode}
 \expandafter\ifx\csname @twoclasseserror\endcsname\documentclass
 \else
   \standalonetrue
 \fi
-%
+%    \end{macrocode}
+%    \begin{macrocode}
 \fi
 %    \end{macrocode}
 % \iffalse
@@ -279,6 +365,8 @@
 %</cfg>
 % \fi
 %
+% \iffalse
 %<cfg>% vim: ft=tex
+% \fi
 % \Finale
 % \endinput
