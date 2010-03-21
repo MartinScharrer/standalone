@@ -50,6 +50,7 @@
 %\CodelineIndex
 \RecordChanges
 %\OnlyDescription
+\providecommand{\env}[1]{\texttt{#1}}
 \begin{document}
   \DocInput{\jobname.dtx}
   \PrintChanges
@@ -58,7 +59,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{181}
+% \CheckSum{184}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -189,17 +190,19 @@
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Effective code if compiled standalone.}]
 %   \documentclass{article}
 %
+%   \newenvironment{standalone}{\begin{preview}}{\end{preview}}
 %   \input{standalone.cfg}
-%   % which by defaults loads: \usepackage[active,tightpage]{preview}
+%   % which by defaults loads: \PassOptionsToPackage{active,tightpage}{preview}
+%   \usepackage{preview}
 %
 %   \usepackage{tikz}
 %
 %   \begin{document}
-%   \begin{preview}
+%   \begin{standalone}
 %   \begin{tikzpicture}
 %     \draw (0,0) rectangle (2,1) node [midway] {Example};
 %   \end{tikzpicture}
-%   \end{preview}
+%   \end{standalone}
 %   \end{document}
 % \end{lstlisting}
 %
@@ -244,7 +247,7 @@
 % a |frame| environment while skipping the |preview| environment. To activate this settings load the |standalone| class with the |beamer| option.
 % Because the |frame| environment is quite special (it normally collects all it's content and calls the \cs{frame}) and must also support
 % verbatim content it is not easily possible to redefined the |document| environment to include |frame|. Also |frame| accepts options which |document| doesn't.
-% Therefore a second environment called |standalone| is used in the beamer picture files. It will be equal to |frame| in standalone mode, but
+% Therefore a second environment called |standaloneframe| is used in the beamer picture files. It will be equal to |frame| in standalone mode, but
 % without effect otherwise.
 %
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Use of \emph{standalone} class.}]
@@ -256,11 +259,11 @@
 %
 %   % Surround TeX code with 'document' environment as usually:
 %   \begin{document}
-%   \begin{standalone}[options, e.g. 'fragile' for verbatim content]
+%   \begin{standaloneframe}[options, e.g. 'fragile' for verbatim content]
 %    % Add your TeX code:
 %     \only<1>{ One }%
 %     \only<2>{ Two }%
-%   \end{standalone}
+%   \end{standaloneframe}
 %   \end{document}
 % \end{lstlisting}
 %
@@ -287,6 +290,7 @@
 %   \endinput
 % \end{lstlisting}
 %
+% \subsection{\texttt{standalone.tex}}
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Usage of 'standalone.tex'.}]
 %   \input{standalone} % use before any '\documentclass'
 %   \ifstandalone
@@ -309,24 +313,24 @@
 \standalonefalse
 %    \end{macrocode}
 %
-%  \begin{macro}{\sa@documentclass}
+% \begin{macro}{\sa@documentclass}
 %    \begin{macrocode}
 \newcommand{\sa@documentclass}[2][]{%
   \let\document\sa@document
   \expandafter\sa@@documentclass
 }
 %    \end{macrocode}
-%  \end{macro}
+% \end{macro}
 %
-%  \begin{macro}{\sa@@documentclass}
+% \begin{macro}{\sa@@documentclass}
 %    \begin{macrocode}
 \def\sa@@documentclass{%
   \begingroup\def\sa@gobbleto{document}\sa@gobble
 }
 %    \end{macrocode}
-%  \end{macro}
+% \end{macro}
 %
-%  \begin{macro}{\sa@gobble}
+% \begin{macro}{\sa@gobble}
 %    \begin{macrocode}
 \long\def\sa@gobble#1\begin#2{%
   \def\@tempa{#2}%
@@ -338,7 +342,7 @@
   \next
 }
 %    \end{macrocode}
-%  \end{macro}
+% \end{macro}
 %
 %    \begin{macrocode}
 \@ifundefined{standalone}
@@ -352,18 +356,18 @@
   {}
 %    \end{macrocode}
 %
-%  \begin{macro}{\sa@orig@document}
+% \begin{macro}{\sa@orig@document}
 %    \begin{macrocode}
 \let\sa@orig@document\document
-%  \end{macro}
+% \end{macro}
 %
-%  \begin{macro}{\sa@orig@enddocument}
+% \begin{macro}{\sa@orig@enddocument}
 %    \begin{macrocode}
 \let\sa@orig@enddocument\enddocument
 %    \end{macrocode}
-%  \end{macro}
+% \end{macro}
 %
-%  \begin{macro}{\document}
+% \begin{macro}{\document}
 %    \begin{macrocode}
 \def\document{%
   \sa@orig@document
@@ -371,43 +375,43 @@
   \ignorespaces
 }
 %    \end{macrocode}
-%  \end{macro}
+% \end{macro}
 %
-%  \begin{macro}{\sa@document}
+% \begin{macro}{\sa@document}
 %    \begin{macrocode}
 \def\sa@document{%
   \let\enddocument\sa@enddocument
   \sa@atbegindocument
 }
 %    \end{macrocode}
-%  \end{macro}
+% \end{macro}
 %
-%  \begin{macro}{\sa@enddocument}
+% \begin{macro}{\sa@enddocument}
 %    \begin{macrocode}
 \def\sa@enddocument{%
   \sa@atenddocument
   \aftergroup\sa@@enddocument
 }
 %    \end{macrocode}
-%  \end{macro}
+% \end{macro}
 %
-%  \begin{macro}{\sa@atbegindocument}
+% \begin{macro}{\sa@atbegindocument}
 %    \begin{macrocode}
 \def\sa@atbegindocument{%
   \ignorespaces
 }%
 %    \end{macrocode}
-%  \end{macro}
+% \end{macro}
 %
-%  \begin{macro}{\sa@atenddocument}
+% \begin{macro}{\sa@atenddocument}
 %    \begin{macrocode}
 \def\sa@atenddocument{%
   \unskip
 }%
 %    \end{macrocode}
-%  \end{macro}
+% \end{macro}
 %
-%  \begin{macro}{\sa@@enddocument}
+% \begin{macro}{\sa@@enddocument}
 %    \begin{macrocode}
 \def\sa@@enddocument{%
   %\let\document\sa@orig@document
@@ -415,9 +419,9 @@
   \endinput
 }
 %    \end{macrocode}
-%  \end{macro}
+% \end{macro}
 %
-%  \begin{macro}{\sa@processpreamble}
+% \begin{macro}{\sa@processpreamble}
 %    \begin{macrocode}
 \def\sa@processpreamble{%
   \renewcommand\usepackage[2][]{%
@@ -429,7 +433,7 @@
   \let\RequirePackage\usepackage
 }
 %    \end{macrocode}
-%  \end{macro}
+% \end{macro}
 %
 %    \begin{macrocode}
 %%\def\sa@@documentclass{\sa@processpreamble}
@@ -454,18 +458,18 @@
 % The \env{standalone} environment is defined by default to be without effect.
 % The \cs{endstandalone} macro is set to |\relax|, so a redefinition with
 % \cs{renewenvironment} can be detected later.
-%   \begin{macrocode}
+%    \begin{macrocode}
 \let\standalone\empty
 \let\endstandalone\relax
-%   \end{macrocode}
+%    \end{macrocode}
 % \end{environment}
 %
 % \begin{macro}{\sa@cls@document}
 % \begin{macro}{\sa@cls@enddocument}
-%   \begin{macrocode}
+%    \begin{macrocode}
 \def\sa@cls@document{\standalone}
 \def\sa@cls@enddocument{\endstandalone}
-%   \end{macrocode}
+%    \end{macrocode}
 % \end{macro}
 % \end{macro}
 %
@@ -510,7 +514,7 @@
 \standalonetrue
 %    \end{macrocode}
 %
-%  \begin{macro}{\document}
+% \begin{macro}{\document}
 %    \begin{macrocode}
 \def\document{%
   \sa@orig@document
@@ -518,16 +522,16 @@
   \sa@cls@document
 }
 %    \end{macrocode}
-%  \end{macro}
+% \end{macro}
 %
-%  \begin{macro}{\enddocument}
+% \begin{macro}{\enddocument}
 %    \begin{macrocode}
 \def\enddocument{%
   \sa@cls@enddocument
   \sa@orig@enddocument
 }
 %    \end{macrocode}
-%  \end{macro}
+% \end{macro}
 %
 % \iffalse
 %</cls>
