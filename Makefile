@@ -19,3 +19,7 @@ test: unpack
 clean:
 	${RM} standalone.cfg standalone.tex standalone.sty standalone.cls *.log *.aux *.toc *.vrb *.nav *.pdf *.snm *.out *.fdb_latexmk *.glo
 
+
+ctanify: 
+	ctanify standalone.dtx standalone.ins README Makefile
+
