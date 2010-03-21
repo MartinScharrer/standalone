@@ -342,9 +342,15 @@
 %  \end{macro}
 %
 %    \begin{macrocode}
-\expandafter\ifx\csname standalone\endcsname\relax
-  \newenvironment{standalone}[1][]{}{}
-\fi
+\@ifundefined{standalone}
+  {\newenvironment{standalone}[1][]{}{}}
+  {}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\@ifundefined{standaloneframe}
+  {\newenvironment{standaloneframe}[1][]{}{}}
+  {}
 %    \end{macrocode}
 %
 %  \begin{macro}{\sa@orig@document}
@@ -444,24 +450,31 @@
 \DeclareBoolOption[true]{preview}
 %    \end{macrocode}
 %
-%  \begin{macro}{\sa@cls@document}
-%    \begin{macrocode}
-\def\sa@cls@document{\ifsa@preview\preview\fi}
-%    \end{macrocode}
-%  \end{macro}
+% \begin{environment}{standalone}
+% The \env{standalone} environment is defined by default to be without effect.
+% The \cs{endstandalone} macro is set to |\relax|, so a redefinition with
+% \cs{renewenvironment} can be detected later.
+%   \begin{macrocode}
+\let\standalone\empty
+\let\endstandalone\relax
+%   \end{macrocode}
+% \end{environment}
 %
-%  \begin{macro}{\sa@cls@enddocument}
-%    \begin{macrocode}
-\def\sa@cls@enddocument{\ifsa@preview\endpreview\fi}
-%    \end{macrocode}
-%  \end{macro}
+% \begin{macro}{\sa@cls@document}
+% \begin{macro}{\sa@cls@enddocument}
+%   \begin{macrocode}
+\def\sa@cls@document{\standalone}
+\def\sa@cls@enddocument{\endstandalone}
+%   \end{macrocode}
+% \end{macro}
+% \end{macro}
 %
 %    \begin{macrocode}
 \DeclareVoidOption{beamer}{%
   \def\sa@class{beamer}%
   \sa@previewfalse
-  \newenvironment{standalone}[1][]{%
-  \begin{frame}[fragile,environment=standalone]}{\end{frame}}%
+  \newenvironment{standaloneframe}[1][]{%
+  \begin{frame}[environment=standaloneframe,##1]}{\end{frame}}%
 }
 \DeclareStringOption[article]{class}
 \DeclareStringOption[]{frameoptions}
@@ -478,8 +491,16 @@
 \expandafter\LoadClass\@tempa
 %    \end{macrocode}
 %
+% \subsubsection*{Preview Code}
+% The \env{standalone} environment is redefined to use the |preview| environment as
+% long it was not redefined in the configuration file.
 %    \begin{macrocode}
 \ifsa@preview
+  \@ifundefined{endstandalone}{%
+    \renewenvironment{standalone}
+      {\preview   }
+      {\endpreview}
+  }{}%
   \RequirePackage{preview}
 \fi
 %    \end{macrocode}
