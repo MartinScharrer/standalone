@@ -59,7 +59,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{184}
+% \CheckSum{232}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -157,11 +157,20 @@
 % \subsection{Package Options}
 % At the moment the |standalone| package does not provide any options.
 %
-% \subsection{Macros}
+% \subsection{Environments and Macros}
 %
 % \DescribeEnv{standalone}
-% A |standalone| environment is provided for use in the sub-files. % TODO: add info
+% The \env{standalone} environment is wrapped around the content of each sub-file when compiled standalone.
+% By default it only contains a \env{preview} environment as long the class is not called with the |preview=false| option.
+% It can be redefined in the configuration file if required.
+% When compiled as part of a main document the \env{standalone} environment does nothing (apart of being a \TeX\ group).
 %
+% \DescribeEnv{standaloneframe}
+% The \env{standaloneframe} environment is only defined when the class is called with the |beamer| option and acts as a replacement
+% of the \env{frame} environment of beamer when compiled standalone. All optional arguments of \env{frame} are supported.
+% When compiled as part of a main document it does nothing except of gobbling its arguments.
+%
+% \bigskip
 % \DescribeMacro{\ifstandalone}
 % Both the class and the package provide the if-switch \cs{ifstandalone}, which can be used to only include code if the file is 
 % compiled standalone. The switch is set to \cs{iftrue} by the class and to \cs{iffalse} by the package.
@@ -350,12 +359,29 @@
   {}
 %    \end{macrocode}
 %
+% Gobbles all arguments: |<...>[<...>][...]{...}{...}|. Please note that the last two |{ }| arguments are also optional.
 %    \begin{macrocode}
 \@ifundefined{standaloneframe}
   {\@ifundefined{beamer@newenv}
-    {\newenvironment{standaloneframe}[1][]{\@ifnextchar[{\sa@gobbleopt}{}}{}}%]
-    {\newenvironment<>{standaloneframe}[1][]{\@ifnextchar[{\sa@gobbleopt}{}}{}}%]
-   \def\sa@gobbleopt[#1]{}%
+    {\newenvironment{standaloneframe}[1][]{%
+      \@ifnextchar[%]
+        {\sa@framegobbleopt}{\sa@framegobbleargs}}{}%
+    }
+    {\newenvironment<>{standaloneframe}[1][]{%
+      \@ifnextchar[%]
+        {\sa@framegobbleopt}{\sa@framegobbleargs}}{}%
+    }
+   \def\sa@framegobbleopt[#1]{\sa@framegobbleargs}
+   \def\sa@framegobbleargs{%
+     \@ifnextchar\bgroup
+       {\sa@framegobbleargs@}%
+       {}%
+   }
+   \def\sa@framegobbleargs@#1{%
+    \@ifnextchar\bgroup
+      {\@gobble}%
+      {}%
+   }
   }
   {}
 %    \end{macrocode}
@@ -501,13 +527,13 @@
       {\@@@@standaloneframe{##1}[}%
       {\@@@@@@standaloneframe{##1}[}%
   }%
-  \def\@@@@standaloneframe##1[<##2>]{%
+  \def\@@@@standaloneframe##1[##2]{%
     \@ifnextchar[%]
       {\@@@@@standaloneframe{##1}{##2}}%
       {\begin{frame}##1[##2][environment=standaloneframe]}%
   }%
   \def\@@@@@standaloneframe##1##2[##3]{%
-      {\begin{frame}##1[##2][environment=standaloneframe,##3]}%
+      \begin{frame}##1[##2][environment=standaloneframe,##3]%
   }%
   \def\@@@@@@standaloneframe##1[##2]{%
       \begin{frame}##1[environment=standaloneframe,##2]%
