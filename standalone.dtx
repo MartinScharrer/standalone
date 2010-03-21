@@ -313,7 +313,6 @@
 %    \begin{macrocode}
 \newcommand{\sa@documentclass}[2][]{%
   \let\document\sa@document
-  \let\enddocument\sa@enddocument
   \expandafter\sa@@documentclass
 }
 %    \end{macrocode}
@@ -377,6 +376,7 @@
 %  \begin{macro}{\sa@document}
 %    \begin{macrocode}
 \def\sa@document{%
+  \let\enddocument\sa@enddocument
   \sa@atbegindocument
 }
 %    \end{macrocode}
