@@ -1,0 +1,7 @@
+LaTeX class and package 'standalone'
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Copyright (c) 2010 by Martin Scharrer <martin@scharrer-online.de>
+
+Allows TeX pictures or other TeX code to be compiled standalone or as part of a main document.
+Provides support for pictures with beamer overlays.
+
