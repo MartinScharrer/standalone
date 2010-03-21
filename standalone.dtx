@@ -352,7 +352,11 @@
 %
 %    \begin{macrocode}
 \@ifundefined{standaloneframe}
-  {\newenvironment{standaloneframe}[1][]{}{}}
+  {\@ifundefined{beamer@newenv}
+    {\newenvironment{standaloneframe}[1][]{\@ifnextchar[{\sa@gobbleopt}{}}{}}%]
+    {\newenvironment<>{standaloneframe}[1][]{\@ifnextchar[{\sa@gobbleopt}{}}{}}%]
+   \def\sa@gobbleopt[#1]{}%
+  }
   {}
 %    \end{macrocode}
 %
@@ -473,13 +477,45 @@
 % \end{macro}
 % \end{macro}
 %
+% The |beamer| option defines the \env{standalone} environment as a replacement
+% of \env{frame}.
 %    \begin{macrocode}
 \DeclareVoidOption{beamer}{%
   \def\sa@class{beamer}%
   \sa@previewfalse
-  \newenvironment{standaloneframe}[1][]{%
-  \begin{frame}[environment=standaloneframe,##1]}{\end{frame}}%
+  \newenvironment{standaloneframe}{%
+    \@ifnextchar<%
+      {\@standaloneframe}%
+      {\@@standaloneframe{}}%
+  }{\end{frame}}%
+  \def\@standaloneframe<##1>{%
+      \@@standaloneframe{<##1>}%
+  }
+  \def\@@standaloneframe##1{%
+    \@ifnextchar[%]
+      {\@@@standaloneframe{##1}}%
+      {\@@@standaloneframe{##1}[]}%
+  }%
+  \def\@@@standaloneframe##1[{%
+    \@ifnextchar<%
+      {\@@@@standaloneframe{##1}[}%
+      {\@@@@@@standaloneframe{##1}[}%
+  }%
+  \def\@@@@standaloneframe##1[<##2>]{%
+    \@ifnextchar[%]
+      {\@@@@@standaloneframe{##1}{##2}}%
+      {\begin{frame}##1[##2][environment=standaloneframe]}%
+  }%
+  \def\@@@@@standaloneframe##1##2[##3]{%
+      {\begin{frame}##1[##2][environment=standaloneframe,##3]}%
+  }%
+  \def\@@@@@@standaloneframe##1[##2]{%
+      \begin{frame}##1[environment=standaloneframe,##2]%
+  }%
 }
+%    \end{macrocode}
+%
+%    \begin{macrocode}
 \DeclareStringOption[article]{class}
 \DeclareStringOption[]{frameoptions}
 \DeclareDefaultOption{%
@@ -493,6 +529,7 @@
 \let\@classoptionslist\sa@classoptionslist
 \xdef\@tempa{[\sa@classoptionslist]{\sa@class}}
 \expandafter\LoadClass\@tempa
+\@nameuse{sa@afterclassloaded}
 %    \end{macrocode}
 %
 % \subsubsection*{Preview Code}
