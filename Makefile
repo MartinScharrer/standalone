@@ -37,14 +37,13 @@ clean:
 install: unpack doc ${INSTALLDIR} ${DOCINSTALLDIR}
 	${CP} ${PACKEDFILES} ${INSTALLDIR}
 	${CP} ${DOCFILES} ${DOCINSTALLDIR}
+	texhash ${TEXMF}
 
 ${INSTALLDIR}:
 	mkdir -p $@
-	texhash ${TEXMF}
 
 ${DOCINSTALLDIR}:
 	mkdir -p $@
-	texhash ${TEXMF}
 
 ctanify: ${SRCFILES} ${DOCFILES} standalone.tds.zip
 	${RM} standalone.zip
