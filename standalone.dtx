@@ -26,13 +26,13 @@
 % \iffalse
 %<cls|sty|cfg|tex>% $Id$
 %<cls|sty>\NeedsTeXFormat{LaTeX2e}
-%<cls>\ProvidesClass{standalone}   [2010/03/22 v0.3-dev Class to compile TeX sub-files standalone]
-%<sty>\ProvidesPackage{standalone} [2010/03/22 v0.3-dev Package to include TeX sub-files which use the 'standalone' class]
-%<tex>\ProvidesFile{standalone.tex}[2010/03/22 v0.3-dev Provides if-switch to show if file is compiled standalone]%
-%<cfg>\ProvidesFile{standalone.cfg}[2010/03/22 v0.3-dev Default configuration file for 'standalone' class and package]%
+%<cls>\ProvidesClass{standalone}   [2010/03/22 v0.3-dev-collectpreamble Class to compile TeX sub-files standalone]
+%<sty>\ProvidesPackage{standalone} [2010/03/22 v0.3-dev-collectpreamble Package to include TeX sub-files which use the 'standalone' class]
+%<tex>\ProvidesFile{standalone.tex}[2010/03/22 v0.3-dev-collectpreamble Provides if-switch to show if file is compiled standalone]%
+%<cfg>\ProvidesFile{standalone.cfg}[2010/03/22 v0.3-dev-collectpreamble Default configuration file for 'standalone' class and package]%
 %<*driver>
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesFile{standalone.dtx}[2010/03/22 v0.3-dev DTX File for 'standalone' cls/sty/tex/cfg files]
+\ProvidesFile{standalone.dtx}[2010/03/22 v0.3-dev-collectpreamble DTX File for 'standalone' cls/sty/tex/cfg files]
 \documentclass{ltxdoc}
 \usepackage{ifpdf}
 \usepackage{listings}
@@ -327,6 +327,38 @@
 %<*sty>
 % \fi
 %    \begin{macrocode}
+\newcommand\sa@gobbleopt[1][]{}
+\def\standalonepreambles{%
+  \expandafter\def\expandafter\sa@endlinechar\expandafter{\the\endlinechar}%
+  \endlinechar=\m@ne
+  %\let\sa@orig@usepackage=\usepackage
+  %\renewcommand{\usepackage}[2][]{\sa@gobbleopt}
+}
+\def\endstandalonepreambles{%
+  \endlinechar=\sa@endlinechar
+  %\let\usepackage\sa@orig@usepackage
+}
+\long\def\subpreamble#1#2\endsubpreamble{%
+  \global\@namedef{prevsubpreamble@#1}{#2}%
+  \endlinechar=\sa@endlinechar
+  #2
+  \endlinechar=\m@ne
+}
+\def\endsubpreamble{}%
+\InputIfFileExists{\jobname.sta}{}{\PackageInfo{standalone}{STA file not found!}{}{}}%
+\newwrite\sa@write
+\immediate\openout\sa@write=\jobname.sta\relax
+\immediate\write\sa@write{%
+  \noexpand\standalonepreambles
+}
+\AtEndDocument{%
+\immediate\write\sa@write{%
+  \noexpand\endstandalonepreambles
+}
+}
+\def\sa@out{\immediate\write\sa@write}%
+%    \end{macrocode}
+%    \begin{macrocode}
 \expandafter\newif\csname ifstandalone\endcsname
 \standalonefalse
 %    \end{macrocode}
@@ -341,15 +373,12 @@
 %    \begin{macrocode}
 \newcommand{\sa@documentclass}[2][]{%
   \let\document\sa@document
-  \expandafter\sa@@documentclass
-}
-%    \end{macrocode}
-% \end{macro}
-%
-% \begin{macro}{\sa@@documentclass}
-%    \begin{macrocode}
-\def\sa@@documentclass{%
-  \begingroup\def\sa@gobbleto{document}\sa@gobble
+  \begingroup
+  \sa@out{\noexpand\subpreamble{\@filef@und}}%
+  \global\@namedef{subpreamble@\@filef@und}{}%
+  \endlinechar=\m@ne
+  \def\sa@gobbleto{document}%
+  \sa@gobble
 }
 %    \end{macrocode}
 % \end{macro}
@@ -359,8 +388,22 @@
 \long\def\sa@gobble#1\begin#2{%
   \def\@tempa{#2}%
   \ifx\@tempa\sa@gobbleto
-    \def\next{\expandafter\endgroup\expandafter\begin\expandafter{\sa@gobbleto}}%
+    \expandafter\g@addto@macro\csname subpreamble@\@filef@und\endcsname{#1}%
+    \sa@out{\unexpanded{#1}^^J\noexpand\endsubpreamble}%
+    \expandafter\ifx
+    \csname prevsubpreamble@\@filef@und \expandafter\endcsname
+    \csname     subpreamble@\@filef@und \endcsname
+      \def\next{\expandafter\endgroup\expandafter\begin\expandafter{\sa@gobbleto}}%
+    \else
+      \def\next{%
+        \endgroup
+        \PackageWarning{standalone}{Sub-preamble of file '\@filef@und' has changed. Content will be ignored. Please rerun LaTeX!}{}{}%
+        \endinput
+      }
+    \fi
   \else
+    \expandafter\g@addto@macro\csname subpreamble@\@filef@und\endcsname{#1\begin{#2}}%
+    \sa@out{\unexpanded{#1\begin{#2}}}%
     \def\next{\sa@gobble}%
   \fi
   \next
