@@ -311,6 +311,12 @@
 %   \fi
 % \end{lstlisting}
 %
+% \subsection{Usage with \texttt{svn-multi} keywords}\label{sec:svnmulti}
+% If the version control package \texttt{svn-multi} is used, the keyword macros (|\svnid| or |\svnidlong|) 
+% need to be placed after the |\begin{document}| to be taken into account by the main document.
+% The \texttt{svn-multi} package must be loaded by the sub-file preamble to avoid compile errors in standalone mode.
+% Alternative, if the keywords are not required in this mode, they can be surrounded by |\ifstandalone\else|\dots|\fi|.
+%
 % \StopEventually{}
 % \FloatBarrier
 % \clearpage
