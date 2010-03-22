@@ -35,7 +35,7 @@ test: unpack
 	for T in test*.tex; do echo "$$T"; pdflatex -interaction=batchmode $$T && echo "OK" || echo "Failure"; done
 
 clean:
-	${RM} ${PACKEDFILES} *.zip *.log *.aux *.toc *.vrb *.nav *.pdf *.snm *.out *.fdb_latexmk *.glo
+	${RM} ${PACKEDFILES} *.zip *.log *.aux *.toc *.vrb *.nav *.pdf *.snm *.out *.fdb_latexmk *.glo *.sta
 	${RMDIR} .tds
 
 install: unpack doc ${INSTALLDIR} ${DOCINSTALLDIR}

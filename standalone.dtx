@@ -327,12 +327,22 @@
 %<*sty>
 % \fi
 %    \begin{macrocode}
-\newcommand\sa@gobbleopt[1][]{}
+\def\sa@gobbleopt{%
+  \@ifnextchar[%]
+    {\sa@@gobbleopt}%
+    {}%
+}
+\def\sa@@gobbleopt[#1]{}
+
+\newcommand{\sa@gobblepackage}[2][]{\sa@gobbleopt}
+\newcommand{\sa@usepackagewithoutoptions}[2][]{%
+  \sa@orig@usepackage{#2}%
+}
+
 \def\standalonepreambles{%
   \expandafter\def\expandafter\sa@endlinechar\expandafter{\the\endlinechar}%
   \endlinechar=\m@ne
   %\let\sa@orig@usepackage=\usepackage
-  %\renewcommand{\usepackage}[2][]{\sa@gobbleopt}
 }
 \def\endstandalonepreambles{%
   \endlinechar=\sa@endlinechar
@@ -340,10 +350,38 @@
 }
 \long\def\subpreamble#1#2\endsubpreamble{%
   \global\@namedef{prevsubpreamble@#1}{#2}%
-  \endlinechar=\sa@endlinechar
-  #2
-  \endlinechar=\m@ne
+  %\endlinechar=\sa@endlinechar
+  \sa@scanpackages#2\usepackage\sa@endscanpackages
+  \AtBeginDocument{%
+    \let\sa@orig@usepackage\usepackage
+    \let\usepackage\sa@usepackagewithoutoptions
+    #2%
+    \let\usepackage\sa@orig@usepackage
+  }%
+  %\endlinechar=\m@ne
 }
+
+\def\sa@endscanpackages{%
+  \@gobble{sa@endscanpackages}%
+}
+
+\def\sa@scanpackages#1\usepackage{%
+  \@ifnextchar\sa@endscanpackages
+    {\@gobble}%
+    {\sa@collectpackage}
+}
+\AtEndOfPackage{\message{^^Jsa@collopts: \meaning\sa@collopts^^J}\sa@collopts}
+
+\def\sa@collopts{}
+\newcommand\sa@collectpackage[2][]{%
+  \ifx\relax#1\relax\else
+    \g@addto@macro\sa@collopts{\PassOptionsToPackage{#1}{#2}}%
+  \fi
+  \@ifnextchar[%]
+    {\expandafter\sa@scanpackages\sa@@gobbleopt}
+    {\sa@scanpackages}
+}
+
 \def\endsubpreamble{}%
 \InputIfFileExists{\jobname.sta}{}{\PackageInfo{standalone}{STA file not found!}{}{}}%
 \newwrite\sa@write
