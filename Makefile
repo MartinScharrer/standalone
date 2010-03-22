@@ -11,11 +11,13 @@ SRCFILES=standalone.dtx standalone.ins README Makefile
 
 all: unpack doc
 
-unpack: standalone.dtx standalone.ins
-	yes | pdflatex standalone.ins
-
 package: unpack
 class: unpack
+
+${PACKEDFILES}: ${SRCFILES}
+	yes | pdflatex standalone.ins
+
+unpack: ${PACKEDFILES}
 
 doc: ${DOCFILES}
 
@@ -61,7 +63,7 @@ standalone.zip: ${SRCFILES} ${DOCFILES}
 	${RM} $@
 	zip $@ $^ 
 
-standalone.tds.zip: ${SRCFILES} ${DOCFILES} ${PACKEDFILES}
+standalone.tds.zip: ${SRCFILES} ${PACKEDFILES} ${DOCFILES} 
 	${RMDIR} .tds
 	mkdir -p .tds/tex/latex/standalone
 	mkdir -p .tds/doc/latex/standalone
