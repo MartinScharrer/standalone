@@ -259,9 +259,9 @@
 % Therefore a second environment called |standaloneframe| is used in the beamer picture files. It will be equal to |frame| in standalone mode, but
 % without effect otherwise.
 %
-% \DescribeMacro{\standalonebeamerpreamble}
-% This macro is used after the beamer class is loaded. By default its disables the navigation bars, but it can be redefined by the user in the configuration file
-% to contain any required beamer styles. Do not place beamer styles directly in the configuration file, because it is also loaded for non-beamer standalone files.
+% \DescribeMacro{\ifstandalonebeamer}
+% This if switch is only true if the class is compiled with the |beamer| option. The package sets it to false.
+% It can be used to place beamer specific options in the configuration files, which should be skipped for non-beamer standalone files.
 %
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Use of \emph{standalone} class.}]
 %   % Use of 'standalone' class with a beamer overlay:
@@ -284,7 +284,6 @@
 %   \documentclass{beamer}
 %
 %   \input{standalone.cfg}
-%   \standalonebeamerpreamble
 %
 %   \usepackage{tikz}
 %
@@ -325,6 +324,12 @@
 %    \begin{macrocode}
 \expandafter\newif\csname ifstandalone\endcsname
 \standalonefalse
+%    \end{macrocode}
+%    \begin{macrocode}
+\@ifundefined{ifstandalonebeamer}{%
+\expandafter\newif\csname ifstandalonebeamer\endcsname
+\standalonebeamerfalse
+}{}%
 %    \end{macrocode}
 %
 % \begin{macro}{\sa@documentclass}
@@ -483,7 +488,6 @@
 %<*cls>
 % \fi
 %    \begin{macrocode}
-\def\sa@preamble{}
 \def\sa@classoptionslist{}
 \RequirePackage{kvoptions}
 \SetupKeyvalOptions{prefix=sa@}
@@ -512,13 +516,11 @@
 % The |beamer| option defines the \env{standalone} environment as a replacement
 % of \env{frame}.
 %    \begin{macrocode}
-\def\standalonebeamerpreamble{%
-  \setbeamertemplate{navigation symbols}{}%
-}
+\newif\ifstandalonebeamer
 \DeclareVoidOption{beamer}{%
   \def\sa@class{beamer}%
   \sa@previewfalse
-  \def\sa@preamble{\standalonebeamerpreamble}%
+  \standalonebeamertrue
   \newenvironment{standaloneframe}{%
     \@ifnextchar<%
       {\@standaloneframe}%
@@ -553,11 +555,9 @@
 %
 %    \begin{macrocode}
 \DeclareStringOption[article]{class}
-\DeclareStringOption[]{frameoptions}
 \DeclareDefaultOption{%
   \xdef\sa@classoptionslist{\sa@classoptionslist,\CurrentOption}%
 }
-\input{standalone.cfg}
 \ProcessKeyvalOptions*\relax
 %    \end{macrocode}
 %
@@ -565,7 +565,10 @@
 \let\@classoptionslist\sa@classoptionslist
 \xdef\@tempa{[\sa@classoptionslist]{\sa@class}}
 \expandafter\LoadClass\@tempa
-\sa@preamble
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\input{standalone.cfg}
 %    \end{macrocode}
 %
 % \subsubsection*{Preview Code}
@@ -643,6 +646,10 @@
 % \fi
 %    \begin{macrocode}
 \PassOptionsToPackage{active,tightpage}{preview}%
+
+\ifstandalonebeamer
+  \setbeamertemplate{navigation symbols}{}
+\fi
 %    \end{macrocode}
 % \iffalse
 %</cfg>
