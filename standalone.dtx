@@ -26,13 +26,13 @@
 % \iffalse
 %<cls|sty|cfg|tex>% $Id$
 %<cls|sty>\NeedsTeXFormat{LaTeX2e}
-%<cls>\ProvidesClass{standalone}   [2010/03/21 v0.1 Class to compile TeX sub-files standalone]
-%<sty>\ProvidesPackage{standalone} [2010/03/21 v0.1 Package to include TeX sub-files which use the 'standalone' class]
-%<tex>\ProvidesFile{standalone.tex}[2010/03/21 v0.1 Provides if-switch to show if file is compiled standalone]%
-%<cfg>\ProvidesFile{standalone.cfg}[2010/03/21 v0.1 Default configuration file for 'standalone' class and package]%
+%<cls>\ProvidesClass{standalone}   [2010/03/22 v0.2-dev Class to compile TeX sub-files standalone]
+%<sty>\ProvidesPackage{standalone} [2010/03/22 v0.2-dev Package to include TeX sub-files which use the 'standalone' class]
+%<tex>\ProvidesFile{standalone.tex}[2010/03/22 v0.2-dev Provides if-switch to show if file is compiled standalone]%
+%<cfg>\ProvidesFile{standalone.cfg}[2010/03/22 v0.2-dev Default configuration file for 'standalone' class and package]%
 %<*driver>
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesFile{standalone.dtx}[2010/03/21 v0.1 DTX File for 'standalone' cls/sty/tex]
+\ProvidesFile{standalone.dtx}[2010/03/22 v0.2-dev DTX File for 'standalone' cls/sty/tex]
 \documentclass{ltxdoc}
 \usepackage{ifpdf}
 \usepackage{listings}
@@ -59,7 +59,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{232}
+% \CheckSum{240}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -259,6 +259,10 @@
 % Therefore a second environment called |standaloneframe| is used in the beamer picture files. It will be equal to |frame| in standalone mode, but
 % without effect otherwise.
 %
+% \DescribeMacro{\standalonebeamerpreamble}
+% This macro is used after the beamer class is loaded. By default its disables the navigation bars, but it can be redefined by the user in the configuration file
+% to contain any required beamer styles. Do not place beamer styles directly in the configuration file, because it is also loaded for non-beamer standalone files.
+%
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Use of \emph{standalone} class.}]
 %   % Use of 'standalone' class with a beamer overlay:
 %   \documentclass[beamer]{standalone}
@@ -280,6 +284,7 @@
 %   \documentclass{beamer}
 %
 %   \input{standalone.cfg}
+%   \standalonebeamerpreamble
 %
 %   \usepackage{tikz}
 %
@@ -478,6 +483,7 @@
 %<*cls>
 % \fi
 %    \begin{macrocode}
+\def\sa@preamble{}
 \def\sa@classoptionslist{}
 \RequirePackage{kvoptions}
 \SetupKeyvalOptions{prefix=sa@}
@@ -506,9 +512,13 @@
 % The |beamer| option defines the \env{standalone} environment as a replacement
 % of \env{frame}.
 %    \begin{macrocode}
+\def\standalonebeamerpreamble{%
+  \setbeamertemplate{navigation symbols}{}%
+}
 \DeclareVoidOption{beamer}{%
   \def\sa@class{beamer}%
   \sa@previewfalse
+  \def\sa@preamble{\standalonebeamerpreamble}%
   \newenvironment{standaloneframe}{%
     \@ifnextchar<%
       {\@standaloneframe}%
@@ -555,7 +565,7 @@
 \let\@classoptionslist\sa@classoptionslist
 \xdef\@tempa{[\sa@classoptionslist]{\sa@class}}
 \expandafter\LoadClass\@tempa
-\@nameuse{sa@afterclassloaded}
+\sa@preamble
 %    \end{macrocode}
 %
 % \subsubsection*{Preview Code}
