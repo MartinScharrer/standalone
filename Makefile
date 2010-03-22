@@ -3,6 +3,7 @@ INSTALLDIR=${TEXMF}/tex/latex/standalone
 DOCINSTALLDIR=${TEXMF}/doc/latex/standalone
 CP=cp
 RMDIR=rm -rf
+PDFLATEX=pdflatex -interaction=batchmode
 
 PACKEDFILES=standalone.cls standalone.sty standalone.cfg standalone.tex
 DOCFILES=standalone.pdf
@@ -18,12 +19,13 @@ class: unpack
 
 doc: ${DOCFILES}
 
-standalone.pdf: standalone.dtx
-	latexmk -pdf $< || ${MAKE} nolatexmk
-
-nolatexmk: standalone.dtx
-	pdflatex $<
-	pdflatex $<
+standalone.pdf: %.pdf: standalone.dtx
+	${PDFLATEX} $<
+	${PDFLATEX} $<
+	-makeindex -s gind.ist -o $*.ind $*.idx
+	-makeindex -s gglo.ist -o $*.gls $*.glo
+	${PDFLATEX} $<
+	${PDFLATEX} $<
 
 .PHONY: test
 

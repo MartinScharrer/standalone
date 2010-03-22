@@ -26,35 +26,31 @@
 % \iffalse
 %<cls|sty|cfg|tex>% $Id$
 %<cls|sty>\NeedsTeXFormat{LaTeX2e}
-%<cls>\ProvidesClass{standalone}   [2010/03/22 v0.2-dev Class to compile TeX sub-files standalone]
-%<sty>\ProvidesPackage{standalone} [2010/03/22 v0.2-dev Package to include TeX sub-files which use the 'standalone' class]
-%<tex>\ProvidesFile{standalone.tex}[2010/03/22 v0.2-dev Provides if-switch to show if file is compiled standalone]%
-%<cfg>\ProvidesFile{standalone.cfg}[2010/03/22 v0.2-dev Default configuration file for 'standalone' class and package]%
+%<cls>\ProvidesClass{standalone}   [2010/03/22 v0.2 Class to compile TeX sub-files standalone]
+%<sty>\ProvidesPackage{standalone} [2010/03/22 v0.2 Package to include TeX sub-files which use the 'standalone' class]
+%<tex>\ProvidesFile{standalone.tex}[2010/03/22 v0.2 Provides if-switch to show if file is compiled standalone]%
+%<cfg>\ProvidesFile{standalone.cfg}[2010/03/22 v0.2 Default configuration file for 'standalone' class and package]%
 %<*driver>
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesFile{standalone.dtx}[2010/03/22 v0.2-dev DTX File for 'standalone' cls/sty/tex]
+\ProvidesFile{standalone.dtx}[2010/03/22 v0.2 DTX File for 'standalone' cls/sty/tex/cfg files]
 \documentclass{ltxdoc}
 \usepackage{ifpdf}
 \usepackage{listings}
+\IfFileExists{hypdoc.sty}{%
+\usepackage{hypdoc}
+}{%
 \usepackage{hyperref}
-\usepackage{tabularx}
-\usepackage{array}
-\usepackage{flafter,fnpos}
-\usepackage{booktabs}
-\usepackage{amsmath}
-\usepackage{placeins}
-\makeFNbottom
-\makeFNbelow
+}
 
 \EnableCrossrefs
-%\CodelineIndex
+\CodelineIndex
 \RecordChanges
 %\OnlyDescription
 \providecommand{\env}[1]{\texttt{#1}}
 \begin{document}
   \DocInput{\jobname.dtx}
   \PrintChanges
-  %\newpage\PrintIndex
+  \newpage\PrintIndex
 \end{document}
 %</driver>
 % \fi
@@ -79,6 +75,7 @@
 %
 %
 % \changes{v0.1}{2010/03/21}{First released version}
+% \changes{v0.2}{2010/03/22}{Added support for beamer style settings in the config file using \cs{ifstandalonebeamer}. Updated documentation.}
 %
 % \GetFileInfo{\jobname.dtx}
 %
@@ -91,6 +88,9 @@
 % \DoNotIndex{\ignorespaces,\lccode,\sffamily,\@gobble,\@ifundefined,\@for,\or}
 % \DoNotIndex{\@firstoftwo,\@ifnextchar,\@namedef,\@nameuse,\@secondoftwo}
 % \DoNotIndex{\@temptokena,\toks@,\BODY,\do,\g@addto@macro,\lowercase,\uppercase,\the}
+% \DoNotIndex{\aftergroup,\CurrentOption,\DeclareBoolOption,\DeclareDefaultOption,\DeclareStringOption,\DeclareVoidOption}
+% \DoNotIndex{\endinput,\endpreview,\input,\LoadClass,\newif,\PassOptionsToPackage,\preview,\ProcessKeyvalOptions}
+% \DoNotIndex{\renewcommand,\renewenvironment,\setbeamertemplate,\SetupKeyvalOptions,\space,\unskip,\usepackage}
 %
 % \ifpdf
 % \hypersetup{%
@@ -318,7 +318,6 @@
 % Alternative, if the keywords are not required in this mode, they can be surrounded by |\ifstandalone\else|\dots|\fi|.
 %
 % \StopEventually{}
-% \FloatBarrier
 % \clearpage
 %
 % \section{Implementation}
