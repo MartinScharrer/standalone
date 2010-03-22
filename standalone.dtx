@@ -374,7 +374,8 @@
 \newcommand{\sa@documentclass}[2][]{%
   \let\document\sa@document
   \begingroup
-  \sa@out{\noexpand\subpreamble{\@filef@und}}%
+  \@ifundefined{sa@written@\@filef@und}%
+    {\sa@out{\noexpand\subpreamble{\@filef@und}}}%
   \global\@namedef{subpreamble@\@filef@und}{}%
   \endlinechar=\m@ne
   \def\sa@gobbleto{document}%
@@ -389,7 +390,9 @@
   \def\@tempa{#2}%
   \ifx\@tempa\sa@gobbleto
     \expandafter\g@addto@macro\csname subpreamble@\@filef@und\endcsname{#1}%
-    \sa@out{\unexpanded{#1}^^J\noexpand\endsubpreamble}%
+    \@ifundefined{sa@written@\@filef@und}%
+      {\sa@out{\unexpanded{#1}^^J\noexpand\endsubpreamble}}{}%
+    \global\@namedef{sa@written@\@filef@und}{}%
     \expandafter\ifx
     \csname prevsubpreamble@\@filef@und \expandafter\endcsname
     \csname     subpreamble@\@filef@und \endcsname
@@ -403,7 +406,8 @@
     \fi
   \else
     \expandafter\g@addto@macro\csname subpreamble@\@filef@und\endcsname{#1\begin{#2}}%
-    \sa@out{\unexpanded{#1\begin{#2}}}%
+    \@ifundefined{sa@written@\@filef@und}%
+      {\sa@out{\unexpanded{#1\begin{#2}}}}{}%
     \def\next{\sa@gobble}%
   \fi
   \next
