@@ -23,3 +23,9 @@ clean:
 ctanify: 
 	ctanify standalone.dtx standalone.ins README Makefile
 
+zip: standalone.zip
+
+standalone.zip: standalone.dtx standalone.ins README Makefile standalone.pdf
+	${RM} $@
+	zip $@ $^ 
+
