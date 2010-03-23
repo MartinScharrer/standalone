@@ -403,18 +403,15 @@
 \fi
 
 \def\standalonepreambles{%
-  %\expandafter\def\expandafter\sa@endlinechar\expandafter{\the\endlinechar}%
   \begingroup
-  \endlinechar=\m@ne
-  \@makeother\#
-  %\let\sa@orig@usepackage=\usepackage
+  \endlinechar=`\^^J%
+  \@makeother\#%
 }
 \def\endstandalonepreambles{%
   \endgroup
-  %\endlinechar=\sa@endlinechar
-  %\let\usepackage\sa@orig@usepackage
+  \endinput
 }
-\long\def\subpreamble#1#2\endsubpreamble{%
+\long\gdef\subpreamble#1^^J#2^^J\endsubpreamble{%
   \expandafter\gdef\csname prevsubpreamble@#1\endcsname{#2}%
   \ifsa@sortsubpreambles
   \sa@scanpackages#2\usepackage\sa@endscanpackages
@@ -428,7 +425,11 @@
   \immediate\closeout\sa@write
   \immediate\openout\sa@write=\jobname.stp\relax
 \else
+\begingroup
+\setbox\z@\hbox{%
 \InputIfFileExists{\jobname.sta}{}{\PackageInfo{standalone}{STA file not found!}{}{}}%
+}%
+\endgroup
 \AtBeginDocument{%
   \let\subpreamble\@gobble
   \let\endsubpreamble\relax
@@ -444,12 +445,12 @@
   \fi
   \immediate\openout\sa@write=\jobname.sta\relax
   \immediate\write\sa@write{%
-    \noexpand\standalonepreambles
+    \string\standalonepreambles\@percentchar
   }%
 }
 \AtEndDocument{%
   \immediate\write\sa@write{%
-    \noexpand\endstandalonepreambles
+    \string\endstandalonepreambles\@percentchar
   }%
   \immediate\closeout\sa@write
 }
@@ -474,11 +475,8 @@
         \fi
       }{}%
     \global\@namedef{subpreamble@\@filef@und}{}%
-    \endlinechar=\m@ne
+    \endlinechar=`\^^J%
     \@makeother\#
-    \ifsa@displaysubpreambles
-      \endlinechar=`\^^J
-    \fi
   \fi
   \def\sa@gobbleto{document}%
   \sa@gobble
@@ -495,9 +493,9 @@
       \expandafter\g@addto@macro\csname subpreamble@\@filef@und\endcsname{#1}%
         \@ifundefined{sa@written@\@filef@und}%
           {%
-            \sa@out{\unexpanded{#1}}
+            \sa@out{\unexpanded{#1}}%
             \ifsa@displaysubpreambles\else
-              \sa@out{\noexpand\endsubpreamble}
+              \sa@out{\string\endsubpreamble\@percentchar}%
             \fi
           }{}%
       \global\@namedef{sa@written@\@filef@und}{}%
@@ -514,6 +512,8 @@
       \csname     subpreamble@\@filef@und \endcsname
         \def\next{\expandafter\endgroup\expandafter\begin\expandafter{\sa@gobbleto}}%
       \else
+        %\expandafter\show\csname prevsubpreamble@\@filef@und \endcsname
+        %\expandafter\show\csname     subpreamble@\@filef@und \endcsname
         \def\next{%
           \endgroup
           \PackageWarning{standalone}{Sub-preamble of file '\@filef@und' has changed. Content will be ignored. Please rerun LaTeX!}{}{}%
