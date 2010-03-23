@@ -351,26 +351,20 @@
 }
 
 \def\standalonepreambles{%
-  \expandafter\def\expandafter\sa@endlinechar\expandafter{\the\endlinechar}%
+  %\expandafter\def\expandafter\sa@endlinechar\expandafter{\the\endlinechar}%
+  \begingroup
   \endlinechar=\m@ne
+  \@makeother\#
   %\let\sa@orig@usepackage=\usepackage
 }
 \def\endstandalonepreambles{%
-  \endlinechar=\sa@endlinechar
+  \endgroup
+  %\endlinechar=\sa@endlinechar
   %\let\usepackage\sa@orig@usepackage
 }
 \long\def\subpreamble#1#2\endsubpreamble{%
-  \global\@namedef{prevsubpreamble@#1}{#2}%
-  %\endlinechar=\sa@endlinechar
+  \expandafter\gdef\csname prevsubpreamble@#1\endcsname{#2}%
   \sa@scanpackages#2\usepackage\sa@endscanpackages
-  \def\test{#2}\show\test
-  \AtBeginDocument{%
-    \let\sa@orig@usepackage\usepackage
-    \let\usepackage\sa@usepackagewithoutoptions
-    #2%
-    \let\usepackage\sa@orig@usepackage
-  }%
-  %\endlinechar=\m@ne
 }
 
 \def\sa@endscanpackages{%
@@ -398,9 +392,19 @@
 \def\endsubpreamble{}%
 \InputIfFileExists{\jobname.sta}{}{\PackageInfo{standalone}{STA file not found!}{}{}}%
 \newwrite\sa@write
-\immediate\openout\sa@write=\jobname.sta\relax
-\immediate\write\sa@write{%
-  \noexpand\standalonepreambles
+\AtBeginDocument{%
+  \let\subpreamble\@gobble
+  \let\endsubpreamble\relax
+  \let\standalonepreambles\relax
+  \let\endstandalonepreambles\relax
+  \let\sa@orig@usepackage\usepackage
+  \let\usepackage\sa@usepackagewithoutoptions
+  \InputIfFileExists{\jobname.sta}{}{}%
+  \let\usepackage\sa@orig@usepackage
+  \immediate\openout\sa@write=\jobname.sta\relax
+  \immediate\write\sa@write{%
+    \noexpand\standalonepreambles
+  }%
 }
 \AtEndDocument{%
 \immediate\write\sa@write{%
@@ -432,6 +436,7 @@
       {\sa@out{\noexpand\subpreamble{\@filef@und}}}%
     \global\@namedef{subpreamble@\@filef@und}{}%
     \endlinechar=\m@ne
+    \@makeother\#
   \fi
   \def\sa@gobbleto{document}%
   \sa@gobble
