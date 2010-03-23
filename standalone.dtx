@@ -26,13 +26,13 @@
 % \iffalse
 %<cls|sty|cfg|tex>% $Id$
 %<cls|sty>\NeedsTeXFormat{LaTeX2e}
-%<cls>\ProvidesClass{standalone}   [2010/03/22 v0.3-dev-collectpreamble Class to compile TeX sub-files standalone]
-%<sty>\ProvidesPackage{standalone} [2010/03/22 v0.3-dev-collectpreamble Package to include TeX sub-files which use the 'standalone' class]
-%<tex>\ProvidesFile{standalone.tex}[2010/03/22 v0.3-dev-collectpreamble Provides if-switch to show if file is compiled standalone]%
-%<cfg>\ProvidesFile{standalone.cfg}[2010/03/22 v0.3-dev-collectpreamble Default configuration file for 'standalone' class and package]%
+%<cls>\ProvidesClass{standalone}   [2010/03/23 v0.3-dev-collectpreambles Class to compile TeX sub-files standalone]
+%<sty>\ProvidesPackage{standalone} [2010/03/23 v0.3-dev-collectpreambles Package to include TeX sub-files which use the 'standalone' class]
+%<tex>\ProvidesFile{standalone.tex}[2010/03/23 v0.3-dev-collectpreambles Provides if-switch to show if file is compiled standalone]%
+%<cfg>\ProvidesFile{standalone.cfg}[2010/03/23 v0.3-dev-collectpreambles Default configuration file for 'standalone' class and package]%
 %<*driver>
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesFile{standalone.dtx}[2010/03/22 v0.3-dev-collectpreamble DTX File for 'standalone' cls/sty/tex/cfg files]
+\ProvidesFile{standalone.dtx}[2010/03/23 v0.3-dev-collectpreambles DTX File for 'standalone' cls/sty/tex/cfg files]
 \documentclass{ltxdoc}
 \usepackage{ifpdf}
 \usepackage{listings}
@@ -327,6 +327,17 @@
 %<*sty>
 % \fi
 %    \begin{macrocode}
+\newif\ifsa@subpreambles
+
+\DeclareOption{subpreambles}{%
+  \sa@subpreamblestrue
+}
+\ProcessOptions*\relax
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\ifsa@subpreambles
+
 \def\sa@gobbleopt{%
   \@ifnextchar[%]
     {\sa@@gobbleopt}%
@@ -352,6 +363,7 @@
   \global\@namedef{prevsubpreamble@#1}{#2}%
   %\endlinechar=\sa@endlinechar
   \sa@scanpackages#2\usepackage\sa@endscanpackages
+  \def\test{#2}\show\test
   \AtBeginDocument{%
     \let\sa@orig@usepackage\usepackage
     \let\usepackage\sa@usepackagewithoutoptions
@@ -370,7 +382,8 @@
     {\@gobble}%
     {\sa@collectpackage}
 }
-\AtEndOfPackage{\message{^^Jsa@collopts: \meaning\sa@collopts^^J}\sa@collopts}
+
+\AtEndOfPackage{\sa@collopts}
 
 \def\sa@collopts{}
 \newcommand\sa@collectpackage[2][]{%
@@ -395,6 +408,8 @@
 }
 }
 \def\sa@out{\immediate\write\sa@write}%
+
+\fi
 %    \end{macrocode}
 %    \begin{macrocode}
 \expandafter\newif\csname ifstandalone\endcsname
@@ -412,10 +427,12 @@
 \newcommand{\sa@documentclass}[2][]{%
   \let\document\sa@document
   \begingroup
-  \@ifundefined{sa@written@\@filef@und}%
-    {\sa@out{\noexpand\subpreamble{\@filef@und}}}%
-  \global\@namedef{subpreamble@\@filef@und}{}%
-  \endlinechar=\m@ne
+  \ifsa@subpreambles
+    \@ifundefined{sa@written@\@filef@und}%
+      {\sa@out{\noexpand\subpreamble{\@filef@und}}}%
+    \global\@namedef{subpreamble@\@filef@und}{}%
+    \endlinechar=\m@ne
+  \fi
   \def\sa@gobbleto{document}%
   \sa@gobble
 }
@@ -427,28 +444,35 @@
 \long\def\sa@gobble#1\begin#2{%
   \def\@tempa{#2}%
   \ifx\@tempa\sa@gobbleto
-    \expandafter\g@addto@macro\csname subpreamble@\@filef@und\endcsname{#1}%
-    \@ifundefined{sa@written@\@filef@und}%
-      {\sa@out{\unexpanded{#1}^^J\noexpand\endsubpreamble}}{}%
-    \global\@namedef{sa@written@\@filef@und}{}%
-    \expandafter\ifx
-    \csname prevsubpreamble@\@filef@und \expandafter\endcsname
-    \csname     subpreamble@\@filef@und \endcsname
-      \def\next{\expandafter\endgroup\expandafter\begin\expandafter{\sa@gobbleto}}%
-    \else
-      \def\next{%
-        \endgroup
-        \PackageWarning{standalone}{Sub-preamble of file '\@filef@und' has changed. Content will be ignored. Please rerun LaTeX!}{}{}%
-        \immediate\write\@mainaux{%
-          \@percentchar\space standalone package info: Rerun LaTeX!
+    \ifsa@subpreambles
+      \expandafter\g@addto@macro\csname subpreamble@\@filef@und\endcsname{#1}%
+      \@ifundefined{sa@written@\@filef@und}%
+        {\sa@out{\unexpanded{#1}^^J\noexpand\endsubpreamble}}{}%
+      \global\@namedef{sa@written@\@filef@und}{}%
+      \expandafter
+      \ifx
+      \csname prevsubpreamble@\@filef@und \expandafter\endcsname
+      \csname     subpreamble@\@filef@und \endcsname
+        \def\next{\expandafter\endgroup\expandafter\begin\expandafter{\sa@gobbleto}}%
+      \else
+        \def\next{%
+          \endgroup
+          \PackageWarning{standalone}{Sub-preamble of file '\@filef@und' has changed. Content will be ignored. Please rerun LaTeX!}{}{}%
+          \immediate\write\@mainaux{%
+            \@percentchar\space standalone package info: Rerun LaTeX!
+          }
+          \endinput
         }
-        \endinput
-      }
+      \fi
+    \else
+      \def\next{\expandafter\endgroup\expandafter\begin\expandafter{\sa@gobbleto}}%
     \fi
   \else
-    \expandafter\g@addto@macro\csname subpreamble@\@filef@und\endcsname{#1\begin{#2}}%
-    \@ifundefined{sa@written@\@filef@und}%
-      {\sa@out{\unexpanded{#1\begin{#2}}}}{}%
+    \ifsa@subpreambles
+      \expandafter\g@addto@macro\csname subpreamble@\@filef@und\endcsname{#1\begin{#2}}%
+      \@ifundefined{sa@written@\@filef@und}%
+        {\sa@out{\unexpanded{#1\begin{#2}}}}{}%
+    \fi
     \def\next{\sa@gobble}%
   \fi
   \next
