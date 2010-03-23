@@ -339,8 +339,10 @@
 %    \end{macrocode}
 %
 %    \begin{macrocode}
+\newwrite\sa@write
 \newif\ifsa@subpreambles
 \newif\ifsa@sortsubpreambles
+\newif\ifsa@displaysubpreambles
 
 \DeclareOption{subpreambles}{%
   \sa@subpreamblestrue
@@ -348,7 +350,15 @@
 \DeclareOption{sort}{%
   \sa@sortsubpreamblestrue
 }
+\DeclareOption{display}{%
+  \sa@displaysubpreamblestrue
+}
 \ProcessOptions*\relax
+
+\ifsa@displaysubpreambles
+  \sa@subpreamblestrue
+  \sa@sortsubpreamblesfalse
+\fi
 %    \end{macrocode}
 %
 %    \begin{macrocode}
@@ -412,8 +422,13 @@
 }
 
 \def\endsubpreamble{}%
+
+\ifsa@displaysubpreambles
+  \immediate\openout\sa@write=\jobname.sta\relax
+  \immediate\closeout\sa@write
+  \immediate\openout\sa@write=\jobname.stp\relax
+\else
 \InputIfFileExists{\jobname.sta}{}{\PackageInfo{standalone}{STA file not found!}{}{}}%
-\newwrite\sa@write
 \AtBeginDocument{%
   \let\subpreamble\@gobble
   \let\endsubpreamble\relax
@@ -433,10 +448,12 @@
   }%
 }
 \AtEndDocument{%
-\immediate\write\sa@write{%
-  \noexpand\endstandalonepreambles
+  \immediate\write\sa@write{%
+    \noexpand\endstandalonepreambles
+  }%
+  \immediate\closeout\sa@write
 }
-}
+\fi
 \def\sa@out{\immediate\write\sa@write}%
 
 \fi
@@ -449,10 +466,19 @@
   \begingroup
   \ifsa@subpreambles
     \@ifundefined{sa@written@\@filef@und}%
-      {\sa@out{\noexpand\subpreamble{\@filef@und}}}%
+      {%
+        \ifsa@displaysubpreambles
+          \sa@out{^^J\@percentchar\space Preamble from file '\@filef@und'}%
+        \else
+          \sa@out{\noexpand\subpreamble{\@filef@und}}%
+        \fi
+      }{}%
     \global\@namedef{subpreamble@\@filef@und}{}%
     \endlinechar=\m@ne
     \@makeother\#
+    \ifsa@displaysubpreambles
+      \endlinechar=`\^^J
+    \fi
   \fi
   \def\sa@gobbleto{document}%
   \sa@gobble
@@ -467,9 +493,21 @@
   \ifx\@tempa\sa@gobbleto
     \ifsa@subpreambles
       \expandafter\g@addto@macro\csname subpreamble@\@filef@und\endcsname{#1}%
-      \@ifundefined{sa@written@\@filef@und}%
-        {\sa@out{\unexpanded{#1}^^J\noexpand\endsubpreamble}}{}%
+        \@ifundefined{sa@written@\@filef@und}%
+          {%
+            \sa@out{\unexpanded{#1}}
+            \ifsa@displaysubpreambles\else
+              \sa@out{\noexpand\endsubpreamble}
+            \fi
+          }{}%
       \global\@namedef{sa@written@\@filef@und}{}%
+      \ifsa@displaysubpreambles
+        \def\next{%
+          \endgroup
+          \PackageWarning{standalone}{Running 'standalone' package in sub-preamble display mode. All body content of file `\@filef@und' is ignored!}{}{}%
+          \endinput
+        }
+      \else
       \expandafter
       \ifx
       \csname prevsubpreamble@\@filef@und \expandafter\endcsname
@@ -484,6 +522,7 @@
           }
           \endinput
         }
+      \fi
       \fi
     \else
       \def\next{\expandafter\endgroup\expandafter\begin\expandafter{\sa@gobbleto}}%
