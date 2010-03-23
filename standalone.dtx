@@ -327,16 +327,34 @@
 %<*sty>
 % \fi
 %    \begin{macrocode}
+\expandafter\newif\csname ifstandalone\endcsname
+\standalonefalse
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\@ifundefined{ifstandalonebeamer}{%
+\expandafter\newif\csname ifstandalonebeamer\endcsname
+\standalonebeamerfalse
+}{}%
+%    \end{macrocode}
+%
+%    \begin{macrocode}
 \newif\ifsa@subpreambles
+\newif\ifsa@sortsubpreambles
 
 \DeclareOption{subpreambles}{%
   \sa@subpreamblestrue
+}
+\DeclareOption{sort}{%
+  \sa@sortsubpreamblestrue
 }
 \ProcessOptions*\relax
 %    \end{macrocode}
 %
 %    \begin{macrocode}
 \ifsa@subpreambles
+
+\ifsa@sortsubpreambles
 
 \def\sa@gobbleopt{%
   \@ifnextchar[%]
@@ -349,6 +367,30 @@
 \newcommand{\sa@usepackagewithoutoptions}[2][]{%
   \sa@orig@usepackage{#2}%
 }
+
+\def\sa@endscanpackages{%
+  \@gobble{sa@endscanpackages}%
+}
+
+\def\sa@scanpackages#1\usepackage{%
+  \@ifnextchar\sa@endscanpackages
+    {\@gobble}%
+    {\sa@collectpackage}
+}
+
+\def\sa@collopts{}
+\AtEndOfPackage{\sa@collopts}
+
+\newcommand\sa@collectpackage[2][]{%
+  \ifx\relax#1\relax\else
+    \g@addto@macro\sa@collopts{\PassOptionsToPackage{#1}{#2}}%
+  \fi
+  \@ifnextchar[%]
+    {\expandafter\sa@scanpackages\sa@@gobbleopt}
+    {\sa@scanpackages}
+}
+
+\fi
 
 \def\standalonepreambles{%
   %\expandafter\def\expandafter\sa@endlinechar\expandafter{\the\endlinechar}%
@@ -364,29 +406,9 @@
 }
 \long\def\subpreamble#1#2\endsubpreamble{%
   \expandafter\gdef\csname prevsubpreamble@#1\endcsname{#2}%
+  \ifsa@sortsubpreambles
   \sa@scanpackages#2\usepackage\sa@endscanpackages
-}
-
-\def\sa@endscanpackages{%
-  \@gobble{sa@endscanpackages}%
-}
-
-\def\sa@scanpackages#1\usepackage{%
-  \@ifnextchar\sa@endscanpackages
-    {\@gobble}%
-    {\sa@collectpackage}
-}
-
-\AtEndOfPackage{\sa@collopts}
-
-\def\sa@collopts{}
-\newcommand\sa@collectpackage[2][]{%
-  \ifx\relax#1\relax\else
-    \g@addto@macro\sa@collopts{\PassOptionsToPackage{#1}{#2}}%
   \fi
-  \@ifnextchar[%]
-    {\expandafter\sa@scanpackages\sa@@gobbleopt}
-    {\sa@scanpackages}
 }
 
 \def\endsubpreamble{}%
@@ -397,10 +419,14 @@
   \let\endsubpreamble\relax
   \let\standalonepreambles\relax
   \let\endstandalonepreambles\relax
-  \let\sa@orig@usepackage\usepackage
-  \let\usepackage\sa@usepackagewithoutoptions
+  \ifsa@sortsubpreambles
+    \let\sa@orig@usepackage\usepackage
+    \let\usepackage\sa@usepackagewithoutoptions
+  \fi
   \InputIfFileExists{\jobname.sta}{}{}%
-  \let\usepackage\sa@orig@usepackage
+  \ifsa@sortsubpreambles
+    \let\usepackage\sa@orig@usepackage
+  \fi
   \immediate\openout\sa@write=\jobname.sta\relax
   \immediate\write\sa@write{%
     \noexpand\standalonepreambles
@@ -414,16 +440,6 @@
 \def\sa@out{\immediate\write\sa@write}%
 
 \fi
-%    \end{macrocode}
-%    \begin{macrocode}
-\expandafter\newif\csname ifstandalone\endcsname
-\standalonefalse
-%    \end{macrocode}
-%    \begin{macrocode}
-\@ifundefined{ifstandalonebeamer}{%
-\expandafter\newif\csname ifstandalonebeamer\endcsname
-\standalonebeamerfalse
-}{}%
 %    \end{macrocode}
 %
 % \begin{macro}{\sa@documentclass}
