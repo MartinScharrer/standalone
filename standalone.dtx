@@ -439,6 +439,9 @@
       \def\next{%
         \endgroup
         \PackageWarning{standalone}{Sub-preamble of file '\@filef@und' has changed. Content will be ignored. Please rerun LaTeX!}{}{}%
+        \immediate\write\@mainaux{%
+          \@percentchar\space standalone package info: Rerun LaTeX!
+        }
         \endinput
       }
     \fi
