@@ -522,7 +522,7 @@
 % which causes errors inside the preamble. To be on the save side the input `content' is stored in a temp box.
 %    \begin{macrocode}
 \begingroup
-  \setbox\z@\hbox{%
+  \setbox\@tempboxa\hbox{%
   \InputIfFileExists{\jobname.sta}{}{\PackageInfo{standalone}{STA file not found!}{}{}}%
   }%
 \endgroup
