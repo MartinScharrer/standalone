@@ -326,22 +326,24 @@
 % \iffalse
 %<*sty>
 % \fi
+% The package file is to be loaded by a main document which includes |standalone| sub-files.
+% It is also loaded by the |standalone| class to share code. The class then redefines certain macros.
 %
 % \subsubsection{If-Switches}
 %
 % \begin{macro}{\ifstandalone}
 % Declare |standalone| if-switch and set it to false. The class will set it to true.
-% The |\csname| trickery is used to avoid issue if the switch was already defined.
+% The |\csname| trickery is used to avoid issues if the switch was already defined.
 %    \begin{macrocode}
 \expandafter\newif\csname ifstandalone\endcsname
 \standalonefalse
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\ifstandalone}
+% \begin{macro}{\ifstandalonebeamer}
 % Make sure that |standalonebeamer| if-switch is defined and set it to false.
 % If the class was loaded beforehand with the |beamer| option it is already defined as true.
-% The |\csname| trickery is used to avoid issue if the switch was already defined.
+% The |\csname| trickery is used to avoid issues if the switch was already defined.
 %    \begin{macrocode}
 \@ifundefined{ifstandalonebeamer}{%
 \expandafter\newif\csname ifstandalonebeamer\endcsname
@@ -716,6 +718,8 @@
 %
 % \begin{macro}{\document}
 % Redefine the |\begin{document}| of the main file to redefine \cs{documentclass}.
+% This can not be done using \cs{AtBeginDocument} because the original redefines
+% \cs{documentclass} itself after executing the hook.
 %    \begin{macrocode}
 \def\document{%
   \sa@orig@document
@@ -786,12 +790,6 @@
 % \iffalse
 %<*cls>
 % \fi
-%    \begin{macrocode}
-\def\sa@classoptionslist{}
-\RequirePackage{kvoptions}
-\SetupKeyvalOptions{prefix=sa@}
-\DeclareBoolOption[true]{preview}
-%    \end{macrocode}
 %
 % \begin{environment}{standalone}
 % The \env{standalone} environment is defined by default to be without effect.
@@ -803,16 +801,19 @@
 %    \end{macrocode}
 % \end{environment}
 %
-% \begin{macro}{\sa@cls@document}
-% \begin{macro}{\sa@cls@enddocument}
-%    \begin{macrocode}
-\def\sa@cls@document{\standalone}
-\def\sa@cls@enddocument{\endstandalone}
-%    \end{macrocode}
-% \end{macro}
-% \end{macro}
+% \subsubsection{Options}
 %
-% of \env{frame}.
+%    \begin{macrocode}
+\RequirePackage{kvoptions}
+\SetupKeyvalOptions{prefix=sa@}
+%    \end{macrocode}
+%
+% Use of |preview| package is optional but enabled by default.
+%    \begin{macrocode}
+\DeclareBoolOption[true]{preview}
+%    \end{macrocode}
+%
+% Enable beamer support.
 %    \begin{macrocode}
 \newif\ifstandalonebeamer
 \DeclareVoidOption{beamer}{%
@@ -822,17 +823,25 @@
 }
 %    \end{macrocode}
 %
-%
+% Option to set underlying class. Default is |article|.
 %    \begin{macrocode}
 \DeclareStringOption[article]{class}
+%    \end{macrocode}
+%
+% The rest of the options are accumulated and set as the official class options
+% for the real class loaded afterwards. This avoids the passing of any |standalone| class options
+% to the underlying class in any way. The |beamer| class for example has an option called
+% `|class|' in a similar way the |standalone| class does, which would cause problems if not filtered out.
+%    \begin{macrocode}
+\def\sa@classoptionslist{}
 \DeclareDefaultOption{%
   \xdef\sa@classoptionslist{\sa@classoptionslist,\CurrentOption}%
 }
 \ProcessKeyvalOptions*\relax
+\let\@classoptionslist\sa@classoptionslist
 %    \end{macrocode}
 %
 %    \begin{macrocode}
-\let\@classoptionslist\sa@classoptionslist
 \xdef\@tempa{[\sa@classoptionslist]{\sa@class}}
 \expandafter\LoadClass\@tempa
 %    \end{macrocode}
@@ -861,11 +870,12 @@
 %    \end{macrocode}
 %
 % \begin{macro}{\document}
+% Adds own `after begin document' hook.
 %    \begin{macrocode}
 \def\document{%
   \sa@orig@document
-  \let\documentclass\sa@documentclass
-  \sa@cls@document
+  \let\documentclass\sa@documentclass  % TODO: really required?
+  \sa@cls@afterbegindocument
 }
 %    \end{macrocode}
 % \end{macro}
@@ -873,10 +883,22 @@
 % \begin{macro}{\enddocument}
 %    \begin{macrocode}
 \def\enddocument{%
-  \sa@cls@enddocument
+  \sa@cls@beforeenddocument
   \sa@orig@enddocument
 }
 %    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\sa@cls@afterbegindocument}
+% \begin{macro}{\sa@cls@beforeenddocument}
+% Hooks which add the \env{standalone} environment. Surrounding spaces
+% are removed. This hooks are used (instead of calling the content directly in the above macros)
+% to add the possibility to fine tune this later, e.g.\ in the configuration file.
+%    \begin{macrocode}
+\def\sa@cls@afterbegindocument{\expandafter\standalone\ignorespaces}
+\def\sa@cls@beforeenddocument{\unskip\endstandalone}
+%    \end{macrocode}
+% \end{macro}
 % \end{macro}
 %
 % \subsubsection{Beamer Frame Environment}
@@ -936,6 +958,8 @@
 %    \end{macrocode}
 %
 % \begin{macro}{\ifstandalone}
+% Provides \cs{ifstandalone} switch which is |\iftrue| if the normal |\documentclass|
+% was not yet executed (and subsequently redefined to be |\@twoclasseserror|).
 %    \begin{macrocode}
 \expandafter\newif\csname ifstandalone\endcsname
 %    \end{macrocode}
