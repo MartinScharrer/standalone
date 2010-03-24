@@ -55,7 +55,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{242}
+% \CheckSum{486}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -326,24 +326,45 @@
 % \iffalse
 %<*sty>
 % \fi
+%
+% \subsubsection{If-Switches}
+%
+% \begin{macro}{\ifstandalone}
+% Declare |standalone| if-switch and set it to false. The class will set it to true.
+% The |\csname| trickery is used to avoid issue if the switch was already defined.
 %    \begin{macrocode}
 \expandafter\newif\csname ifstandalone\endcsname
 \standalonefalse
 %    \end{macrocode}
+% \end{macro}
 %
+% \begin{macro}{\ifstandalone}
+% Make sure that |standalonebeamer| if-switch is defined and set it to false.
+% If the class was loaded beforehand with the |beamer| option it is already defined as true.
+% The |\csname| trickery is used to avoid issue if the switch was already defined.
 %    \begin{macrocode}
 \@ifundefined{ifstandalonebeamer}{%
 \expandafter\newif\csname ifstandalonebeamer\endcsname
 \standalonebeamerfalse
 }{}%
 %    \end{macrocode}
+% \end{macro}
 %
+% \begin{macro}{\ifsa@subpreambles}
+% \begin{macro}{\ifsa@sortsubpreambles}
+% \begin{macro}{\ifsa@displaysubpreambles}
+% The if-switches for the options.
 %    \begin{macrocode}
-\newwrite\sa@write
 \newif\ifsa@subpreambles
 \newif\ifsa@sortsubpreambles
 \newif\ifsa@displaysubpreambles
-
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+%
+% \subsubsection{Options}
+%    \begin{macrocode}
 \DeclareOption{subpreambles}{%
   \sa@subpreamblestrue
 }
@@ -354,54 +375,109 @@
   \sa@displaysubpreamblestrue
 }
 \ProcessOptions*\relax
-
+%    \end{macrocode}
+%
+% The |display| option activates the |subpreambles| option but disables the |sort| option.
+%    \begin{macrocode}
 \ifsa@displaysubpreambles
   \sa@subpreamblestrue
   \sa@sortsubpreamblesfalse
 \fi
 %    \end{macrocode}
 %
+% \subsubsection{Processing of Sub-Preambles}
+%
 %    \begin{macrocode}
 \ifsa@subpreambles
+%    \end{macrocode}
+%
+% \begin{macro}{\sa@write}
+% Write handle.
+%    \begin{macrocode}
+\newwrite\sa@write
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\sa@out}
+% Helper macro for file output.
+%    \begin{macrocode}
+\def\sa@out{\immediate\write\sa@write}%
+%    \end{macrocode}
+% \end{macro}
+%
 
+% \subsubsection{Sorting of package options}
+%
+% Macros only needed for this mode are defined inside the |\if...|
+% to save memory otherwise.
+%
+%    \begin{macrocode}
 \ifsa@sortsubpreambles
+%    \end{macrocode}
 
-\def\sa@gobbleopt{%
-  \@ifnextchar[%]
-    {\sa@@gobbleopt}%
-    {}%
-}
-\def\sa@@gobbleopt[#1]{}
-
-\newcommand{\sa@gobblepackage}[2][]{\sa@gobbleopt}
+% \begin{macro}{\sa@usepackagewithoutoptions}
+% Simply calls the original |\usepackage| while skipping the optional
+% argument with potential package options.
+%    \begin{macrocode}
 \newcommand{\sa@usepackagewithoutoptions}[2][]{%
   \sa@orig@usepackage{#2}%
 }
-
-\def\sa@endscanpackages{%
-  \@gobble{sa@endscanpackages}%
-}
-
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\sa@scanpackages}
+% Scans for |\usepackage| and 
+%    \begin{macrocode}
 \def\sa@scanpackages#1\usepackage{%
   \@ifnextchar\sa@endscanpackages
     {\@gobble}%
     {\sa@collectpackage}
 }
-
-\def\sa@collopts{}
-\AtEndOfPackage{\sa@collopts}
-
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\sa@endscanpackages}
+% Unique end marker. Will not be expanded.
+%    \begin{macrocode}
+\def\sa@endscanpackages{%
+  \@gobble{sa@endscanpackages}%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\sa@collectpackage}
+% Reads \cs{usepackage} arguments (ignores optional date) and stores it away.
+% The options are later passed to the package to avoid option clashes.
+%    \begin{macrocode}
 \newcommand\sa@collectpackage[2][]{%
   \ifx\relax#1\relax\else
     \g@addto@macro\sa@collopts{\PassOptionsToPackage{#1}{#2}}%
   \fi
-  \@ifnextchar[%]
-    {\expandafter\sa@scanpackages\sa@@gobbleopt}
-    {\sa@scanpackages}
+  \sa@scanpackages
 }
-
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\sa@collopts}
+% Accumulator for collected options. Is executed and cleared at the end of this package.
+%    \begin{macrocode}
+\def\sa@collopts{}
+\AtEndOfPackage{\sa@collopts\let\sa@collopts\relax}
+%    \end{macrocode}
+% \end{macro}
+%
+% End of |\ifsa@sortsubpreambles|.
+%    \begin{macrocode}
 \fi
-
+%    \end{macrocode}
+%
+% \begin{environment}{standalonepreambles}
+% This environment simply adds a group and sets the endline character to a printed newline and the argument character
+% |#| as a normal character. The first suppresses |\par|'s in the stored sub-preambles while preserving newlines. The latter
+% is required to permit macro arguments in the preambles. Otherwise a |#| is doubled to |##| causing compile errors when the 
+% sub-preambles are used.
+% The |.sta| file is closed after this environment.
+%    \begin{macrocode}
 \def\standalonepreambles{%
   \begingroup
   \endlinechar=`\^^J%
@@ -411,25 +487,50 @@
   \endgroup
   \endinput
 }
+%    \end{macrocode}
+% \end{environment}
+%
+% \begin{environment}{subpreambles}
+% This environment rereads the sub-preambles from the |.sta| files and stores it globally under the name
+% ``\cs{prevsubpreamble@}\meta{file name}''. If sorting is enabled the sub-preambles are also scanned for 
+% loaded packages.
+%    \begin{macrocode}
 \long\gdef\subpreamble#1^^J#2^^J\endsubpreamble{%
   \expandafter\gdef\csname prevsubpreamble@#1\endcsname{#2}%
   \ifsa@sortsubpreambles
   \sa@scanpackages#2\usepackage\sa@endscanpackages
   \fi
 }
-
 \def\endsubpreamble{}%
-
+%    \end{macrocode}
+% \end{environment}
+%
+% If in |display| mode clean the last |.sta| file and open the |.stp| file.
+%    \begin{macrocode}
 \ifsa@displaysubpreambles
   \immediate\openout\sa@write=\jobname.sta\relax
   \immediate\closeout\sa@write
   \immediate\openout\sa@write=\jobname.stp\relax
 \else
+%    \end{macrocode}
+% otherwise:
+%
+% Process |.sta| file from last run. All changes must be made by own macros which define the value globally.
+% Therefore the input is wrapped in a group. Some spaces or special line endings could process typeset content,
+% which causes errors inside the preamble. To be on the save side the input `content' is stored in a temp box.
+%    \begin{macrocode}
 \begingroup
-\setbox\z@\hbox{%
-\InputIfFileExists{\jobname.sta}{}{\PackageInfo{standalone}{STA file not found!}{}{}}%
-}%
+  \setbox\z@\hbox{%
+  \InputIfFileExists{\jobname.sta}{}{\PackageInfo{standalone}{STA file not found!}{}{}}%
+  }%
 \endgroup
+%    \end{macrocode}
+
+% \begin{macro}{\AtBeginDocument}
+% At begin of the document the |.sta| file is read again. This time the sub-preamble macros are executed as normal.
+% The |standalone| macros are defined to be without effect. If `sorting' is enabled \cs{usepackage} is temporarily 
+% redefined to ignore any given options, which where already passed (\cs{PassOptionsToPackage}) beforehand.
+%    \begin{macrocode}
 \AtBeginDocument{%
   \let\subpreamble\@gobble
   \let\endsubpreamble\relax
@@ -448,17 +549,33 @@
     \string\standalonepreambles\@percentchar
   }%
 }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\AtEndDocument}
+% At end of the document write end macro to and close |.sta| file.
+%    \begin{macrocode}
 \AtEndDocument{%
-  \immediate\write\sa@write{%
-    \string\endstandalonepreambles\@percentchar
-  }%
+  \sa@out{\string\endstandalonepreambles\@percentchar}%
   \immediate\closeout\sa@write
 }
-\fi
-\def\sa@out{\immediate\write\sa@write}%
-
+%    \end{macrocode}
+% \end{macro}
+%
+% End of |\ifsa@displaysubpreambles|.
+%    \begin{macrocode}
 \fi
 %    \end{macrocode}
+%
+% End of |\ifsa@subpreambles|.
+%    \begin{macrocode}
+\fi
+%    \end{macrocode}
+%
+%
+% \subsubsection{Skipping of Sub-Preambles in Main Mode}
+%
+% This macros make the main document skip all preambles in sub-files.
 %
 % \begin{macro}{\sa@documentclass}
 %    \begin{macrocode}
@@ -485,6 +602,13 @@
 % \end{macro}
 %
 % \begin{macro}{\sa@gobble}
+% Gobbles everything to the next |\begin|, then checks if it was a |\begin{document}|.
+% If sub-preamble extraction is activated it accumulates the skipped content in macros
+% named ``\cs{subpreamble@}\meta{file name}''. Every sub-file is remembered and its preamble is only saved once.
+% In |display| mode the file body is ignored and a appropriate warning is printed,
+% otherwise the current and previous sub-preamble of the current processed file. If different the file body is also
+% ignored to avoid errors due to possible newly required but not loaded packages. The user is warned again about this
+% and is asked to rerun \LaTeX{}.
 %    \begin{macrocode}
 \long\def\sa@gobble#1\begin#2{%
   \def\@tempa{#2}%
@@ -540,13 +664,19 @@
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{environment}{standalone}
+% Provide an empty definition of the |standalone| environment. The class is defining it with the code required in |standalone| mode.
 %    \begin{macrocode}
 \@ifundefined{standalone}
   {\newenvironment{standalone}[1][]{}{}}
   {}
 %    \end{macrocode}
+% \end{environment}
 %
-% Gobbles all arguments: |<...>[<...>][...]{...}{...}|. Please note that the last two |{ }| arguments are also optional.
+% \begin{environment}{standalone}
+% Provide an `empty' definition of the |standaloneframe| environment.
+% It only gobbles all arguments: |<...>[<...>][...]{...}{...}|. Please note that the last two |{ }| arguments are also optional.
+% The class is defining it with the code required in |standalone| mode.
 %    \begin{macrocode}
 \@ifundefined{standaloneframe}
   {\@ifundefined{beamer@newenv}
@@ -572,19 +702,20 @@
   }
   {}
 %    \end{macrocode}
+% \end{environment}
 %
 % \begin{macro}{\sa@orig@document}
+% \begin{macro}{\sa@orig@enddocument}
+% Store original |document| environment.
 %    \begin{macrocode}
 \let\sa@orig@document\document
-% \end{macro}
-%
-% \begin{macro}{\sa@orig@enddocument}
-%    \begin{macrocode}
 \let\sa@orig@enddocument\enddocument
 %    \end{macrocode}
 % \end{macro}
+% \end{macro}
 %
 % \begin{macro}{\document}
+% Redefine the |\begin{document}| of the main file to redefine \cs{documentclass}.
 %    \begin{macrocode}
 \def\document{%
   \sa@orig@document
@@ -595,6 +726,8 @@
 % \end{macro}
 %
 % \begin{macro}{\sa@document}
+% This is the |\begin{document}| of the sub files. It does nothing except of 
+% redefining |\end{document}| and calling our own |atbegindocument| hook.
 %    \begin{macrocode}
 \def\sa@document{%
   \let\enddocument\sa@enddocument
@@ -604,6 +737,8 @@
 % \end{macro}
 %
 % \begin{macro}{\sa@enddocument}
+% This is the |\end{document}| of the sub files. It does nothing except of 
+% calling our own |atenddocument| hook and then the `after end document' handler.
 %    \begin{macrocode}
 \def\sa@enddocument{%
   \sa@atenddocument
@@ -612,23 +747,9 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\sa@atbegindocument}
-%    \begin{macrocode}
-\def\sa@atbegindocument{%
-  \ignorespaces
-}%
-%    \end{macrocode}
-% \end{macro}
-%
-% \begin{macro}{\sa@atenddocument}
-%    \begin{macrocode}
-\def\sa@atenddocument{%
-  \unskip
-}%
-%    \end{macrocode}
-% \end{macro}
-%
 % \begin{macro}{\sa@@enddocument}
+% This is a `after end document' handler for the sub-files. It restores macros and 
+% ends the input of the file.
 %    \begin{macrocode}
 \def\sa@@enddocument{%
   %\let\document\sa@orig@document
@@ -638,23 +759,24 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\sa@processpreamble}
+% \begin{macro}{\sa@atbegindocument}
+% This hook simply ignores all spaces after |\begin{document}| in the sub files.
 %    \begin{macrocode}
-\def\sa@processpreamble{%
-  \renewcommand\usepackage[2][]{%
-    \message{^^J%
-      INFO: Sub-file requires the following package(s):^^J
-      \space\space[##1]{##2}^^J%
-    }%
-  }%
-  \let\RequirePackage\usepackage
-}
+\def\sa@atbegindocument{%
+  \ignorespaces
+}%
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{macro}{\sa@atenddocument}
+% This hook simply ignores the last skip (normally the spaces) before |\end{document}| in the sub files.
 %    \begin{macrocode}
-%%\def\sa@@documentclass{\sa@processpreamble}
+\def\sa@atenddocument{%
+  \unskip
+}%
 %    \end{macrocode}
+% \end{macro}
+%
 %
 % \iffalse
 %</sty>
@@ -690,7 +812,6 @@
 % \end{macro}
 % \end{macro}
 %
-% The |beamer| option defines the \env{standalone} environment as a replacement
 % of \env{frame}.
 %    \begin{macrocode}
 \newif\ifstandalonebeamer
@@ -698,37 +819,9 @@
   \def\sa@class{beamer}%
   \sa@previewfalse
   \standalonebeamertrue
-  \newenvironment{standaloneframe}{%
-    \@ifnextchar<%
-      {\@standaloneframe}%
-      {\@@standaloneframe{}}%
-  }{\end{frame}}%
-  \def\@standaloneframe<##1>{%
-      \@@standaloneframe{<##1>}%
-  }
-  \def\@@standaloneframe##1{%
-    \@ifnextchar[%]
-      {\@@@standaloneframe{##1}}%
-      {\@@@standaloneframe{##1}[]}%
-  }%
-  \def\@@@standaloneframe##1[{%
-    \@ifnextchar<%
-      {\@@@@standaloneframe{##1}[}%
-      {\@@@@@@standaloneframe{##1}[}%
-  }%
-  \def\@@@@standaloneframe##1[##2]{%
-    \@ifnextchar[%]
-      {\@@@@@standaloneframe{##1}{##2}}%
-      {\begin{frame}##1[##2][environment=standaloneframe]}%
-  }%
-  \def\@@@@@standaloneframe##1##2[##3]{%
-      \begin{frame}##1[##2][environment=standaloneframe,##3]%
-  }%
-  \def\@@@@@@standaloneframe##1[##2]{%
-      \begin{frame}##1[environment=standaloneframe,##2]%
-  }%
 }
 %    \end{macrocode}
+%
 %
 %    \begin{macrocode}
 \DeclareStringOption[article]{class}
@@ -748,7 +841,7 @@
 \input{standalone.cfg}
 %    \end{macrocode}
 %
-% \subsubsection*{Preview Code}
+% \subsubsection{Preview Code}
 % The \env{standalone} environment is redefined to use the |preview| environment as
 % long it was not redefined in the configuration file.
 %    \begin{macrocode}
@@ -786,6 +879,50 @@
 %    \end{macrocode}
 % \end{macro}
 %
+% \subsubsection{Beamer Frame Environment}
+%
+%    \begin{macrocode}
+\ifstandalonebeamertrue
+%    \end{macrocode}
+% \begin{environment}{standaloneframe}
+% Front-end for the beamer |frame| environment. Parses all arguments
+% the same way and calls it with an added option.
+%    \begin{macrocode}
+\newenvironment{standaloneframe}{%
+  \@ifnextchar<%
+    {\@standaloneframe}%
+    {\@@standaloneframe{}}%
+}{\end{frame}}%
+\def\@standaloneframe<##1>{%
+    \@@standaloneframe{<##1>}%
+}
+\def\@@standaloneframe##1{%
+  \@ifnextchar[%]
+    {\@@@standaloneframe{##1}}%
+    {\@@@standaloneframe{##1}[]}%
+}%
+\def\@@@standaloneframe##1[{%
+  \@ifnextchar<%
+    {\@@@@standaloneframe{##1}[}%
+    {\@@@@@@standaloneframe{##1}[}%
+}%
+\def\@@@@standaloneframe##1[##2]{%
+  \@ifnextchar[%]
+    {\@@@@@standaloneframe{##1}{##2}}%
+    {\begin{frame}##1[##2][environment=standaloneframe]}%
+}%
+\def\@@@@@standaloneframe##1##2[##3]{%
+    \begin{frame}##1[##2][environment=standaloneframe,##3]%
+}%
+\def\@@@@@@standaloneframe##1[##2]{%
+    \begin{frame}##1[environment=standaloneframe,##2]%
+}%
+%    \end{macrocode}
+% \end{environment}
+%    \begin{macrocode}
+\fi
+%    \end{macrocode}
+%
 % \iffalse
 %</cls>
 % \fi
@@ -797,6 +934,8 @@
 %    \begin{macrocode}
 \expandafter\ifx\csname ifstandalone\endcsname\relax
 %    \end{macrocode}
+%
+% \begin{macro}{\ifstandalone}
 %    \begin{macrocode}
 \expandafter\newif\csname ifstandalone\endcsname
 %    \end{macrocode}
@@ -806,6 +945,8 @@
   \standalonetrue
 \fi
 %    \end{macrocode}
+% \end{macro}
+%
 %    \begin{macrocode}
 \fi
 %    \end{macrocode}
