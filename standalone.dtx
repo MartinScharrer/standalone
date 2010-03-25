@@ -383,7 +383,6 @@
 %    \begin{macrocode}
 \ifsa@displaysubpreambles
   \sa@subpreamblestrue
-  \sa@sortsubpreamblesfalse
 \fi
 %    \end{macrocode}
 %
@@ -407,7 +406,7 @@
 %    \end{macrocode}
 % \end{macro}
 %
-
+%
 % \subsubsection{Sorting of package options}
 %
 % Macros only needed for this mode are defined inside the |\if...|
@@ -416,7 +415,7 @@
 %    \begin{macrocode}
 \ifsa@sortsubpreambles
 %    \end{macrocode}
-
+%
 % \begin{macro}{\sa@usepackagewithoutoptions}
 % Simply calls the original |\usepackage| while skipping the optional
 % argument with potential package options.
@@ -428,7 +427,7 @@
 % \end{macro}
 %
 % \begin{macro}{\sa@scanpackages}
-% Scans for |\usepackage| and 
+% Scans for |\usepackage|.
 %    \begin{macrocode}
 \def\sa@scanpackages#1\usepackage{%
   \@ifnextchar\sa@endscanpackages
@@ -451,12 +450,47 @@
 % Reads \cs{usepackage} arguments (ignores optional date) and stores it away.
 % The options are later passed to the package to avoid option clashes.
 %    \begin{macrocode}
+\ifsa@displaysubpreambles
+\AtEndDocument{%
+  \show\sa@collpkgs
+  \expandafter\@for\expandafter \pkg\expandafter :\expandafter=\sa@collpkgs\do {%
+    \expandafter\show\csname sa@pkgopts@\pkg\endcsname
+  }%
+}
+\def\sa@collpkgs{}%
+\newcommand\sa@collectpackage[2][]{%
+  \@for\pkg:=#2\do {%
+    \@ifundefined{sa@pkgopts@\pkg}%
+      {%
+        \g@addto@macro\sa@collpkgs{,#2}%
+        \global\@namedef{sa@pkgopts@\pkg}{#1}%
+        \global\@namedef{sa@pkgopt@\pkg @}{}%
+        \ifx\relax#1\relax\else
+          \@for\opt:=#1\do{\global\@namedef{sa@pkgopt@\pkg @\opt}{}}%
+        \fi
+      }%
+      {%
+        \ifx\relax#1\relax\else
+          \@for\opt:=#1\do{%
+            \@ifundefined{sa@pkgopt@\pkg @\opt}%
+              {%
+                \expandafter\g@addto@macro\csname sa@pkgopts@\pkg\expandafter\endcsname\expandafter{\expandafter,\opt}%
+                \global\@namedef{sa@pkgopt@\pkg @\opt}{}%
+              }{}%
+          }%
+        \fi
+      }%
+  }%
+  \sa@scanpackages
+}
+\else
 \newcommand\sa@collectpackage[2][]{%
   \ifx\relax#1\relax\else
     \g@addto@macro\sa@collopts{\PassOptionsToPackage{#1}{#2}}%
   \fi
   \sa@scanpackages
 }
+\fi
 %    \end{macrocode}
 % \end{macro}
 %
@@ -500,7 +534,7 @@
 \long\gdef\subpreamble#1^^J#2^^J\endsubpreamble{%
   \expandafter\gdef\csname prevsubpreamble@#1\endcsname{#2}%
   \ifsa@sortsubpreambles
-  \sa@scanpackages#2\usepackage\sa@endscanpackages
+    \sa@scanpackages#2\usepackage\sa@endscanpackages
   \fi
 }
 \def\endsubpreamble{}%
@@ -626,6 +660,7 @@
           }{}%
       \global\@namedef{sa@written@\@filef@und}{}%
       \ifsa@displaysubpreambles
+      \sa@scanpackages#1\usepackage\sa@endscanpackages
         \def\next{%
           \endgroup
           \PackageWarning{standalone}{Running 'standalone' package in sub-preamble display mode. All body content of file `\@filef@und' is ignored!}{}{}%
