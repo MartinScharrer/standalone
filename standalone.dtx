@@ -819,14 +819,14 @@
 \SetupKeyvalOptions{prefix=sa@}
 %    \end{macrocode}
 %
-% Use of |preview| package is optional but enabled by default.
+% Use of |preview| package is optional but enabled by default. 
+% This defines the |\ifsa@preview| switch.
 %    \begin{macrocode}
 \DeclareBoolOption[true]{preview}
 %    \end{macrocode}
 %
 % Enable beamer support.
 %    \begin{macrocode}
-\newif\ifstandalonebeamer
 \DeclareVoidOption{beamer}{%
   \def\sa@class{beamer}%
   \sa@previewfalse
@@ -852,6 +852,7 @@
 \let\@classoptionslist\sa@classoptionslist
 %    \end{macrocode}
 %
+% Loads the class given by the |class| option with the rest of the options.
 %    \begin{macrocode}
 \begingroup
 \xdef\@tempa{[\sa@classoptionslist]{\sa@class}}
@@ -869,8 +870,7 @@
 \let\endstandalone\relax
 %    \end{macrocode}
 %
-% \end{environment}
-% Load configuration file.
+% Loads configuration file.
 %    \begin{macrocode}
 \input{standalone.cfg}
 %    \end{macrocode}
