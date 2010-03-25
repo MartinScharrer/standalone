@@ -485,9 +485,9 @@
           [\csname sa@pkgopts@\pkg\endcsname]%
         \fi
         {\pkg}%
-        %\expandafter\ifx\csname sa@pkgdate@\pkg\endcsname\empty\else%
-        %  [\csname sa@pkgdate@\pkg\endcsname]%
-        %\fi
+        \expandafter\ifx\csname sa@pkgdate@\pkg\endcsname\relax\else%
+          [\csname sa@pkgdate@\pkg\endcsname]%
+        \fi
         }%
     \fi
   }%
@@ -517,9 +517,9 @@
           [\csname sa@tikztimingopts@\lib\endcsname]%
         \fi
         {\lib}%
-        %\expandafter\ifx\csname sa@libdate@\lib\endcsname\empty\else%
-        %  [\csname sa@libdate@\lib\endcsname]%
-        %\fi
+        \expandafter\ifx\csname sa@tikztimingdate@\lib\endcsname\relax\else%
+          [\csname sa@tikztimingdate@\lib\endcsname]%
+        \fi
         }%
     \fi
   }%
@@ -584,6 +584,11 @@
 %    \begin{macrocode}
 \def\sa@collpkgs{}%
 \newcommand\sa@sortpackages[2][]{%
+  \@ifnextchar[%]
+    {\sa@@sortpackages{#1}{#2}}%
+    {\sa@@sortpackages{#1}{#2}[]}%
+}
+\def\sa@@sortpackages#1#2[#3]{%
   \@for\pkg:=#2\do {%
     \@ifundefined{sa@pkgopts@\pkg}%
       {%
@@ -605,11 +610,48 @@
           }%
         \fi
       }%
+    \ifx\relax#3\relax\else
+    \@ifundefined{sa@pkgdate@\pkg}%
+      {\global\@namedef{sa@pkgdate@\pkg}{#3}}%
+      {%
+        \begingroup
+        \edef\@tempa{{\csname sa@pkgdate@\pkg\endcsname}{#3}}%
+        \expandafter\sa@getlargerdate\@tempa
+        \expandafter\xdef\csname sa@pkgdate@\pkg\endcsname{\sa@thedate}%
+        \endgroup
+      }%
+    \fi
   }%
-  \@ifnextchar[%]
-    {\sa@gobbleopt\sa@removepackages}%
-    {\sa@gobbleeol\sa@removepackages^^J}%
+  \sa@gobbleeol\sa@removepackages^^J%
 }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\sa@getlargerdate}
+% Takes to package dates and returns the larger one as \cs{sa@thedate}.
+%    \begin{macrocode}
+\def\sa@getlargerdate#1#2{%
+  \sa@@getdate#1\relax\relax0/0/0\relax\empty\relax
+  \let\sa@datea\sa@date
+  \sa@@getdate#2\relax\relax0/0/0\relax\empty\relax
+  \ifdim\sa@datea pt>\sa@date pt
+    \def\sa@thedate{#1}%
+  \else
+    \def\sa@thedate{#2}%
+  \fi
+}
+\def\sa@@getdate#1/#2/#3\relax{%
+  \@ifnextchar\relax
+    {%
+      \def\sa@date{#1.#2#3}%
+      \sa@@rmdate
+    }%
+    {%
+      \def\sa@date{0}%
+      \sa@@rmdate
+    }%
+}
+\def\sa@@rmdate#1\empty\relax{}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -657,6 +699,11 @@
 %    \begin{macrocode}
 \def\sa@colltikztiminglibs{}%
 \newcommand\sa@sorttikztiminglibs[2][]{%
+  \@ifnextchar[%]
+    {\sa@@sorttikztiminglibs{#1}{#2}}%
+    {\sa@@sorttikztiminglibs{#1}{#2}[]}%
+}
+\def\sa@@sorttikztiminglibs#1#2[#3]{%
   \@for\lib:=#2\do {%
     \@ifundefined{sa@tikztimingopts@\lib}%
       {%
@@ -678,10 +725,19 @@
           }%
         \fi
       }%
+    \ifx\relax#3\relax\else
+    \@ifundefined{sa@tikztimingdate@\lib}%
+      {\global\@namedef{sa@tikztimingdate@\lib}{#3}}%
+      {%
+        \begingroup
+        \edef\@tempa{{\csname sa@tikztimingdate@\lib\endcsname}{#3}}%
+        \expandafter\sa@getlargerdate\@tempa
+        \expandafter\xdef\csname sa@tikztimingdate@\lib\endcsname{\sa@thedate}%
+        \endgroup
+      }%
+    \fi
   }%
-  \@ifnextchar[%]
-    {\sa@gobbleopt\sa@removetikztiminglibs}%
-    {\sa@gobbleeol\sa@removetikztiminglibs^^J}%
+  \sa@gobbleeol\sa@removetikztiminglibs^^J%
 }
 %    \end{macrocode}
 % \end{macro}
