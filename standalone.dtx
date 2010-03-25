@@ -693,17 +693,27 @@
     \@ifundefined{sa@written@\sa@filepath}%
       {%
         \ifsa@displaysubpreambles
-          \begingroup
-            \edef\@tempa{^^J\@percentchar\space Preamble from file '\sa@filepath'^^J}%
-            \expandafter\g@addto@macro\expandafter\sa@preamble\expandafter{\@tempa}%
-          \endgroup
+          \ifsa@sortsubpreambles
+            \begingroup
+              \edef\@tempa{^^J\@percentchar\space Preamble from file '\sa@filepath'^^J}%
+              \expandafter\g@addto@macro\expandafter\sa@preamble\expandafter{\@tempa}%
+            \endgroup
+          \else
+            \sa@out{^^J\@percentchar\space Preamble from file '\sa@filepath'^^J}%
+          \fi
         \else
           \sa@out{\noexpand\subpreamble{\sa@filepath}}%
         \fi
       }{}%
     \global\@namedef{subpreamble@\sa@filepath}{}%
     \endlinechar=`\^^J%
-    \@makeother\#
+    \@makeother\#%
+    \ifsa@displaysubpreambles
+      \ifsa@sortsubpreambles
+      \else
+        \@makeother\%%
+      \fi
+    \fi
   \fi
   \def\sa@gobbleto{document}%
   \sa@gobble
@@ -731,10 +741,8 @@
           \ifsa@displaysubpreambles
             \ifsa@sortsubpreambles
               \sa@removepackages#1\usepackage\sa@endmarker
-              %\expandafter\sa@out\expandafter{\expandafter\unexpanded\expandafter{\sa@preamble}}%
             \else
               \sa@out{\unexpanded{#1}}%
-              \sa@out{\string\endsubpreamble\@percentchar}%
             \fi
           \else
             \sa@out{\unexpanded{#1}}%
