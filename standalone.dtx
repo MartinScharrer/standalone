@@ -435,17 +435,17 @@
 \ifsa@subpreambles
 %    \end{macrocode}
 %
-% \begin{macro}{\sa@write}
+% \begin{macro}{\sa@out}
 % Write handle.
 %    \begin{macrocode}
-\newwrite\sa@write
+\newwrite\sa@out
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\sa@out}
+% \begin{macro}{\sa@write}
 % Helper macro for file output.
 %    \begin{macrocode}
-\def\sa@out{\immediate\write\sa@write}%
+\def\sa@write{\immediate\write\sa@out}%
 %    \end{macrocode}
 % \end{macro}
 %
@@ -484,10 +484,10 @@
 %
 %    \begin{macrocode}
 \AtEndDocument{%
-  \sa@out{\@percentchar\space Packages required by sub-files:}%
+  \sa@write{\@percentchar\space Packages required by sub-files:}%
   \expandafter\@for\expandafter\pkg\expandafter:\expandafter=\sa@collpkgs\do{%
     \ifx\pkg\empty\else
-      \sa@out{%
+      \sa@write{%
         \string\usepackage%
         \expandafter\ifx\csname sa@pkgopts@\pkg\endcsname\empty\else%
           [\csname sa@pkgopts@\pkg\endcsname]%
@@ -500,26 +500,26 @@
     \fi
   }%
   \ifx\sa@collpgflibs\empty\else
-  \sa@out{^^J\@percentchar\space PGF libraries required by sub-files:}%
+  \sa@write{^^J\@percentchar\space PGF libraries required by sub-files:}%
   \expandafter\@for\expandafter\lib\expandafter:\expandafter=\sa@collpgflibs\do{%
     \ifx\lib\empty\else
-      \sa@out{\string\usepgflibrary{\lib}}%
+      \sa@write{\string\usepgflibrary{\lib}}%
     \fi
   }%
   \fi
   \ifx\sa@colltikzlibs\empty\else
-  \sa@out{^^J\@percentchar\space TikZ libraries required by sub-files:}%
+  \sa@write{^^J\@percentchar\space TikZ libraries required by sub-files:}%
   \expandafter\@for\expandafter\lib\expandafter:\expandafter=\sa@colltikzlibs\do{%
     \ifx\lib\empty\else
-      \sa@out{\string\usetikzlibrary{\lib}}%
+      \sa@write{\string\usetikzlibrary{\lib}}%
     \fi
   }%
   \fi
   \ifx\sa@colltikztiminglibs\empty\else
-  \sa@out{^^J\@percentchar\space TikZ-Timing libraries required by sub-files:}%
+  \sa@write{^^J\@percentchar\space TikZ-Timing libraries required by sub-files:}%
   \expandafter\@for\expandafter\lib\expandafter:\expandafter=\sa@colltikztiminglibs\do{%
     \ifx\lib\empty\else
-      \sa@out{%
+      \sa@write{%
         \string\usetikztiminglibrary%
         \expandafter\ifx\csname sa@tikztimingopts@\lib\endcsname\empty\else%
           [\csname sa@tikztimingopts@\lib\endcsname]%
@@ -532,9 +532,9 @@
     \fi
   }%
   \fi
-  \sa@out{\expandafter\unexpanded\expandafter{\sa@preamble}}%
+  \sa@write{\expandafter\unexpanded\expandafter{\sa@preamble}}%
   \message{^^JPackage 'standalone' INFO: See file '\jobname.stp' for list of sub-preambles.^^J}%
-  \immediate\closeout\sa@write
+  \immediate\closeout\sa@out
 }
 %    \end{macrocode}
 %
@@ -851,9 +851,9 @@
 % If in |display| mode clean the last |.sta| file and open the |.stp| file.
 %    \begin{macrocode}
 \ifsa@displaysubpreambles
-  \immediate\openout\sa@write=\jobname.sta\relax
-  \immediate\closeout\sa@write
-  \immediate\openout\sa@write=\jobname.stp\relax
+  \immediate\openout\sa@out=\jobname.sta\relax
+  \immediate\closeout\sa@out
+  \immediate\openout\sa@out=\jobname.stp\relax
 \else
 %    \end{macrocode}
 % otherwise:
@@ -887,8 +887,8 @@
   \ifsa@sortsubpreambles
     \let\usepackage\sa@orig@usepackage
   \fi
-  \immediate\openout\sa@write=\jobname.sta\relax
-  \immediate\write\sa@write{%
+  \immediate\openout\sa@out=\jobname.sta\relax
+  \immediate\write\sa@out{%
     \string\standalonepreambles\@percentchar
   }%
 }
@@ -899,8 +899,8 @@
 % At end of the document write end macro to and close |.sta| file.
 %    \begin{macrocode}
 \AtEndDocument{%
-  \sa@out{\string\endstandalonepreambles\@percentchar}%
-  \immediate\closeout\sa@write
+  \sa@write{\string\endstandalonepreambles\@percentchar}%
+  \immediate\closeout\sa@out
 }
 %    \end{macrocode}
 % \end{macro}
@@ -946,10 +946,10 @@
               \expandafter\g@addto@macro\expandafter\sa@preamble\expandafter{\@tempa}%
             \endgroup
           \else
-            \sa@out{^^J\@percentchar\space Preamble from file '\sa@filepath'}%
+            \sa@write{^^J\@percentchar\space Preamble from file '\sa@filepath'}%
           \fi
         \else
-          \sa@out{\noexpand\subpreamble{\sa@filepath}}%
+          \sa@write{\noexpand\subpreamble{\sa@filepath}}%
         \fi
       }{}%
     \global\@namedef{subpreamble@\sa@filepath}{}%
@@ -984,11 +984,11 @@
             \ifsa@sortsubpreambles
               \sa@removepackages#1\usepackage\sa@endmarker
             \else
-              \sa@out{\unexpanded{#1}}%
+              \sa@write{\unexpanded{#1}}%
             \fi
           \else
-            \sa@out{\unexpanded{#1}}%
-            \sa@out{\string\endsubpreamble\@percentchar}%
+            \sa@write{\unexpanded{#1}}%
+            \sa@write{\string\endsubpreamble\@percentchar}%
           \fi
         }{}%
       \global\@namedef{sa@written@\sa@filepath}{}%
@@ -1024,7 +1024,7 @@
     \ifsa@subpreambles
       \expandafter\g@addto@macro\csname subpreamble@\sa@filepath\endcsname{#1\begin{#2}}%
       \@ifundefined{sa@written@\sa@filepath}%
-        {\sa@out{\unexpanded{#1\begin{#2}}}}{}%
+        {\sa@write{\unexpanded{#1\begin{#2}}}}{}%
     \fi
     \def\next{\sa@gobble}%
   \fi
