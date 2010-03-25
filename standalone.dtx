@@ -441,10 +441,18 @@
 %
 %    \begin{macrocode}
 \AtEndDocument{%
-  \show\sa@collpkgs
-  \expandafter\@for\expandafter \pkg\expandafter :\expandafter=\sa@collpkgs\do {%
-    \expandafter\show\csname sa@pkgopts@\pkg\endcsname
+  \sa@out{\@percentchar\space Packages required by sub-files:}%
+  \expandafter\@for\expandafter\pkg\expandafter:\expandafter=\sa@collpkgs\do{%
+    \ifx\pkg\empty\else
+      \sa@out{%
+        \string\usepackage%
+        \expandafter\ifx\csname sa@pkgopts@\pkg\endcsname\empty\else%
+          [\csname sa@pkgopts@\pkg\endcsname]%
+        \fi
+        {\pkg}}%
+    \fi
   }%
+  \sa@out{\expandafter\unexpanded\expandafter{\sa@preamble}}%
 }
 %    \end{macrocode}
 %
@@ -661,7 +669,10 @@
     \@ifundefined{sa@written@\@filef@und}%
       {%
         \ifsa@displaysubpreambles
-          \sa@out{^^J\@percentchar\space Preamble from file '\@filef@und'}%
+          \begingroup
+            \edef\@tempa{^^J\@percentchar\space Preamble from file '\@filef@und'^^J}%
+            \expandafter\g@addto@macro\expandafter\sa@preamble\expandafter{\@tempa}%
+          \endgroup
         \else
           \sa@out{\noexpand\subpreamble{\@filef@und}}%
         \fi
@@ -685,6 +696,7 @@
 % ignored to avoid errors due to possible newly required but not loaded packages. The user is warned again about this
 % and is asked to rerun \LaTeX{}.
 %    \begin{macrocode}
+\def\sa@preamble{}%
 \long\def\sa@gobble#1\begin#2{%
   \def\@tempa{#2}%
   \ifx\@tempa\sa@gobbleto
@@ -694,10 +706,8 @@
         {%
           \ifsa@displaysubpreambles
             \ifsa@sortsubpreambles
-              \def\sa@preamble{}%
               \sa@removepackages#1\usepackage\sa@endmarker
-              \show\sa@preamble
-              \expandafter\sa@out\expandafter{\expandafter\unexpanded\expandafter{\sa@preamble}}%
+              %\expandafter\sa@out\expandafter{\expandafter\unexpanded\expandafter{\sa@preamble}}%
             \else
               \sa@out{\unexpanded{#1}}%
               \sa@out{\string\endsubpreamble\@percentchar}%
