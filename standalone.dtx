@@ -352,6 +352,14 @@
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{macro}{\onlyifstandalone}
+% Macro version of |\ifstandalone|. The |{ }| around the argument protects the content from the package etc. scanners.
+%    \begin{macrocode}
+\let\onlyifstandalone\@gobble
+%    \end{macrocode}
+% \end{macro}
+%
+%
 % \begin{macro}{\ifsa@subpreambles}
 % \begin{macro}{\ifsa@sortsubpreambles}
 % \begin{macro}{\ifsa@displaysubpreambles}
@@ -534,10 +542,10 @@
 % Scans for |\usepackage|.
 %    \begin{macrocode}
 \long\def\sa@removepackages#1\usepackage{%
-  \sa@removepgflibs#1\usepgflibrary\sa@endmarker%
+  \sa@removepgflibs#1\usepgflibrary\sa@endmarker
   \@ifnextchar\sa@endmarker
     {\@gobble}%
-    {\sa@sortpackages}
+    {\sa@sortpackages}%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -546,10 +554,10 @@
 % Scans for |\usepgflibrary|.
 %    \begin{macrocode}
 \long\def\sa@removepgflibs#1\usepgflibrary{%
-  \sa@removetikzlibs#1\usetikzlibrary\sa@endmarker%
+  \sa@removetikzlibs#1\usetikzlibrary\sa@endmarker
   \@ifnextchar\sa@endmarker
     {\@gobble}%
-    {\sa@sortpgflibs}
+    {\sa@sortpgflibs}%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -558,10 +566,10 @@
 % Scans for |\usetikzlibrary|.
 %    \begin{macrocode}
 \long\def\sa@removetikzlibs#1\usetikzlibrary{%
-  \sa@removetikztiminglibs#1\usetikztiminglibrary\sa@endmarker%
+  \sa@removetikztiminglibs#1\usetikztiminglibrary\sa@endmarker
   \@ifnextchar\sa@endmarker
     {\@gobble}%
-    {\sa@sorttikzlibs}
+    {\sa@sorttikzlibs}%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -570,10 +578,21 @@
 % Scans for |\usetikztiminglibrary|.
 %    \begin{macrocode}
 \long\def\sa@removetikztiminglibs#1\usetikztiminglibrary{%
+  \sa@removeonlyifstandalone#1\onlyifstandalone\sa@endmarker
+  \@ifnextchar\sa@endmarker
+    {\@gobble}%
+    {\sa@sorttikztiminglibs}%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\sa@removeonlyifstandalone}
+%    \begin{macrocode}
+\long\def\sa@removeonlyifstandalone#1\onlyifstandalone{%
   \g@addto@macro\sa@preamble{#1}%
   \@ifnextchar\sa@endmarker
     {\@gobble}%
-    {\sa@sorttikztiminglibs}
+    {\expandafter\sa@gobbleeol\expandafter\sa@removeonlyifstandalone\expandafter^^J\@gobble}%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -1156,6 +1175,13 @@
 %    \begin{macrocode}
 \newif\ifstandalonebeamer
 \standalonebeamerfalse
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\onlyifstandalone}
+% Macro version of |\ifstandalone|. The |{ }| around the argument protects the content from the package etc. scanners.
+%    \begin{macrocode}
+\let\onlyifstandalone\@firstofone
 %    \end{macrocode}
 % \end{macro}
 %
