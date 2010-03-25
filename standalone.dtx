@@ -791,15 +791,26 @@
 %<*cls>
 % \fi
 %
-% \begin{environment}{standalone}
-% The \env{standalone} environment is defined by default to be without effect.
-% The \cs{endstandalone} macro is set to |\relax|, so a redefinition with
-% \cs{renewenvironment} can be detected later.
+% \subsubsection{If-Switches}
+%
+% \begin{macro}{\ifstandalone}
+% This if-switch is defined by both the class and package. This class sets
+% it to true while the package (loaded by the main document) sets it to false.
 %    \begin{macrocode}
-\let\standalone\empty
-\let\endstandalone\relax
+\newif\ifstandalone
+\standalonetrue
 %    \end{macrocode}
-% \end{environment}
+% \end{macro}
+%
+% \begin{macro}{\ifstandalonebeamer}
+% This if-switch is defined by both the class and package. This class sets
+% it to true only if the |beamer| option was given. The package (loaded by the main document) sets it always to false.
+%    \begin{macrocode}
+\newif\ifstandalonebeamer
+\standalonebeamerfalse
+%    \end{macrocode}
+% \end{macro}
+%
 %
 % \subsubsection{Options}
 %
@@ -842,10 +853,24 @@
 %    \end{macrocode}
 %
 %    \begin{macrocode}
+\begingroup
 \xdef\@tempa{[\sa@classoptionslist]{\sa@class}}
+\expandafter
+\endgroup
 \expandafter\LoadClass\@tempa
 %    \end{macrocode}
 %
+% \begin{environment}{standalone}
+% The \env{standalone} environment is defined by default to be without effect.
+% The \cs{endstandalone} macro is set to |\relax|, so a redefinition with
+% \cs{renewenvironment} in the configuration file can be detected later.
+%    \begin{macrocode}
+\let\standalone\empty
+\let\endstandalone\relax
+%    \end{macrocode}
+%
+% \end{environment}
+% Load configuration file.
 %    \begin{macrocode}
 \input{standalone.cfg}
 %    \end{macrocode}
@@ -864,16 +889,67 @@
 \fi
 %    \end{macrocode}
 %
+% \subsubsection{Beamer Frame Environment}
+%
 %    \begin{macrocode}
-\RequirePackage{standalone}[2010/03/21]
-\standalonetrue
+\ifstandalonebeamer
 %    \end{macrocode}
+% \begin{environment}{standaloneframe}
+% Front-end for the beamer |frame| environment. Parses all arguments
+% the same way and calls it with an added option.
+%    \begin{macrocode}
+\newenvironment{standaloneframe}{%
+  \@ifnextchar<%
+    {\@standaloneframe}%
+    {\@@standaloneframe{}}%
+}{\end{frame}}%
+\def\@standaloneframe<#1>{%
+    \@@standaloneframe{<#1>}%
+}
+\def\@@standaloneframe#1{%
+  \@ifnextchar[%]
+    {\@@@standaloneframe{#1}}%
+    {\@@@standaloneframe{#1}[]}%
+}%
+\def\@@@standaloneframe#1[{%
+  \@ifnextchar<%
+    {\@@@@standaloneframe{#1}[}%
+    {\@@@@@@standaloneframe{#1}[}%
+}%
+\def\@@@@standaloneframe#1[#2]{%
+  \@ifnextchar[%]
+    {\@@@@@standaloneframe{#1}{#2}}%
+    {\begin{frame}#1[#2][environment=standaloneframe]}%
+}%
+\def\@@@@@standaloneframe#1#2[#3]{%
+    \begin{frame}#1[#2][environment=standaloneframe,#3]%
+}%
+\def\@@@@@@standaloneframe#1[#2]{%
+    \begin{frame}#1[environment=standaloneframe,#2]%
+}%
+%    \end{macrocode}
+% \end{environment}
+%    \begin{macrocode}
+\fi
+%    \end{macrocode}
+%
+% \subsubsection{}
+%
+% \begin{macro}{\sa@cls@orig@document}
+% \begin{macro}{\sa@cls@orig@enddocument}
+% Store original |document| environment.
+%    \begin{macrocode}
+\let\sa@cls@orig@document\document
+\let\sa@cls@orig@enddocument\enddocument
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
 %
 % \begin{macro}{\document}
 % Adds own `after begin document' hook.
 %    \begin{macrocode}
 \def\document{%
-  \sa@orig@document
+  \sa@cls@orig@document
   \let\documentclass\sa@documentclass  % TODO: really required?
   \sa@cls@afterbegindocument
 }
@@ -884,7 +960,7 @@
 %    \begin{macrocode}
 \def\enddocument{%
   \sa@cls@beforeenddocument
-  \sa@orig@enddocument
+  \sa@cls@orig@enddocument
 }
 %    \end{macrocode}
 % \end{macro}
@@ -900,50 +976,6 @@
 %    \end{macrocode}
 % \end{macro}
 % \end{macro}
-%
-% \subsubsection{Beamer Frame Environment}
-%
-%    \begin{macrocode}
-\ifstandalonebeamertrue
-%    \end{macrocode}
-% \begin{environment}{standaloneframe}
-% Front-end for the beamer |frame| environment. Parses all arguments
-% the same way and calls it with an added option.
-%    \begin{macrocode}
-\newenvironment{standaloneframe}{%
-  \@ifnextchar<%
-    {\@standaloneframe}%
-    {\@@standaloneframe{}}%
-}{\end{frame}}%
-\def\@standaloneframe<##1>{%
-    \@@standaloneframe{<##1>}%
-}
-\def\@@standaloneframe##1{%
-  \@ifnextchar[%]
-    {\@@@standaloneframe{##1}}%
-    {\@@@standaloneframe{##1}[]}%
-}%
-\def\@@@standaloneframe##1[{%
-  \@ifnextchar<%
-    {\@@@@standaloneframe{##1}[}%
-    {\@@@@@@standaloneframe{##1}[}%
-}%
-\def\@@@@standaloneframe##1[##2]{%
-  \@ifnextchar[%]
-    {\@@@@@standaloneframe{##1}{##2}}%
-    {\begin{frame}##1[##2][environment=standaloneframe]}%
-}%
-\def\@@@@@standaloneframe##1##2[##3]{%
-    \begin{frame}##1[##2][environment=standaloneframe,##3]%
-}%
-\def\@@@@@@standaloneframe##1[##2]{%
-    \begin{frame}##1[environment=standaloneframe,##2]%
-}%
-%    \end{macrocode}
-% \end{environment}
-%    \begin{macrocode}
-\fi
-%    \end{macrocode}
 %
 % \iffalse
 %</cls>
@@ -990,7 +1022,7 @@
 \PassOptionsToPackage{active,tightpage}{preview}%
 
 \ifstandalonebeamer
-  \setbeamertemplate{navigation symbols}{}
+  \setbeamertemplate{navigation symbols}{}%
 \fi
 %    \end{macrocode}
 % \iffalse
