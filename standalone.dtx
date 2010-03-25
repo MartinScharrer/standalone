@@ -376,6 +376,12 @@
 \DeclareOption{display}{%
   \sa@displaysubpreamblestrue
 }
+\DeclareOption{comments}{%
+  \def\sa@percent{\@makeother\%}%
+}
+\DeclareOption{nocomments}{%
+  \def\sa@percent{}%
+}
 \ProcessOptions*\relax
 %    \end{macrocode}
 %
@@ -383,6 +389,11 @@
 %    \begin{macrocode}
 \ifsa@displaysubpreambles
   \sa@subpreamblestrue
+  \ifsa@sortsubpreambles\else
+    \@ifundefined{sa@percent}{%
+      \def\sa@percent{\@makeother\%}%
+    }{}%
+  \fi
 \fi
 %    \end{macrocode}
 %
@@ -708,12 +719,7 @@
     \global\@namedef{subpreamble@\sa@filepath}{}%
     \endlinechar=`\^^J%
     \@makeother\#%
-    \ifsa@displaysubpreambles
-      \ifsa@sortsubpreambles
-      \else
-        \@makeother\%%
-      \fi
-    \fi
+    \@nameuse{sa@percent}%
   \fi
   \def\sa@gobbleto{document}%
   \sa@gobble
