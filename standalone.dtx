@@ -484,18 +484,57 @@
         \expandafter\ifx\csname sa@pkgopts@\pkg\endcsname\empty\else%
           [\csname sa@pkgopts@\pkg\endcsname]%
         \fi
-        {\pkg}}%
+        {\pkg}%
+        %\expandafter\ifx\csname sa@pkgdate@\pkg\endcsname\empty\else%
+        %  [\csname sa@pkgdate@\pkg\endcsname]%
+        %\fi
+        }%
     \fi
   }%
+  \ifx\sa@collpgflibs\empty\else
+  \sa@out{^^J\@percentchar\space PGF libraries required by sub-files:}%
+  \expandafter\@for\expandafter\lib\expandafter:\expandafter=\sa@collpgflibs\do{%
+    \ifx\lib\empty\else
+      \sa@out{\string\usepgflibrary{\lib}}%
+    \fi
+  }%
+  \fi
+  \ifx\sa@colltikzlibs\empty\else
+  \sa@out{^^J\@percentchar\space TikZ libraries required by sub-files:}%
+  \expandafter\@for\expandafter\lib\expandafter:\expandafter=\sa@colltikzlibs\do{%
+    \ifx\lib\empty\else
+      \sa@out{\string\usetikzlibrary{\lib}}%
+    \fi
+  }%
+  \fi
+  \ifx\sa@colltikztiminglibs\empty\else
+  \sa@out{^^J\@percentchar\space TikZ-Timing libraries required by sub-files:}%
+  \expandafter\@for\expandafter\lib\expandafter:\expandafter=\sa@colltikztiminglibs\do{%
+    \ifx\lib\empty\else
+      \sa@out{%
+        \string\usetikztiminglibrary%
+        \expandafter\ifx\csname sa@tikztimingopts@\lib\endcsname\empty\else%
+          [\csname sa@tikztimingopts@\lib\endcsname]%
+        \fi
+        {\lib}%
+        %\expandafter\ifx\csname sa@libdate@\lib\endcsname\empty\else%
+        %  [\csname sa@libdate@\lib\endcsname]%
+        %\fi
+        }%
+    \fi
+  }%
+  \fi
   \sa@out{\expandafter\unexpanded\expandafter{\sa@preamble}}%
+  \message{^^JPackage 'standalone' INFO: See file '\jobname.stp' for list of sub-preambles.^^J}%
+  \immediate\closeout\sa@write
 }
 %    \end{macrocode}
 %
 % \begin{macro}{\sa@removepackages}
 % Scans for |\usepackage|.
 %    \begin{macrocode}
-\def\sa@removepackages#1\usepackage{%
-  \g@addto@macro\sa@preamble{#1}%
+\long\def\sa@removepackages#1\usepackage{%
+  \sa@removepgflibs#1\usepgflibrary\sa@endmarker%
   \@ifnextchar\sa@endmarker
     {\@gobble}%
     {\sa@sortpackages}
@@ -503,6 +542,41 @@
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{macro}{\sa@removepgflibs}
+% Scans for |\usepgflibrary|.
+%    \begin{macrocode}
+\long\def\sa@removepgflibs#1\usepgflibrary{%
+  \sa@removetikzlibs#1\usetikzlibrary\sa@endmarker%
+  \@ifnextchar\sa@endmarker
+    {\@gobble}%
+    {\sa@sortpgflibs}
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\sa@removetikzlibs}
+% Scans for |\usetikzlibrary|.
+%    \begin{macrocode}
+\long\def\sa@removetikzlibs#1\usetikzlibrary{%
+  \sa@removetikztiminglibs#1\usetikztiminglibrary\sa@endmarker%
+  \@ifnextchar\sa@endmarker
+    {\@gobble}%
+    {\sa@sorttikzlibs}
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\sa@removetikztiminglibs}
+% Scans for |\usetikztiminglibrary|.
+%    \begin{macrocode}
+\long\def\sa@removetikztiminglibs#1\usetikztiminglibrary{%
+  \g@addto@macro\sa@preamble{#1}%
+  \@ifnextchar\sa@endmarker
+    {\@gobble}%
+    {\sa@sorttikztiminglibs}
+}
+%    \end{macrocode}
+% \end{macro}
 %
 % \begin{macro}{\sa@sortpackage}
 % Reads \cs{usepackage} arguments and stores it away.
@@ -513,7 +587,7 @@
   \@for\pkg:=#2\do {%
     \@ifundefined{sa@pkgopts@\pkg}%
       {%
-        \g@addto@macro\sa@collpkgs{,#2}%
+        \expandafter\g@addto@macro\expandafter\sa@collpkgs\expandafter{\expandafter,\pkg}%
         \global\@namedef{sa@pkgopts@\pkg}{#1}%
         \global\@namedef{sa@pkgopt@\pkg @}{}%
         \ifx\relax#1\relax\else
@@ -538,6 +612,80 @@
 }
 %    \end{macrocode}
 % \end{macro}
+%
+% \begin{macro}{\sa@sortpgflibs}
+% Reads \cs{usepgflibrary} arguments and stores it away.
+% Trailing newlines are removed.
+%    \begin{macrocode}
+\def\sa@collpgflibs{}%
+\def\sa@sortpgflibs#1{%
+  \@for\lib:=#1\do {%
+    \@ifundefined{sa@pgflib@\lib}%
+      {%
+        \expandafter\g@addto@macro\expandafter\sa@collpgflibs\expandafter{\expandafter,\lib}%
+        \global\@namedef{sa@pgflib@\lib}{}%
+      }%
+      {}%
+  }%
+  \sa@gobbleeol\sa@removepgflibs^^J%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\sa@sorttikzlibs}
+% Reads \cs{usetikzlibrary} arguments and stores it away.
+% Trailing newlines are removed.
+%    \begin{macrocode}
+\def\sa@colltikzlibs{}%
+\def\sa@sorttikzlibs#1{%
+  \@for\lib:=#1\do {%
+    \@ifundefined{sa@tikzlib@\lib}%
+      {%
+        \expandafter\g@addto@macro\expandafter\sa@colltikzlibs\expandafter{\expandafter,\lib}%
+        \global\@namedef{sa@tikzlib@\lib}{}%
+      }%
+      {}%
+  }%
+  \sa@gobbleeol\sa@removetikzlibs^^J%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\sa@sorttikztiminglibs}
+% Reads \cs{usetikztiminglibrary} arguments and stores it away.
+% Trailing newlines are removed.
+%    \begin{macrocode}
+\def\sa@colltikztiminglibs{}%
+\newcommand\sa@sorttikztiminglibs[2][]{%
+  \@for\lib:=#2\do {%
+    \@ifundefined{sa@tikztimingopts@\lib}%
+      {%
+        \expandafter\g@addto@macro\expandafter\sa@colltikztiminglibs\expandafter{\expandafter,\lib}%
+        \global\@namedef{sa@tikztimingopts@\lib}{#1}%
+        \global\@namedef{sa@tikztimingopt@\lib @}{}%
+        \ifx\relax#1\relax\else
+          \@for\opt:=#1\do{\global\@namedef{sa@tikztimingopt@\lib @\opt}{}}%
+        \fi
+      }%
+      {%
+        \ifx\relax#1\relax\else
+          \@for\opt:=#1\do{%
+            \@ifundefined{sa@tikztimingopt@\lib @\opt}%
+              {%
+                \expandafter\g@addto@macro\csname sa@tikztimingopts@\lib\expandafter\endcsname\expandafter{\expandafter,\opt}%
+                \global\@namedef{sa@tikztimingopt@\lib @\opt}{}%
+              }{}%
+          }%
+        \fi
+      }%
+  }%
+  \@ifnextchar[%]
+    {\sa@gobbleopt\sa@removetikztiminglibs}%
+    {\sa@gobbleeol\sa@removetikztiminglibs^^J}%
+}
+%    \end{macrocode}
+% \end{macro}
+%
 %
 % \begin{macro}{\sa@gobbleopt}
 % Gobbles an optional argument and a potential line endings and then executes the command given by |#1|.
