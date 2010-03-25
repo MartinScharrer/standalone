@@ -533,16 +533,18 @@
       }%
   }%
   \@ifnextchar[%]
-    {\sa@gobbleopt}%
-    {\sa@gobbleeol^^J}%
+    {\sa@gobbleopt\sa@removepackages}%
+    {\sa@gobbleeol\sa@removepackages^^J}%
 }
-\def\sa@gobbleopt[#1]{%
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\sa@gobbleopt}
+% Gobbles an optional argument and a potential line endings and then executes the command given by |#1|.
+%    \begin{macrocode}
+\def\sa@gobbleopt#1[#2]{%
   \@ifnextchar^^J%
-    {\sa@gobbleeol}{\sa@removepackages}%
-}
-\def\sa@gobbleeol^^J{%
-  \@ifnextchar^^J%
-    {\sa@gobbleeol}{\sa@removepackages}%
+    {\sa@gobbleeol{#1}}{#1}%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -695,6 +697,17 @@
 %
 % This macros make the main document skip all preambles in sub-files.
 %
+% \begin{macro}{\sa@gobbleeol}
+% Gobbles all following line endings (i.e.\ empty lines) and then executes the command given by |#1|.
+% Because |\@ifnextchar| ignores spaces this also removes lines with only spaces.
+%    \begin{macrocode}
+\def\sa@gobbleeol#1^^J{%
+  \@ifnextchar^^J%
+    {\sa@gobbleeol{#1}}{#1}%
+}
+%    \end{macrocode}
+% \end{macro}
+%
 % \begin{macro}{\sa@documentclass}
 %    \begin{macrocode}
 \newcommand{\sa@documentclass}[2][]{%
@@ -710,7 +723,7 @@
               \expandafter\g@addto@macro\expandafter\sa@preamble\expandafter{\@tempa}%
             \endgroup
           \else
-            \sa@out{^^J\@percentchar\space Preamble from file '\sa@filepath'^^J}%
+            \sa@out{^^J\@percentchar\space Preamble from file '\sa@filepath'}%
           \fi
         \else
           \sa@out{\noexpand\subpreamble{\sa@filepath}}%
@@ -722,7 +735,7 @@
     \@nameuse{sa@percent}%
   \fi
   \def\sa@gobbleto{document}%
-  \sa@gobble
+  \sa@gobbleeol\sa@gobble^^J%
 }
 %    \end{macrocode}
 % \end{macro}
