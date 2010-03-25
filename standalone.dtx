@@ -55,7 +55,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{677}
+% \CheckSum{1067}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -482,6 +482,9 @@
 \ifsa@displaysubpreambles
 %    \end{macrocode}
 %
+%
+% In sorted display mode all collected package etc. information is printed into the output file, followed
+% by the reduced sub-preambles.
 %    \begin{macrocode}
 \AtEndDocument{%
   \sa@write{\@percentchar\space Packages required by sub-files:}%
@@ -587,6 +590,7 @@
 % \end{macro}
 %
 % \begin{macro}{\sa@removeonlyifstandalone}
+% Scans for |\onlyifstandalone| and removes it argument.
 %    \begin{macrocode}
 \long\def\sa@removeonlyifstandalone#1\onlyifstandalone{%
   \g@addto@macro\sa@preamble{#1}%
@@ -598,8 +602,9 @@
 % \end{macro}
 %
 % \begin{macro}{\sa@sortpackage}
-% Reads \cs{usepackage} arguments and stores it away.
-% Trailing newlines are removed.
+% Reads \cs{usepackage} arguments and stores them away. A list of all packages is compiled. Every package is only
+% added once and has also a list of options used, also only saved once.
+% If package dates are requested then the highest one is stored. Trailing newlines are removed.
 %    \begin{macrocode}
 \def\sa@collpkgs{}%
 \newcommand\sa@sortpackages[2][]{%
@@ -647,7 +652,7 @@
 % \end{macro}
 %
 % \begin{macro}{\sa@getlargerdate}
-% Takes to package dates and returns the larger one as \cs{sa@thedate}.
+% Takes two package dates and returns the larger one as \cs{sa@thedate}.
 %    \begin{macrocode}
 \def\sa@getlargerdate#1#2{%
   \sa@@getdate#1\relax\relax0/0/0\relax\empty\relax
@@ -675,7 +680,7 @@
 % \end{macro}
 %
 % \begin{macro}{\sa@sortpgflibs}
-% Reads \cs{usepgflibrary} arguments and stores it away.
+% Reads the \cs{usepgflibrary} argument and stores it away.
 % Trailing newlines are removed.
 %    \begin{macrocode}
 \def\sa@collpgflibs{}%
@@ -694,7 +699,7 @@
 % \end{macro}
 %
 % \begin{macro}{\sa@sorttikzlibs}
-% Reads \cs{usetikzlibrary} arguments and stores it away.
+% Reads the \cs{usetikzlibrary} argument and stores it away.
 % Trailing newlines are removed.
 %    \begin{macrocode}
 \def\sa@colltikzlibs{}%
@@ -713,7 +718,7 @@
 % \end{macro}
 %
 % \begin{macro}{\sa@sorttikztiminglibs}
-% Reads \cs{usetikztiminglibrary} arguments and stores it away.
+% Reads \cs{usetikztiminglibrary} arguments and stores them away.
 % Trailing newlines are removed.
 %    \begin{macrocode}
 \def\sa@colltikztiminglibs{}%
@@ -932,6 +937,10 @@
 % \end{macro}
 %
 % \begin{macro}{\sa@documentclass}
+% The |standalone| definition of \cs{documentclass}. If the sub-preambles are to be processed then the
+% starting content is written into the output file etc., but only for the first time this sub-file is included.
+% Some input related settings are set-up (line endings, macro argument and comments).
+% Finally \cs{sa@gobble} is called to process the preamble.
 %    \begin{macrocode}
 \newcommand{\sa@documentclass}[2][]{%
   \let\document\sa@document
@@ -968,7 +977,7 @@
 % If sub-preamble extraction is activated it accumulates the skipped content in macros
 % named ``\cs{subpreamble@}\meta{file name}''. Every sub-file is remembered and its preamble is only saved once.
 % In |display| mode the file body is ignored and a appropriate warning is printed,
-% otherwise the current and previous sub-preamble of the current processed file. If different the file body is also
+% otherwise the current and previous sub-preamble of the current processed file are compared. If different the file body is also
 % ignored to avoid errors due to possible newly required but not loaded packages. The user is warned again about this
 % and is asked to rerun \LaTeX{}.
 %    \begin{macrocode}
