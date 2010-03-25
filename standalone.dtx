@@ -426,39 +426,47 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\sa@scanpackages}
-% Scans for |\usepackage|.
-%    \begin{macrocode}
-\def\sa@scanpackages#1\usepackage{%
-  \@ifnextchar\sa@endscanpackages
-    {\@gobble}%
-    {\sa@collectpackage}
-}
-%    \end{macrocode}
-% \end{macro}
-%
-% \begin{macro}{\sa@endscanpackages}
+% \begin{macro}{\sa@endmarker}
 % Unique end marker. Will not be expanded.
 %    \begin{macrocode}
-\def\sa@endscanpackages{%
-  \@gobble{sa@endscanpackages}%
+\def\sa@endmarker{%
+  \@gobble{sa@endmarker}%
 }
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\sa@collectpackage}
-% Reads \cs{usepackage} arguments (ignores optional date) and stores it away.
-% The options are later passed to the package to avoid option clashes.
 %    \begin{macrocode}
 \ifsa@displaysubpreambles
+%    \end{macrocode}
+%
+%    \begin{macrocode}
 \AtEndDocument{%
   \show\sa@collpkgs
   \expandafter\@for\expandafter \pkg\expandafter :\expandafter=\sa@collpkgs\do {%
     \expandafter\show\csname sa@pkgopts@\pkg\endcsname
   }%
 }
+%    \end{macrocode}
+%
+% \begin{macro}{\sa@removepackages}
+% Scans for |\usepackage|.
+%    \begin{macrocode}
+\def\sa@removepackages#1\usepackage{%
+  \g@addto@macro\sa@preamble{#1}%
+  \@ifnextchar\sa@endmarker
+    {\@gobble}%
+    {\sa@sortpackages}
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \begin{macro}{\sa@sortpackage}
+% Reads \cs{usepackage} arguments and stores it away.
+% Trailing newlines are removed.
+%    \begin{macrocode}
 \def\sa@collpkgs{}%
-\newcommand\sa@collectpackage[2][]{%
+\newcommand\sa@sortpackages[2][]{%
   \@for\pkg:=#2\do {%
     \@ifundefined{sa@pkgopts@\pkg}%
       {%
@@ -481,9 +489,40 @@
         \fi
       }%
   }%
-  \sa@scanpackages
+  \@ifnextchar[%]
+    {\sa@gobbleopt}%
+    {\sa@gobbleeol^^J}%
 }
+\def\sa@gobbleopt[#1]{%
+  \@ifnextchar^^J%
+    {\sa@gobbleeol}{\sa@removepackages}%
+}
+\def\sa@gobbleeol^^J{%
+  \@ifnextchar^^J%
+    {\sa@gobbleeol}{\sa@removepackages}%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%    \begin{macrocode}
 \else
+%    \end{macrocode}
+%
+% \begin{macro}{\sa@scanpackages}
+% Scans for |\usepackage|.
+%    \begin{macrocode}
+\def\sa@scanpackages#1\usepackage{%
+  \@ifnextchar\sa@endmarker
+    {\@gobble}%
+    {\sa@collectpackage}
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\sa@collectpackage}
+% Reads \cs{usepackage} arguments (ignores optional date) and stores it away.
+% The options are later passed to the package to avoid option clashes.
+%    \begin{macrocode}
 \newcommand\sa@collectpackage[2][]{%
   \ifx\relax#1\relax\else
     \g@addto@macro\sa@collopts{\PassOptionsToPackage{#1}{#2}}%
@@ -534,7 +573,7 @@
 \long\gdef\subpreamble#1^^J#2^^J\endsubpreamble{%
   \expandafter\gdef\csname prevsubpreamble@#1\endcsname{#2}%
   \ifsa@sortsubpreambles
-    \sa@scanpackages#2\usepackage\sa@endscanpackages
+    \sa@scanpackages#2\usepackage\sa@endmarker
   \fi
 }
 \def\endsubpreamble{}%
@@ -651,16 +690,25 @@
   \ifx\@tempa\sa@gobbleto
     \ifsa@subpreambles
       \expandafter\g@addto@macro\csname subpreamble@\@filef@und\endcsname{#1}%
-        \@ifundefined{sa@written@\@filef@und}%
-          {%
-            \sa@out{\unexpanded{#1}}%
-            \ifsa@displaysubpreambles\else
+      \@ifundefined{sa@written@\@filef@und}%
+        {%
+          \ifsa@displaysubpreambles
+            \ifsa@sortsubpreambles
+              \def\sa@preamble{}%
+              \sa@removepackages#1\usepackage\sa@endmarker
+              \show\sa@preamble
+              \expandafter\sa@out\expandafter{\expandafter\unexpanded\expandafter{\sa@preamble}}%
+            \else
+              \sa@out{\unexpanded{#1}}%
               \sa@out{\string\endsubpreamble\@percentchar}%
             \fi
-          }{}%
+          \else
+            \sa@out{\unexpanded{#1}}%
+            \sa@out{\string\endsubpreamble\@percentchar}%
+          \fi
+        }{}%
       \global\@namedef{sa@written@\@filef@und}{}%
       \ifsa@displaysubpreambles
-      \sa@scanpackages#1\usepackage\sa@endscanpackages
         \def\next{%
           \endgroup
           \PackageWarning{standalone}{Running 'standalone' package in sub-preamble display mode. All body content of file `\@filef@und' is ignored!}{}{}%
