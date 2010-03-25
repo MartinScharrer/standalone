@@ -386,6 +386,30 @@
 \fi
 %    \end{macrocode}
 %
+% \begin{macro}{\sa@filepath}
+% File name macro. If the |fink| package is loaded the macros \cs{finkdir} (with leading `|./|' removed) and \cs{finkpath} is used, otherwise the \LaTeX\ macro
+% \cs{@filef@und}. The latter causes issues if |\input| etc. was used before |\documentclass| in sub-files.
+%    \begin{macrocode}
+\@ifundefined{finkpath}{%
+  \def\sa@filepath{\@filef@und}%
+}{%
+  \def\sa@filepath{\expandafter\expandafter\expandafter\sa@rmdotslash\expandafter\finkdir\finkfile\empty./\empty}%
+  \def\sa@rmdotslash#1./#2\empty{%
+    \ifx\empty#1\empty
+      \sa@@rmdotslash#2%
+    \else
+      \ifx\empty#2\empty
+        #1%
+      \else
+        \sa@@rmdotslash#1./#2%
+      \fi
+    \fi
+  }
+  \def\sa@@rmdotslash#1./\empty{#1}%
+}
+%    \end{macrocode}
+% \end{macro}
+%
 % \subsubsection{Processing of Sub-Preambles}
 %
 %    \begin{macrocode}
@@ -666,18 +690,18 @@
   \let\document\sa@document
   \begingroup
   \ifsa@subpreambles
-    \@ifundefined{sa@written@\@filef@und}%
+    \@ifundefined{sa@written@\sa@filepath}%
       {%
         \ifsa@displaysubpreambles
           \begingroup
-            \edef\@tempa{^^J\@percentchar\space Preamble from file '\@filef@und'^^J}%
+            \edef\@tempa{^^J\@percentchar\space Preamble from file '\sa@filepath'^^J}%
             \expandafter\g@addto@macro\expandafter\sa@preamble\expandafter{\@tempa}%
           \endgroup
         \else
-          \sa@out{\noexpand\subpreamble{\@filef@und}}%
+          \sa@out{\noexpand\subpreamble{\sa@filepath}}%
         \fi
       }{}%
-    \global\@namedef{subpreamble@\@filef@und}{}%
+    \global\@namedef{subpreamble@\sa@filepath}{}%
     \endlinechar=`\^^J%
     \@makeother\#
   \fi
@@ -701,8 +725,8 @@
   \def\@tempa{#2}%
   \ifx\@tempa\sa@gobbleto
     \ifsa@subpreambles
-      \expandafter\g@addto@macro\csname subpreamble@\@filef@und\endcsname{#1}%
-      \@ifundefined{sa@written@\@filef@und}%
+      \expandafter\g@addto@macro\csname subpreamble@\sa@filepath\endcsname{#1}%
+      \@ifundefined{sa@written@\sa@filepath}%
         {%
           \ifsa@displaysubpreambles
             \ifsa@sortsubpreambles
@@ -717,25 +741,25 @@
             \sa@out{\string\endsubpreamble\@percentchar}%
           \fi
         }{}%
-      \global\@namedef{sa@written@\@filef@und}{}%
+      \global\@namedef{sa@written@\sa@filepath}{}%
       \ifsa@displaysubpreambles
         \def\next{%
           \endgroup
-          \PackageWarning{standalone}{Running 'standalone' package in sub-preamble display mode. All body content of file `\@filef@und' is ignored!}{}{}%
+          \PackageWarning{standalone}{Running 'standalone' package in sub-preamble display mode. All body content of file `\sa@filepath' is ignored!}{}{}%
           \endinput
         }
       \else
       \expandafter
       \ifx
-      \csname prevsubpreamble@\@filef@und \expandafter\endcsname
-      \csname     subpreamble@\@filef@und \endcsname
+      \csname prevsubpreamble@\sa@filepath \expandafter\endcsname
+      \csname     subpreamble@\sa@filepath \endcsname
         \def\next{\expandafter\endgroup\expandafter\begin\expandafter{\sa@gobbleto}}%
       \else
-        %\expandafter\show\csname prevsubpreamble@\@filef@und \endcsname
-        %\expandafter\show\csname     subpreamble@\@filef@und \endcsname
+        %\expandafter\show\csname prevsubpreamble@\sa@filepath \endcsname
+        %\expandafter\show\csname     subpreamble@\sa@filepath \endcsname
         \def\next{%
           \endgroup
-          \PackageWarning{standalone}{Sub-preamble of file '\@filef@und' has changed. Content will be ignored. Please rerun LaTeX!}{}{}%
+          \PackageWarning{standalone}{Sub-preamble of file '\sa@filepath' has changed. Content will be ignored. Please rerun LaTeX!}{}{}%
           \immediate\write\@mainaux{%
             \@percentchar\space standalone package info: Rerun LaTeX!
           }
@@ -748,8 +772,8 @@
     \fi
   \else
     \ifsa@subpreambles
-      \expandafter\g@addto@macro\csname subpreamble@\@filef@und\endcsname{#1\begin{#2}}%
-      \@ifundefined{sa@written@\@filef@und}%
+      \expandafter\g@addto@macro\csname subpreamble@\sa@filepath\endcsname{#1\begin{#2}}%
+      \@ifundefined{sa@written@\sa@filepath}%
         {\sa@out{\unexpanded{#1\begin{#2}}}}{}%
     \fi
     \def\next{\sa@gobble}%
