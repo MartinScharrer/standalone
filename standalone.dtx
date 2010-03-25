@@ -362,12 +362,12 @@
 %
 % \begin{macro}{\ifsa@subpreambles}
 % \begin{macro}{\ifsa@sortsubpreambles}
-% \begin{macro}{\ifsa@displaysubpreambles}
+% \begin{macro}{\ifsa@printsubpreambles}
 % The if-switches for the options.
 %    \begin{macrocode}
 \newif\ifsa@subpreambles
 \newif\ifsa@sortsubpreambles
-\newif\ifsa@displaysubpreambles
+\newif\ifsa@printsubpreambles
 %    \end{macrocode}
 % \end{macro}
 % \end{macro}
@@ -381,8 +381,8 @@
 \DeclareOption{sort}{%
   \sa@sortsubpreamblestrue
 }
-\DeclareOption{display}{%
-  \sa@displaysubpreamblestrue
+\DeclareOption{print}{%
+  \sa@printsubpreamblestrue
 }
 \DeclareOption{comments}{%
   \def\sa@percent{\@makeother\%}%
@@ -393,9 +393,9 @@
 \ProcessOptions*\relax
 %    \end{macrocode}
 %
-% The |display| option activates the |subpreambles| option but disables the |sort| option.
+% The |print| option activates the |subpreambles| option but disables the |sort| option.
 %    \begin{macrocode}
-\ifsa@displaysubpreambles
+\ifsa@printsubpreambles
   \sa@subpreamblestrue
   \ifsa@sortsubpreambles\else
     \@ifundefined{sa@percent}{%
@@ -479,11 +479,11 @@
 % \end{macro}
 %
 %    \begin{macrocode}
-\ifsa@displaysubpreambles
+\ifsa@printsubpreambles
 %    \end{macrocode}
 %
 %
-% In sorted display mode all collected package etc. information is printed into the output file, followed
+% In sorted print mode all collected package etc. information is printed into the output file, followed
 % by the reduced sub-preambles.
 %    \begin{macrocode}
 \AtEndDocument{%
@@ -853,9 +853,9 @@
 %    \end{macrocode}
 % \end{environment}
 %
-% If in |display| mode clean the last |.sta| file and open the |.stp| file.
+% If in |print| mode clean the last |.sta| file and open the |.stp| file.
 %    \begin{macrocode}
-\ifsa@displaysubpreambles
+\ifsa@printsubpreambles
   \immediate\openout\sa@out=\jobname.sta\relax
   \immediate\closeout\sa@out
   \immediate\openout\sa@out=\jobname.stp\relax
@@ -910,7 +910,7 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% End of |\ifsa@displaysubpreambles|.
+% End of |\ifsa@printsubpreambles|.
 %    \begin{macrocode}
 \fi
 %    \end{macrocode}
@@ -948,7 +948,7 @@
   \ifsa@subpreambles
     \@ifundefined{sa@written@\sa@filepath}%
       {%
-        \ifsa@displaysubpreambles
+        \ifsa@printsubpreambles
           \ifsa@sortsubpreambles
             \begingroup
               \edef\@tempa{^^J\@percentchar\space Preamble from file '\sa@filepath'^^J}%
@@ -976,7 +976,7 @@
 % Gobbles everything to the next |\begin|, then checks if it was a |\begin{document}|.
 % If sub-preamble extraction is activated it accumulates the skipped content in macros
 % named ``\cs{subpreamble@}\meta{file name}''. Every sub-file is remembered and its preamble is only saved once.
-% In |display| mode the file body is ignored and a appropriate warning is printed,
+% In |print| mode the file body is ignored and a appropriate warning is printed,
 % otherwise the current and previous sub-preamble of the current processed file are compared. If different the file body is also
 % ignored to avoid errors due to possible newly required but not loaded packages. The user is warned again about this
 % and is asked to rerun \LaTeX{}.
@@ -989,7 +989,7 @@
       \expandafter\g@addto@macro\csname subpreamble@\sa@filepath\endcsname{#1}%
       \@ifundefined{sa@written@\sa@filepath}%
         {%
-          \ifsa@displaysubpreambles
+          \ifsa@printsubpreambles
             \ifsa@sortsubpreambles
               \sa@removepackages#1\usepackage\sa@endmarker
             \else
@@ -1001,10 +1001,10 @@
           \fi
         }{}%
       \global\@namedef{sa@written@\sa@filepath}{}%
-      \ifsa@displaysubpreambles
+      \ifsa@printsubpreambles
         \def\next{%
           \endgroup
-          \PackageWarning{standalone}{Running 'standalone' package in sub-preamble display mode. All body content of file `\sa@filepath' is ignored!}{}{}%
+          \PackageWarning{standalone}{Running 'standalone' package in sub-preamble print mode. All body content of file `\sa@filepath' is ignored!}{}{}%
           \endinput
         }
       \else
