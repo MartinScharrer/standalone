@@ -1,7 +1,13 @@
 %&pdflatex
 \documentclass{standalone}%
 
+\usepackage{standalone}
 \usepackage{tikz}
+
+\onlyifstandalone{
+  \usepackage{xcolor}
+  \color{blue}
+}
 
 \begin{document}%
 \fbox{%
