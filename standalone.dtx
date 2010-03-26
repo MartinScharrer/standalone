@@ -26,13 +26,13 @@
 % \iffalse
 %<cls|sty|cfg|tex>% $Id$
 %<cls|sty>\NeedsTeXFormat{LaTeX2e}
-%<cls>\ProvidesClass{standalone}   [2010/03/26 v0.3 Class to compile TeX sub-files standalone]
-%<sty>\ProvidesPackage{standalone} [2010/03/26 v0.3 Package to include TeX sub-files which use the 'standalone' class]
-%<tex>\ProvidesFile{standalone.tex}[2010/03/26 v0.3 Provides if-switch to show if file is compiled standalone]%
-%<cfg>\ProvidesFile{standalone.cfg}[2010/03/26 v0.3 Default configuration file for 'standalone' class and package]%
+%<cls>\ProvidesClass{standalone}   [2010/03/26 v0.4-dev Class to compile TeX sub-files standalone]
+%<sty>\ProvidesPackage{standalone} [2010/03/26 v0.4-dev Package to include TeX sub-files which use the 'standalone' class]
+%<tex>\ProvidesFile{standalone.tex}[2010/03/26 v0.4-dev Provides if-switch to show if file is compiled standalone]%
+%<cfg>\ProvidesFile{standalone.cfg}[2010/03/26 v0.4-dev Default configuration file for 'standalone' class and package]%
 %<*driver>
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesFile{standalone.dtx}[2010/03/26 v0.3 DTX File for 'standalone' cls/sty/tex/cfg files]
+\ProvidesFile{standalone.dtx}[2010/03/26 v0.4-dev DTX File for 'standalone' cls/sty/tex/cfg files]
 \documentclass{ltxdoc}
 \usepackage{ifpdf}
 \usepackage{listings}
@@ -58,7 +58,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{1084}
+% \CheckSum{1091}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -916,7 +916,7 @@
 %    \begin{macrocode}
 \def\standalonepreambles{%
   \begingroup
-  \endlinechar=`\^^J%
+  \endlinechar=\m@ne
   \@makeother\#%
 }
 \def\endstandalonepreambles{%
@@ -931,7 +931,7 @@
 % ``\cs{prevsubpreamble@}\meta{file name}''. If sorting is enabled the sub-preambles are also scanned for 
 % loaded packages.
 %    \begin{macrocode}
-\long\gdef\subpreamble#1^^J#2^^J\endsubpreamble{%
+\long\gdef\subpreamble#1#2\endsubpreamble{%
   \expandafter\gdef\csname prevsubpreamble@#1\endcsname{#2}%
   \ifsa@sortsubpreambles
     \sa@scanpackages#2\usepackage\sa@endmarker
@@ -979,9 +979,7 @@
     \let\usepackage\sa@orig@usepackage
   \fi
   \immediate\openout\sa@out=\jobname.sta\relax
-  \immediate\write\sa@out{%
-    \string\standalonepreambles\@percentchar
-  }%
+  \immediate\write\sa@out{\string\standalonepreambles}%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -990,7 +988,7 @@
 % At end of the document write end macro to and close |.sta| file.
 %    \begin{macrocode}
 \AtEndDocument{%
-  \sa@write{\string\endstandalonepreambles\@percentchar}%
+  \sa@write{\string\endstandalonepreambles}%
   \immediate\closeout\sa@out
 }
 %    \end{macrocode}
@@ -1059,11 +1057,15 @@
             \sa@write{^^J\@percentchar\space Preamble from file '\sa@filepath'}%
           \fi
         \else
-          \sa@write{\noexpand\subpreamble{\sa@filepath}}%
+          \sa@write{\string\subpreamble{\sa@filepath}}%
         \fi
       }{}%
     \global\@namedef{subpreamble@\sa@filepath}{}%
-    \endlinechar=`\^^J%
+    \ifsa@printsubpreambles
+      \endlinechar=`\^^J%
+    \else
+      \endlinechar=\m@ne
+    \fi
     \@makeother\#%
     \@nameuse{sa@percent}%
   \fi
@@ -1102,7 +1104,7 @@
             \fi
           \else
             \sa@write{\unexpanded{#1}}%
-            \sa@write{\string\endsubpreamble\@percentchar}%
+            \sa@write{\string\endsubpreamble}%
           \fi
         }{}%
       \global\@namedef{sa@written@\sa@filepath}{}%
@@ -1110,6 +1112,7 @@
         \def\next{%
           \endgroup
           \PackageWarning{standalone}{Running 'standalone' package in sub-preamble print mode. All body content of file `\sa@filepath' is ignored!}{}{}%
+          \null
           \endinput
         }
       \else
@@ -1119,14 +1122,15 @@
       \csname     subpreamble@\sa@filepath \endcsname
         \def\next{\expandafter\endgroup\expandafter\begin\expandafter{\sa@gobbleto}}%
       \else
-        %\expandafter\show\csname prevsubpreamble@\sa@filepath \endcsname
-        %\expandafter\show\csname     subpreamble@\sa@filepath \endcsname
+        \expandafter\show\csname prevsubpreamble@\sa@filepath \endcsname
+        \expandafter\show\csname     subpreamble@\sa@filepath \endcsname
         \def\next{%
           \endgroup
           \PackageWarning{standalone}{Sub-preamble of file '\sa@filepath' has changed. Content will be ignored. Please rerun LaTeX!}{}{}%
           \immediate\write\@mainaux{%
             \@percentchar\space standalone package info: Rerun LaTeX!
           }
+          \null
           \endinput
         }
       \fi
