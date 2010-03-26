@@ -4,6 +4,7 @@ DOCINSTALLDIR=${TEXMF}/doc/latex/standalone
 CP=cp
 RMDIR=rm -rf
 PDFLATEX=pdflatex -interaction=batchmode
+LATEXMK=latexmk -pdf -silent
 
 PACKEDFILES=standalone.cls standalone.sty standalone.cfg standalone.tex
 DOCFILES=standalone.pdf
@@ -14,20 +15,30 @@ all: unpack doc
 package: unpack
 class: unpack
 
-${PACKEDFILES}: ${SRCFILES}
+${PACKEDFILES}: standalone.dtx standalone.ins
 	yes | pdflatex standalone.ins
 
 unpack: ${PACKEDFILES}
 
-doc: ${DOCFILES}
+# 'doc' and 'standalone.pdf' call itself until everything is stable
+doc: standalone.pdf
+	@${MAKE} --no-print-directory standalone.pdf
 
-standalone.pdf: %.pdf: standalone.dtx
-	${PDFLATEX} $<
-	${PDFLATEX} $<
-	-makeindex -s gind.ist -o $*.ind $*.idx
-	-makeindex -s gglo.ist -o $*.gls $*.glo
-	${PDFLATEX} $<
-	${PDFLATEX} $<
+pdfopt: doc
+	@-pdfopt standalone.pdf .temp.pdf && mv .temp.pdf standalone.pdf
+
+standalone.pdf: standalone.dtx standalone.gls standalone.ind
+	${LATEXMK} standalone.dtx
+	@${MAKE} --no-print-directory doc
+
+standalone.idx standalone.glo: standalone.dtx
+	${LATEXMK} standalone.dtx
+
+standalone.ind: standalone.idx
+	-makeindex -s gind.ist -o "$@" "$<"
+
+standalone.gls: standalone.glo
+	-makeindex -s gglo.ist -o "$@" "$<"
 
 .PHONY: test
 
@@ -35,8 +46,9 @@ test: unpack
 	for T in test*.tex; do echo "$$T"; pdflatex -interaction=batchmode $$T && echo "OK" || echo "Failure"; done
 
 clean:
-	${RM} ${PACKEDFILES} *.zip *.log *.aux *.toc *.vrb *.nav *.pdf *.snm *.out *.fdb_latexmk *.glo *.sta *.stp
-	${RMDIR} .tds
+	-latexmk -C standalone.dtx
+	${RM} ${PACKEDFILES} *.zip *.log *.aux *.toc *.vrb *.nav *.pdf *.snm *.out *.fdb_latexmk *.glo *.gls *.hd *.sta *.stp
+	${RMDIR} tds
 
 install: unpack doc ${INSTALLDIR} ${DOCINSTALLDIR}
 	${CP} ${PACKEDFILES} ${INSTALLDIR}
@@ -59,18 +71,17 @@ zip: standalone.zip
 
 tdszip: standalone.tds.zip
 
-standalone.zip: ${SRCFILES} ${DOCFILES}
+standalone.zip: ${SRCFILES} ${DOCFILES} pdfopt
 	${RM} $@
 	zip $@ $^ 
 
-standalone.tds.zip: ${SRCFILES} ${PACKEDFILES} ${DOCFILES} 
-	${RMDIR} .tds
-	mkdir -p .tds/tex/latex/standalone
-	mkdir -p .tds/doc/latex/standalone
-	mkdir -p .tds/source/latex/standalone
-	${CP} ${DOCFILES}    .tds/doc/latex/standalone
-	${CP} ${PACKEDFILES} .tds/tex/latex/standalone
-	${CP} ${SRCFILES}    .tds/source/latex/standalone
-	cd .tds; zip -r ../$@ .
-	${RMDIR} .tds
+standalone.tds.zip: ${SRCFILES} ${PACKEDFILES} ${DOCFILES} pdfopt
+	${RMDIR} tds
+	mkdir -p tds/tex/latex/standalone
+	mkdir -p tds/doc/latex/standalone
+	mkdir -p tds/source/latex/standalone
+	${CP} ${DOCFILES}    tds/doc/latex/standalone
+	${CP} ${PACKEDFILES} tds/tex/latex/standalone
+	${CP} ${SRCFILES}    tds/source/latex/standalone
+	cd tds; zip -r ../$@ .
 
