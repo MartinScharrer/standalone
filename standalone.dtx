@@ -55,7 +55,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{1067}
+% \CheckSum{1060}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -123,7 +123,8 @@
 % the directories with a lot of extra files. A second method is to place the `main' components, i.e. a preamble, directly into the
 % picture files and make the main document ignore this code sections.
 %
-% The package |standalone| can be used in the main document to skip all extra preambles in included files.
+% The package |standalone| can be used in the main document to skip all extra preambles in included files. The main file must load all packages 
+% and settings required by the sub-files. Several package options are provided to collect the preambles of the sub-files automatically and execute them from the main file.
 %
 % A |standalone| class is also provided to minimise the extra preamble code needed in this files.
 % It's usage is optional, but simplifies and standardises how picture files are compiled standalone.
@@ -132,18 +133,22 @@
 % on a per directory base.
 %
 % \subsection*{Similar Packages}
-% The |docmute| package by T.M.\ Trzeciak is written with the same function as the |standalone| package. However, no special class file or 
-% configuration file is provided.
+% The |docmute| package by T.M.\ Trzeciak is written for the same basic task as the |standalone| package. However, no sub-preamble processing other than the removal is support. It also
+% doesn't provide a special class or configuration file.
 %
 % \section{Usage}
 % \subsection{Quick instructions}
-% Load the |standalone| \emph{package} and all packages needed by all the sub-files in the main document and include your picture or other sub-files using |\input| as normal.
-% In the sub-files use the |standalone| \emph{class} using the normal \cs{documentclass} and load all packages needed for the particular 
-% file. Finally wrap the actual file content in a |document| environment.
+% Load the |standalone| \emph{package} very early in the main document. Also all packages needed by all the sub-files must be loaded by the main document.
+% Include your picture or other sub-files using |\input| or a similar macro as normal.
+% In the sub-files use the |standalone| \emph{class} with a normal \cs{documentclass} and load all packages needed for the particular 
+% file. Finally wrap the actual content of the sub-file in a |document| environment.
 %
 % When the sub-file is compiled on its own the |\documentclass| and |document| environment will be active as normal. The main file, however,
 % will skip everything from the |\documentclass| till the |\begin{document}|. The (now fake) |document| environment is redefined to be a simple 
 % TeX-group. Any code after the |\end{document}| will be ignored. The real |document| environment of the main file will be unaffected and will work as normal.
+%
+% Instead of transferring the packages required by each sub-file manually to the main document preamble, this task can be automatised using
+% the options listed in section~\ref{sec:pkgoptions}
 %
 % \subsection{Class Options}
 % The |standalone| class will load a real document class. By default this is |article|. The document class normally has not much
@@ -154,8 +159,49 @@
 %
 % All other used options are passed to the loaded class.
 %
-% \subsection{Package Options}
-% At the moment the |standalone| package does not provide any options.
+% \subsection{Package Options}\label{sec:pkgoptions}
+% The |standalone| package removes all sub-file preambles (``sub-preambles'') by default when loaded.
+% However, if the package is loaded with the |subpreambles| options, all sub-preambles are stored in an auxiliary file with the name \meta{main tex file name}|.sta| (for \emph{sta}ndalone).
+% This file is then loaded or processed at the beginning of the next \LaTeX\ run (i.e.\ at the place in the preamble where the |standalone| package is loaded).
+% The way how the |subpreambles| option works can be controlled by the options |sort|, |print| and |comments|/|nocomments|.
+% Please note that the |sort| and |print| options require of course the |subpreambles| option and will enable it if not already done so.
+%
+% With only the |subpreambles| option set, the sub-preambles are simple read and executed unchanged. This includes the risk of option clashes if one package is loaded with different
+% options inside the sub-preambles and/or the main preamble. This is avoided by the |sort| option, which accumulates all packages loaded by all sub-files together with their options.
+% The options are then marked to be loaded by the package using \LaTeX{}s \cs{PassOptionsToPackage} macro. The packages are loaded at the end of the preamble using the \cs{AtBeginDocument} hook.
+% This allows the user to load the same packages with own options in the main file, after the |subversion| package is loaded, without any option clashes.
+%
+% While the |sort| option is giving already good results, problems with the order of packages can still occur. Some packages provide, redefine or patch the same macros, so that they must be loaded in
+% the correct order to give the desired result. Potential additional code in the sub-preambles, required for some sub-figures but maybe incompatible with others, complicates the situation further.
+% If such issues occur they can hardly be handled in an automatic way. Instead the sub-preambles must be carefully merged into the main preamble.
+% The option |print| was created to simplify this otherwise cumbersome task.
+% It concatenated all sub-preambles into a single file named \meta{main tex file name}|.stp| (for \emph{st}andalone, \emph{p}rint). Each preamble is commented with its original file name.
+% Please note that |.sta| file mentioned above, while quite similar, holds additional macros and might not be easily user readable or editable. 
+% After the file was generated it can be easily pasted into the main file preamble using a text editor.
+%
+% When the |print| option is enabled the normal |.sta| file is not generated or loaded. Because this will cause most likely some errors related to packages not loaded, all sub-file bodies will be skipped.
+% A warning is printed for each sub-file to remind the user about this fact. The |print| option is only indented to by used when required to get a list of sub-preambles. After including this list in the main file the option
+% must be removed to compile the main file normally.
+%
+% Finally if both the |print| and |sort| options are enabled, a `sorted' list of sub-preambles is printed into the |.stp| file. In this `sorted print' mode all |\usepackage| macros (and similar macros like 
+% |\usepgflibrary|, |\usetikzlibrary| and |\usetikztiminglibrary| from the |pgf|, |tikz| and |tikz-timing| packages) are removed from the rest of the sub-preamble code.
+% A list of packages (and libraries) without duplicates is printed at the begin of the |.stp| file (using |\usepackage|, of course). Every option provided by any sub-file for a package is added, again without duplicates.
+% If specific package date was requested in a sub-file it is also added. If multiple dates are requested for one package, the most recent (i.e.\ the ``highest one'', not the last processed) is used.
+% After this list(s) the rest of the sub-preamble code is printed with the above macros removed. This mode frees the user from the need to remove duplicates and collect package options manually.
+%
+% Please note that all |\usepackage| and similar macros inside braces |{ }| will not be seen by |standalone|s sort macro and therefore are not extracted or handled in any special form mentioned above.
+% This can be exploited to load certain packages only in |standalone| mode but not in the main document.
+% Unfortunately, macros inside |\ifstandalone|\ldots|\fi| are seen and extracted while not wanted inside the main file.
+% The macro \cs{onlyifstandalone}\marg{code} (see below) was created because of this two reasons. Its argument braces hide the content from the scanner.
+% It is then also completely removed from the printed sub-preamble code.
+%
+% The complementary options |comments|/|nocomments| select if the |.stp| file should also include the comments of the sub-preambles.
+% Comments are included by default in the non-sorting print mode (|print| without |sort| option), but can cause `wrong' results during the `sorting' process and are therefore removed by default in this mode.
+% The reason for this can be explained as follows.
+% In order to transfer the comments from the sub-files to the |.stp| file \TeX\ must be instructed to handle them as normal input and not discard them.
+% However, in this case the scanning algorithm which removes |\usepackage| and friends can not distinguish
+% between `active' macros and macros which are commented out. All above mentioned macro inside comments will then be processed as when there where `active'.
+% The user might favour the information provided by the comments over this small risk and enable them using the |comments| option.
 %
 % \subsection{Environments and Macros}
 %
@@ -177,6 +223,17 @@
 %
 % The additional file |standalone.tex| also defines this switch by checking if \cs{documentclass} was already used. It can be included
 % with |\input{standalone}| and is intended for specialised files which do not use the |standalone| class.
+%
+% \DescribeMacro{\ifstandalonebeamer}
+% Both the class and the package provide the if-switch \cs{ifstandalonebeamer}, which can be used to only include code if the file is 
+% compiled standalone with the |beamer| class option set.
+% The switch is set to \cs{iftrue} by the class when loaded with the |beamer| option and always to \cs{iffalse} by the package.
+%
+% \DescribeMacro{\onlyifstandalone}\marg{code}
+% This is the macro version of the |\ifstandalone| if-switch. It executes \meta{code} only in |standalone| mode. As mentioned in section~\ref{sec:pkgoptions}
+% it can also be used to hide |\usepackage| and similar macros from the extraction scanner of the |sort| option. The macro and its argument is not printed into the |.stp| file.
+%
+% \section{Examples}
 %
 % \def\lstlistingname{Example}
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Use of \emph{standalone} class.}]
@@ -379,9 +436,11 @@
   \sa@subpreamblestrue
 }
 \DeclareOption{sort}{%
+  \sa@subpreamblestrue
   \sa@sortsubpreamblestrue
 }
 \DeclareOption{print}{%
+  \sa@subpreamblestrue
   \sa@printsubpreamblestrue
 }
 \DeclareOption{comments}{%
@@ -393,10 +452,9 @@
 \ProcessOptions*\relax
 %    \end{macrocode}
 %
-% The |print| option activates the |subpreambles| option but disables the |sort| option.
+% In non-sorted print mode comments are preserved by default.
 %    \begin{macrocode}
 \ifsa@printsubpreambles
-  \sa@subpreamblestrue
   \ifsa@sortsubpreambles\else
     \@ifundefined{sa@percent}{%
       \def\sa@percent{\@makeother\%}%
@@ -853,11 +911,9 @@
 %    \end{macrocode}
 % \end{environment}
 %
-% If in |print| mode clean the last |.sta| file and open the |.stp| file.
+% If in |print| mode open the |.stp| file.
 %    \begin{macrocode}
 \ifsa@printsubpreambles
-  \immediate\openout\sa@out=\jobname.sta\relax
-  \immediate\closeout\sa@out
   \immediate\openout\sa@out=\jobname.stp\relax
 \else
 %    \end{macrocode}
