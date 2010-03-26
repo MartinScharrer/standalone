@@ -27,9 +27,9 @@
 %<cls|sty|cfg|tex>% $Id$
 %<cls|sty>\NeedsTeXFormat{LaTeX2e}
 %<cls>\ProvidesClass{standalone}   [2010/03/26 v0.4-dev Class to compile TeX sub-files standalone]
-%<sty>\ProvidesPackage{standalone} [2010/03/26 v0.4-dev Package to include TeX sub-files which use the 'standalone' class]
+%<sty>\ProvidesPackage{standalone} [2010/03/26 v0.4-dev Package to include TeX sub-files with preambles]
 %<tex>\ProvidesFile{standalone.tex}[2010/03/26 v0.4-dev Provides if-switch to show if file is compiled standalone]%
-%<cfg>\ProvidesFile{standalone.cfg}[2010/03/26 v0.4-dev Default configuration file for 'standalone' class and package]%
+%<cfg>\ProvidesFile{standalone.cfg}[2010/03/26 v0.4-dev Default configuration file for 'standalone' class]%
 %<*driver>
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesFile{standalone.dtx}[2010/03/26 v0.4-dev DTX File for 'standalone' cls/sty/tex/cfg files]
@@ -58,7 +58,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{1091}
+% \CheckSum{1088}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -1122,8 +1122,8 @@
       \csname     subpreamble@\sa@filepath \endcsname
         \def\next{\expandafter\endgroup\expandafter\begin\expandafter{\sa@gobbleto}}%
       \else
-        \expandafter\show\csname prevsubpreamble@\sa@filepath \endcsname
-        \expandafter\show\csname     subpreamble@\sa@filepath \endcsname
+        %\expandafter\show\csname prevsubpreamble@\sa@filepath \endcsname
+        %\expandafter\show\csname     subpreamble@\sa@filepath \endcsname
         \def\next{%
           \endgroup
           \PackageWarning{standalone}{Sub-preamble of file '\sa@filepath' has changed. Content will be ignored. Please rerun LaTeX!}{}{}%
