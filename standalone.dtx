@@ -1396,7 +1396,7 @@
 \fi
 %    \end{macrocode}
 %
-% \subsubsection{}
+% \subsubsection{Document Environment in Sub-Files}
 %
 % \begin{macro}{\sa@cls@orig@document}
 % \begin{macro}{\sa@cls@orig@enddocument}
@@ -1408,25 +1408,20 @@
 % \end{macro}
 % \end{macro}
 %
-% \begin{macro}{\document}
-% Adds own `after begin document' hook.
+% \begin{environment}{document}
+% Adds own `after begin document' and `before end document` hooks.
 %    \begin{macrocode}
 \def\document{%
   \sa@cls@orig@document
   \let\documentclass\sa@documentclass  % TODO: really required?
   \sa@cls@afterbegindocument
 }
-%    \end{macrocode}
-% \end{macro}
-%
-% \begin{macro}{\enddocument}
-%    \begin{macrocode}
 \def\enddocument{%
   \sa@cls@beforeenddocument
   \sa@cls@orig@enddocument
 }
 %    \end{macrocode}
-% \end{macro}
+% \end{environment}
 %
 % \begin{macro}{\sa@cls@afterbegindocument}
 % \begin{macro}{\sa@cls@beforeenddocument}
@@ -1448,36 +1443,30 @@
 % \iffalse
 %<*tex>
 % \fi
-%    \begin{macrocode}
-\expandafter\ifx\csname ifstandalone\endcsname\relax
-%    \end{macrocode}
-%
 % \begin{macro}{\ifstandalone}
 % Provides \cs{ifstandalone} switch which is |\iftrue| if the normal |\documentclass|
 % was not yet executed (and subsequently redefined to be |\@twoclasseserror|).
 %    \begin{macrocode}
+\expandafter\ifx\csname ifstandalone\endcsname\relax
 \expandafter\newif\csname ifstandalone\endcsname
-%    \end{macrocode}
-%    \begin{macrocode}
 \expandafter\ifx\csname @twoclasseserror\endcsname\documentclass
 \else
   \standalonetrue
 \fi
-%    \end{macrocode}
-% \end{macro}
-%
-%    \begin{macrocode}
 \fi
 %    \end{macrocode}
+% \end{macro}
 % \iffalse
 %</tex>
 % \fi
 %
 % \subsection{Config File}
-% Default content of the configuration file. Users can place there own
-% |standalone.cfg| in their |texmf| directory or in the local document directory
-% to define their own settings as described above. To load the default config file
-% from a user config file use |\input{standalone/standalone.cfg}|.
+% Default content of the configuration file. Users can override this by placing an own
+% |standalone.cfg| file somewhere where \TeX\ can find it (user |texmf| directory or local directory).
+% This user file can load the default config file using 
+% using |\InputIfFileExists{standalone/standalone.cfg}{}{}|.
+% Be default only the |preview| package option are set and 
+% the navigation symbols of beamer standalones are disabled.
 % \iffalse
 %<*cfg>
 % \fi
