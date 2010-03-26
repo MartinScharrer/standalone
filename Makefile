@@ -29,7 +29,6 @@ pdfopt: doc
 
 standalone.pdf: standalone.dtx standalone.gls standalone.ind
 	${LATEXMK} standalone.dtx
-	@${MAKE} --no-print-directory doc
 
 standalone.idx standalone.glo: standalone.dtx
 	${LATEXMK} standalone.dtx
@@ -71,11 +70,11 @@ zip: standalone.zip
 
 tdszip: standalone.tds.zip
 
-standalone.zip: ${SRCFILES} ${DOCFILES} pdfopt
+standalone.zip: ${SRCFILES} ${DOCFILES} | pdfopt
 	${RM} $@
 	zip $@ $^ 
 
-standalone.tds.zip: ${SRCFILES} ${PACKEDFILES} ${DOCFILES} pdfopt
+standalone.tds.zip: ${SRCFILES} ${PACKEDFILES} ${DOCFILES} | pdfopt
 	${RMDIR} tds
 	mkdir -p tds/tex/latex/standalone
 	mkdir -p tds/doc/latex/standalone
