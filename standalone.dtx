@@ -26,13 +26,13 @@
 % \iffalse
 %<cls|sty|cfg|tex>% $Id$
 %<cls|sty>\NeedsTeXFormat{LaTeX2e}
-%<cls>\ProvidesClass{standalone}   [2010/03/22 v0.3-dev Class to compile TeX sub-files standalone]
-%<sty>\ProvidesPackage{standalone} [2010/03/22 v0.3-dev Package to include TeX sub-files which use the 'standalone' class]
-%<tex>\ProvidesFile{standalone.tex}[2010/03/22 v0.3-dev Provides if-switch to show if file is compiled standalone]%
-%<cfg>\ProvidesFile{standalone.cfg}[2010/03/22 v0.3-dev Default configuration file for 'standalone' class and package]%
+%<cls>\ProvidesClass{standalone}   [2010/03/23 v0.3-dev-collectpreambles Class to compile TeX sub-files standalone]
+%<sty>\ProvidesPackage{standalone} [2010/03/23 v0.3-dev-collectpreambles Package to include TeX sub-files which use the 'standalone' class]
+%<tex>\ProvidesFile{standalone.tex}[2010/03/23 v0.3-dev-collectpreambles Provides if-switch to show if file is compiled standalone]%
+%<cfg>\ProvidesFile{standalone.cfg}[2010/03/23 v0.3-dev-collectpreambles Default configuration file for 'standalone' class and package]%
 %<*driver>
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesFile{standalone.dtx}[2010/03/22 v0.3-dev DTX File for 'standalone' cls/sty/tex/cfg files]
+\ProvidesFile{standalone.dtx}[2010/03/23 v0.3-dev-collectpreambles DTX File for 'standalone' cls/sty/tex/cfg files]
 \documentclass{ltxdoc}
 \usepackage{ifpdf}
 \usepackage{listings}
@@ -41,6 +41,9 @@
 }{%
 \usepackage{hyperref}
 }
+
+\def\optpar#1{\marginpar{\hfill\opt{#1}}}
+\def\opt#1{{\sffamily#1}}
 
 \EnableCrossrefs
 \CodelineIndex
@@ -55,7 +58,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{242}
+% \CheckSum{1076}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -123,7 +126,8 @@
 % the directories with a lot of extra files. A second method is to place the `main' components, i.e. a preamble, directly into the
 % picture files and make the main document ignore this code sections.
 %
-% The package |standalone| can be used in the main document to skip all extra preambles in included files.
+% The package |standalone| can be used in the main document to skip all extra preambles in included files. The main file must load all packages 
+% and settings required by the sub-files. Several package options are provided to collect the preambles of the sub-files automatically and execute them from the main file.
 %
 % A |standalone| class is also provided to minimise the extra preamble code needed in this files.
 % It's usage is optional, but simplifies and standardises how picture files are compiled standalone.
@@ -132,18 +136,22 @@
 % on a per directory base.
 %
 % \subsection*{Similar Packages}
-% The |docmute| package by T.M.\ Trzeciak is written with the same function as the |standalone| package. However, no special class file or 
-% configuration file is provided.
+% The |docmute| package by T.M.\ Trzeciak is written for the same basic task as the |standalone| package. However, no sub-preamble processing other than the removal is support. It also
+% doesn't provide a special class or configuration file.
 %
 % \section{Usage}
 % \subsection{Quick instructions}
-% Load the |standalone| \emph{package} and all packages needed by all the sub-files in the main document and include your picture or other sub-files using |\input| as normal.
-% In the sub-files use the |standalone| \emph{class} using the normal \cs{documentclass} and load all packages needed for the particular 
-% file. Finally wrap the actual file content in a |document| environment.
+% Load the |standalone| \emph{package} very early in the main document. Also all packages needed by all the sub-files must be loaded by the main document.
+% Include your picture or other sub-files using |\input| or a similar macro as normal.
+% In the sub-files use the |standalone| \emph{class} with a normal \cs{documentclass} and load all packages needed for the particular 
+% file. Finally wrap the actual content of the sub-file in a |document| environment.
 %
 % When the sub-file is compiled on its own the |\documentclass| and |document| environment will be active as normal. The main file, however,
 % will skip everything from the |\documentclass| till the |\begin{document}|. The (now fake) |document| environment is redefined to be a simple 
 % TeX-group. Any code after the |\end{document}| will be ignored. The real |document| environment of the main file will be unaffected and will work as normal.
+%
+% Instead of transferring the packages required by each sub-file manually to the main document preamble, this task can be automatised using
+% the options listed in section~\ref{sec:pkgoptions}
 %
 % \subsection{Class Options}
 % The |standalone| class will load a real document class. By default this is |article|. The document class normally has not much
@@ -154,8 +162,49 @@
 %
 % All other used options are passed to the loaded class.
 %
-% \subsection{Package Options}
-% At the moment the |standalone| package does not provide any options.
+% \subsection{Package Options}\label{sec:pkgoptions}
+% The |standalone| package removes all sub-file preambles (``sub-preambles'') by default when loaded.
+% However, if the package is loaded with the \opt{subpreambles}\optpar{subpreambles} options, all sub-preambles are stored in an auxiliary file with the name `\meta{main tex file name}|.sta|' (for \emph{sta}ndalone).
+% This file is then loaded or processed at the beginning of the next \LaTeX\ run (i.e.\ at the place in the preamble where the |standalone| package is loaded).
+% The way how the \opt{subpreambles} option works can be controlled by the options \opt{sort}, \opt{print} and \opt{comments}/\opt{nocomments}.
+% Please note that the \opt{sort} and \opt{print} options require of course the \opt{subpreambles} option and will enable it if not already done so.
+%
+% With only the \opt{subpreambles} option set, the sub-preambles are simple read and executed unchanged. This includes the risk of option clashes if one package is loaded with different
+% options inside the sub-preambles and/or the main preamble. This is avoided by the \opt{sort}\optpar{sort} option, which accumulates all packages loaded by all sub-files together with their options.
+% The options are then marked to be loaded by the package using \LaTeX{}s \cs{PassOptionsToPackage} macro. The packages are loaded at the end of the preamble using the \cs{AtBeginDocument} hook.
+% This allows the user to load the same packages with own options in the main file, after the |subversion| package is loaded, without any option clashes.
+%
+% While the \opt{sort} option is giving already good results, problems with the order of packages can still occur. Some packages provide, redefine or patch the same macros, so that they must be loaded in
+% the correct order to give the desired result. Potential additional code in the sub-preambles, required for some sub-figures but maybe incompatible with others, complicates the situation further.
+% If such issues occur they can hardly be handled in an automatic way. Instead the sub-preambles must be carefully merged into the main preamble.
+% The option \opt{print}\optpar{print} was created to simplify this otherwise cumbersome task.
+% It concatenated all sub-preambles into a single file named `\meta{main tex file name}|.stp|' (for \emph{st}andalone, \emph{p}rint). Each preamble is commented with its original file name.
+% Please note that |.sta| file mentioned above, while quite similar, holds additional macros and might not be easily user readable or editable. 
+% After the file was generated it can be easily pasted into the main file preamble using a text editor.
+%
+% When the \opt{print} option is enabled the normal |.sta| file is not generated or loaded. Because this will cause most likely some errors related to packages not loaded, all sub-file bodies will be skipped.
+% A warning is printed for each sub-file to remind the user about this fact. The \opt{print} option is only indented to by used when required to get a list of sub-preambles. After including this list in the main file the option
+% must be removed to compile the main file normally.
+%
+% Finally if both the \opt{print} and \opt{sort}\optpar{print, sort} options are enabled, a `sorted' list of sub-preambles is printed into the |.stp| file. In this `sorted print' mode all |\usepackage| macros (and similar macros like 
+% |\usepgflibrary|, |\usetikzlibrary| and |\usetikztiminglibrary| from the |pgf|, |tikz| and |tikz-timing| packages, respectively) are removed from the rest of the sub-preamble code.
+% A list of packages (and libraries) without duplicates is printed at the begin of the |.stp| file (using |\usepackage|, of course). Every option provided by any sub-file for a package is added, again without duplicates.
+% If specific package date was requested in a sub-file it is also added. If multiple dates are requested for one package, the most recent (i.e.\ the ``highest one'', not the last processed) is used.
+% After this list(s) the rest of the sub-preamble code is printed with the above macros removed. This mode frees the user from the need to remove duplicates and collect package options manually.
+%
+% Please note that all |\usepackage| and similar macros inside braces |{ }| will not be seen by |standalone|s sort macro and therefore are not extracted or handled in any special form mentioned above.
+% This can be exploited to load certain packages only in |standalone| mode but not in the main document.
+% Unfortunately, macros inside |\ifstandalone|\ldots|\fi| are seen and extracted while not wanted inside the main file.
+% The macro \cs{onlyifstandalone}\marg{code} (see below) was created because of this two reasons. Its argument braces hide the content from the scanner.
+% It is then also completely removed from the printed sub-preamble code.
+%
+% The complementary options \opt{comments}/\opt{nocomments}\optpar{comments/nocomments} select if the |.stp| file should also include the comments of the sub-preambles.
+% Comments are included by default in the non-sorting print mode (\opt{print} without \opt{sort} option), but can cause `wrong' results during the `sorting' process and are therefore removed by default in this mode.
+% The reason for this can be explained as follows.
+% In order to transfer the comments from the sub-files to the |.stp| file \TeX\ must be instructed to handle them as normal input and not discard them.
+% However, in this case the scanning algorithm which removes |\usepackage| and friends can not distinguish
+% between `active' macros and macros which are commented out. All above mentioned macro inside comments will then be processed as when there where `active'.
+% The user might favour the information provided by the comments over this small risk and enable them using the \opt{comments} option.
 %
 % \subsection{Environments and Macros}
 %
@@ -177,6 +226,18 @@
 %
 % The additional file |standalone.tex| also defines this switch by checking if \cs{documentclass} was already used. It can be included
 % with |\input{standalone}| and is intended for specialised files which do not use the |standalone| class.
+%
+% \DescribeMacro{\ifstandalonebeamer}
+% Both the class and the package provide the if-switch \cs{ifstandalonebeamer}, which can be used to only include code if the file is 
+% compiled standalone with the |beamer| class option set.
+% The switch is set to \cs{iftrue} by the class when loaded with the |beamer| option and always to \cs{iffalse} by the package.
+%
+% \DescribeMacro{\onlyifstandalone}\hspace*{-\parindent}\hspace*{-\marginparsep}\marg{code}\hspace*{\parindent}
+% This is the macro version of the |\ifstandalone| if-switch. It executes \meta{code} only in |standalone| mode. As mentioned in section~\ref{sec:pkgoptions}
+% it can also be used to hide |\usepackage| and similar macros from the extraction scanner of the |sort| option. The macro and its argument is not printed into the |.stp| file.
+%
+% \newpage
+% \subsection{Examples}
 %
 % \def\lstlistingname{Example}
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Use of \emph{standalone} class.}]
@@ -263,10 +324,10 @@
 % This if switch is only true if the class is compiled with the |beamer| option. The package sets it to false.
 % It can be used to place beamer specific options in the configuration files, which should be skipped for non-beamer standalone files.
 %
+% \newpage
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Use of \emph{standalone} class.}]
 %   % Use of 'standalone' class with a beamer overlay:
 %   \documentclass[beamer]{standalone}
-%
 %   % Load packages needed for this TeX file:
 %   \usepackage{tikz}
 %
@@ -282,7 +343,6 @@
 %
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Effective beamer code if compiled standalone.}]
 %   \documentclass{beamer}
-%
 %   \input{standalone.cfg}
 %
 %   \usepackage{tikz}
@@ -326,41 +386,730 @@
 % \iffalse
 %<*sty>
 % \fi
+% The package file is to be loaded by a main document which includes |standalone| sub-files.
+% It is also loaded by the |standalone| class to share code. The class then redefines certain macros.
+%
+% \subsubsection{If-Switches}
+%
+% \begin{macro}{\ifstandalone}
+% Declare |standalone| if-switch and set it to false. The class will set it to true.
+% The |\csname| trickery is used to avoid issues if the switch was already defined.
 %    \begin{macrocode}
 \expandafter\newif\csname ifstandalone\endcsname
 \standalonefalse
 %    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\ifstandalonebeamer}
+% Make sure that |standalonebeamer| if-switch is defined and set it to false.
+% If the class was loaded beforehand with the |beamer| option it is already defined as true.
+% The |\csname| trickery is used to avoid issues if the switch was already defined.
 %    \begin{macrocode}
 \@ifundefined{ifstandalonebeamer}{%
 \expandafter\newif\csname ifstandalonebeamer\endcsname
 \standalonebeamerfalse
 }{}%
 %    \end{macrocode}
+% \end{macro}
 %
-% \begin{macro}{\sa@documentclass}
+% \begin{macro}{\onlyifstandalone}
+% Macro version of |\ifstandalone|. The |{ }| around the argument protects the content from the package etc. scanners.
+% Only defined if not already defined by the class, in the case of a |standalone| file included other |standalone| files.
 %    \begin{macrocode}
-\newcommand{\sa@documentclass}[2][]{%
-  \let\document\sa@document
-  \expandafter\sa@@documentclass
+\@ifundefined{onlyifstandalone}
+  {\let\onlyifstandalone\@gobble}
+  {}
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \begin{macro}{\ifsa@subpreambles}
+% \begin{macro}{\ifsa@sortsubpreambles}
+% \begin{macro}{\ifsa@printsubpreambles}
+% The if-switches for the options.
+%    \begin{macrocode}
+\newif\ifsa@subpreambles
+\newif\ifsa@sortsubpreambles
+\newif\ifsa@printsubpreambles
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+%
+% \subsubsection{Options}
+%    \begin{macrocode}
+\DeclareOption{subpreambles}{%
+  \sa@subpreamblestrue
+}
+\DeclareOption{sort}{%
+  \sa@subpreamblestrue
+  \sa@sortsubpreamblestrue
+}
+\DeclareOption{print}{%
+  \sa@subpreamblestrue
+  \sa@printsubpreamblestrue
+}
+\DeclareOption{comments}{%
+  \def\sa@percent{\@makeother\%}%
+}
+\DeclareOption{nocomments}{%
+  \def\sa@percent{}%
+}
+\ProcessOptions*\relax
+%    \end{macrocode}
+%
+% In non-sorted print mode comments are preserved by default.
+%    \begin{macrocode}
+\ifsa@printsubpreambles
+  \ifsa@sortsubpreambles\else
+    \@ifundefined{sa@percent}{%
+      \def\sa@percent{\@makeother\%}%
+    }{}%
+  \fi
+\fi
+%    \end{macrocode}
+%
+% \begin{macro}{\sa@filepath}
+% File name macro. If the |fink| package is loaded the macros \cs{finkdir} (with leading `|./|' removed) and \cs{finkpath} is used, otherwise the \LaTeX\ macro
+% \cs{@filef@und}. The latter causes issues if |\input| etc. was used before |\documentclass| in sub-files.
+%    \begin{macrocode}
+\@ifundefined{finkpath}{%
+  \def\sa@filepath{\@filef@und}%
+}{%
+  \def\sa@filepath{\expandafter\expandafter\expandafter\sa@rmdotslash\expandafter\finkdir\finkfile\empty./\empty}%
+  \def\sa@rmdotslash#1./#2\empty{%
+    \ifx\empty#1\empty
+      \sa@@rmdotslash#2%
+    \else
+      \ifx\empty#2\empty
+        #1%
+      \else
+        \sa@@rmdotslash#1./#2%
+      \fi
+    \fi
+  }
+  \def\sa@@rmdotslash#1./\empty{#1}%
 }
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\sa@@documentclass}
+% \subsubsection{Processing of Sub-Preambles}
+%
 %    \begin{macrocode}
-\def\sa@@documentclass{%
-  \begingroup\def\sa@gobbleto{document}\sa@gobble
+\ifsa@subpreambles
+%    \end{macrocode}
+%
+% \begin{macro}{\sa@out}
+% Write handle.
+%    \begin{macrocode}
+\newwrite\sa@out
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\sa@write}
+% Helper macro for file output.
+%    \begin{macrocode}
+\def\sa@write{\immediate\write\sa@out}%
+%    \end{macrocode}
+% \end{macro}
+%
+%
+%    \begin{macrocode}
+\ifsa@printsubpreambles
+%    \end{macrocode}
+%
+% \begin{macro}{\sa@removeonlyifstandalone}
+% Scans for |\onlyifstandalone| and removes it argument.
+%    \begin{macrocode}
+\long\def\sa@removeonlyifstandalone#1\onlyifstandalone{%
+  \g@addto@macro\sa@preamble{#1}%
+  \@ifnextchar\sa@endmarker
+    {\@gobble}%
+    {\expandafter\sa@gobbleeol\expandafter\sa@removeonlyifstandalone\expandafter^^J\@gobble}%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%    \begin{macrocode}
+\fi
+%    \end{macrocode}
+%
+%
+% \subsubsection{Sorting of package options}
+%
+% Macros only needed for this mode are defined inside the |\if...|
+% to save memory otherwise.
+%
+%    \begin{macrocode}
+\ifsa@sortsubpreambles
+%    \end{macrocode}
+%
+% \begin{macro}{\sa@usepackagewithoutoptions}
+% Simply calls the original |\usepackage| while skipping the optional
+% argument with potential package options.
+%    \begin{macrocode}
+\newcommand{\sa@usepackagewithoutoptions}[2][]{%
+  \sa@orig@usepackage{#2}%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\sa@endmarker}
+% Unique end marker. Will not be expanded.
+%    \begin{macrocode}
+\def\sa@endmarker{%
+  \@gobble{sa@endmarker}%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%    \begin{macrocode}
+\ifsa@printsubpreambles
+%    \end{macrocode}
+%
+%
+% In sorted print mode all collected package etc. information is printed into the output file, followed
+% by the reduced sub-preambles.
+%    \begin{macrocode}
+\AtEndDocument{%
+  \sa@write{\@percentchar\space Packages required by sub-files:}%
+  \expandafter\@for\expandafter\pkg\expandafter:\expandafter=\sa@collpkgs\do{%
+    \ifx\pkg\empty\else
+      \sa@write{%
+        \string\usepackage%
+        \expandafter\ifx\csname sa@pkgopts@\pkg\endcsname\empty\else%
+          [\csname sa@pkgopts@\pkg\endcsname]%
+        \fi
+        {\pkg}%
+        \expandafter\ifx\csname sa@pkgdate@\pkg\endcsname\relax\else%
+          [\csname sa@pkgdate@\pkg\endcsname]%
+        \fi
+        }%
+    \fi
+  }%
+  \ifx\sa@collpgflibs\empty\else
+  \sa@write{^^J\@percentchar\space PGF libraries required by sub-files:}%
+  \expandafter\@for\expandafter\lib\expandafter:\expandafter=\sa@collpgflibs\do{%
+    \ifx\lib\empty\else
+      \sa@write{\string\usepgflibrary{\lib}}%
+    \fi
+  }%
+  \fi
+  \ifx\sa@colltikzlibs\empty\else
+  \sa@write{^^J\@percentchar\space TikZ libraries required by sub-files:}%
+  \expandafter\@for\expandafter\lib\expandafter:\expandafter=\sa@colltikzlibs\do{%
+    \ifx\lib\empty\else
+      \sa@write{\string\usetikzlibrary{\lib}}%
+    \fi
+  }%
+  \fi
+  \ifx\sa@colltikztiminglibs\empty\else
+  \sa@write{^^J\@percentchar\space TikZ-Timing libraries required by sub-files:}%
+  \expandafter\@for\expandafter\lib\expandafter:\expandafter=\sa@colltikztiminglibs\do{%
+    \ifx\lib\empty\else
+      \sa@write{%
+        \string\usetikztiminglibrary%
+        \expandafter\ifx\csname sa@tikztimingopts@\lib\endcsname\empty\else%
+          [\csname sa@tikztimingopts@\lib\endcsname]%
+        \fi
+        {\lib}%
+        \expandafter\ifx\csname sa@tikztimingdate@\lib\endcsname\relax\else%
+          [\csname sa@tikztimingdate@\lib\endcsname]%
+        \fi
+        }%
+    \fi
+  }%
+  \fi
+  \sa@write{\expandafter\unexpanded\expandafter{\sa@preamble}}%
+  \message{^^JPackage 'standalone' INFO: See file '\jobname.stp' for list of sub-preambles.^^J}%
+  \immediate\closeout\sa@out
+}
+%    \end{macrocode}
+%
+% \begin{macro}{\sa@removepackages}
+% Scans for |\usepackage|.
+%    \begin{macrocode}
+\long\def\sa@removepackages#1\usepackage{%
+  \sa@removepgflibs#1\usepgflibrary\sa@endmarker
+  \@ifnextchar\sa@endmarker
+    {\@gobble}%
+    {\sa@sortpackages}%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\sa@removepgflibs}
+% Scans for |\usepgflibrary|.
+%    \begin{macrocode}
+\long\def\sa@removepgflibs#1\usepgflibrary{%
+  \sa@removetikzlibs#1\usetikzlibrary\sa@endmarker
+  \@ifnextchar\sa@endmarker
+    {\@gobble}%
+    {\sa@sortpgflibs}%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\sa@removetikzlibs}
+% Scans for |\usetikzlibrary|.
+%    \begin{macrocode}
+\long\def\sa@removetikzlibs#1\usetikzlibrary{%
+  \sa@removetikztiminglibs#1\usetikztiminglibrary\sa@endmarker
+  \@ifnextchar\sa@endmarker
+    {\@gobble}%
+    {\sa@sorttikzlibs}%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\sa@removetikztiminglibs}
+% Scans for |\usetikztiminglibrary|.
+%    \begin{macrocode}
+\long\def\sa@removetikztiminglibs#1\usetikztiminglibrary{%
+  \sa@removeonlyifstandalone#1\onlyifstandalone\sa@endmarker
+  \@ifnextchar\sa@endmarker
+    {\@gobble}%
+    {\sa@sorttikztiminglibs}%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\sa@sortpackage}
+% Reads \cs{usepackage} arguments and stores them away. A list of all packages is compiled. Every package is only
+% added once and has also a list of options used, also only saved once.
+% If package dates are requested then the highest one is stored. Trailing newlines are removed.
+%    \begin{macrocode}
+\def\sa@collpkgs{}%
+\newcommand\sa@sortpackages[2][]{%
+  \@ifnextchar[%]
+    {\sa@@sortpackages{#1}{#2}}%
+    {\sa@@sortpackages{#1}{#2}[]}%
+}
+\def\sa@@sortpackages#1#2[#3]{%
+  \@for\pkg:=#2\do {%
+    \@ifundefined{sa@pkgopts@\pkg}%
+      {%
+        \expandafter\g@addto@macro\expandafter\sa@collpkgs\expandafter{\expandafter,\pkg}%
+        \global\@namedef{sa@pkgopts@\pkg}{#1}%
+        \global\@namedef{sa@pkgopt@\pkg @}{}%
+        \ifx\relax#1\relax\else
+          \@for\opt:=#1\do{\global\@namedef{sa@pkgopt@\pkg @\opt}{}}%
+        \fi
+      }%
+      {%
+        \ifx\relax#1\relax\else
+          \@for\opt:=#1\do{%
+            \@ifundefined{sa@pkgopt@\pkg @\opt}%
+              {%
+                \expandafter\g@addto@macro\csname sa@pkgopts@\pkg\expandafter\endcsname\expandafter{\expandafter,\opt}%
+                \global\@namedef{sa@pkgopt@\pkg @\opt}{}%
+              }{}%
+          }%
+        \fi
+      }%
+    \ifx\relax#3\relax\else
+    \@ifundefined{sa@pkgdate@\pkg}%
+      {\global\@namedef{sa@pkgdate@\pkg}{#3}}%
+      {%
+        \begingroup
+        \edef\@tempa{{\csname sa@pkgdate@\pkg\endcsname}{#3}}%
+        \expandafter\sa@getlargerdate\@tempa
+        \expandafter\xdef\csname sa@pkgdate@\pkg\endcsname{\sa@thedate}%
+        \endgroup
+      }%
+    \fi
+  }%
+  \sa@gobbleeol\sa@removepackages^^J%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\sa@getlargerdate}
+% Takes two package dates and returns the larger one as \cs{sa@thedate}.
+%    \begin{macrocode}
+\def\sa@getlargerdate#1#2{%
+  \sa@@getdate#1\relax\relax0/0/0\relax\empty\relax
+  \let\sa@datea\sa@date
+  \sa@@getdate#2\relax\relax0/0/0\relax\empty\relax
+  \ifdim\sa@datea pt>\sa@date pt
+    \def\sa@thedate{#1}%
+  \else
+    \def\sa@thedate{#2}%
+  \fi
+}
+\def\sa@@getdate#1/#2/#3\relax{%
+  \@ifnextchar\relax
+    {%
+      \def\sa@date{#1.#2#3}%
+      \sa@@rmdate
+    }%
+    {%
+      \def\sa@date{0}%
+      \sa@@rmdate
+    }%
+}
+\def\sa@@rmdate#1\empty\relax{}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\sa@sortpgflibs}
+% Reads the \cs{usepgflibrary} argument and stores it away.
+% Trailing newlines are removed.
+%    \begin{macrocode}
+\def\sa@collpgflibs{}%
+\def\sa@sortpgflibs#1{%
+  \@for\lib:=#1\do {%
+    \@ifundefined{sa@pgflib@\lib}%
+      {%
+        \expandafter\g@addto@macro\expandafter\sa@collpgflibs\expandafter{\expandafter,\lib}%
+        \global\@namedef{sa@pgflib@\lib}{}%
+      }%
+      {}%
+  }%
+  \sa@gobbleeol\sa@removepgflibs^^J%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\sa@sorttikzlibs}
+% Reads the \cs{usetikzlibrary} argument and stores it away.
+% Trailing newlines are removed.
+%    \begin{macrocode}
+\def\sa@colltikzlibs{}%
+\def\sa@sorttikzlibs#1{%
+  \@for\lib:=#1\do {%
+    \@ifundefined{sa@tikzlib@\lib}%
+      {%
+        \expandafter\g@addto@macro\expandafter\sa@colltikzlibs\expandafter{\expandafter,\lib}%
+        \global\@namedef{sa@tikzlib@\lib}{}%
+      }%
+      {}%
+  }%
+  \sa@gobbleeol\sa@removetikzlibs^^J%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\sa@sorttikztiminglibs}
+% Reads \cs{usetikztiminglibrary} arguments and stores them away.
+% Trailing newlines are removed.
+%    \begin{macrocode}
+\def\sa@colltikztiminglibs{}%
+\newcommand\sa@sorttikztiminglibs[2][]{%
+  \@ifnextchar[%]
+    {\sa@@sorttikztiminglibs{#1}{#2}}%
+    {\sa@@sorttikztiminglibs{#1}{#2}[]}%
+}
+\def\sa@@sorttikztiminglibs#1#2[#3]{%
+  \@for\lib:=#2\do {%
+    \@ifundefined{sa@tikztimingopts@\lib}%
+      {%
+        \expandafter\g@addto@macro\expandafter\sa@colltikztiminglibs\expandafter{\expandafter,\lib}%
+        \global\@namedef{sa@tikztimingopts@\lib}{#1}%
+        \global\@namedef{sa@tikztimingopt@\lib @}{}%
+        \ifx\relax#1\relax\else
+          \@for\opt:=#1\do{\global\@namedef{sa@tikztimingopt@\lib @\opt}{}}%
+        \fi
+      }%
+      {%
+        \ifx\relax#1\relax\else
+          \@for\opt:=#1\do{%
+            \@ifundefined{sa@tikztimingopt@\lib @\opt}%
+              {%
+                \expandafter\g@addto@macro\csname sa@tikztimingopts@\lib\expandafter\endcsname\expandafter{\expandafter,\opt}%
+                \global\@namedef{sa@tikztimingopt@\lib @\opt}{}%
+              }{}%
+          }%
+        \fi
+      }%
+    \ifx\relax#3\relax\else
+    \@ifundefined{sa@tikztimingdate@\lib}%
+      {\global\@namedef{sa@tikztimingdate@\lib}{#3}}%
+      {%
+        \begingroup
+        \edef\@tempa{{\csname sa@tikztimingdate@\lib\endcsname}{#3}}%
+        \expandafter\sa@getlargerdate\@tempa
+        \expandafter\xdef\csname sa@tikztimingdate@\lib\endcsname{\sa@thedate}%
+        \endgroup
+      }%
+    \fi
+  }%
+  \sa@gobbleeol\sa@removetikztiminglibs^^J%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \begin{macro}{\sa@gobbleopt}
+% Gobbles an optional argument and a potential line endings and then executes the command given by |#1|.
+%    \begin{macrocode}
+\def\sa@gobbleopt#1[#2]{%
+  \@ifnextchar^^J%
+    {\sa@gobbleeol{#1}}{#1}%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%    \begin{macrocode}
+\else
+%    \end{macrocode}
+%
+% \begin{macro}{\sa@scanpackages}
+% Scans for |\usepackage|.
+%    \begin{macrocode}
+\def\sa@scanpackages#1\usepackage{%
+  \@ifnextchar\sa@endmarker
+    {\@gobble}%
+    {\sa@collectpackage}
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\sa@collectpackage}
+% Reads \cs{usepackage} arguments (ignores optional date) and stores it away.
+% The options are later passed to the package to avoid option clashes.
+%    \begin{macrocode}
+\newcommand\sa@collectpackage[2][]{%
+  \ifx\relax#1\relax\else
+    \g@addto@macro\sa@collopts{\PassOptionsToPackage{#1}{#2}}%
+  \fi
+  \sa@scanpackages
+}
+\fi
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\sa@collopts}
+% Accumulator for collected options. Is executed and cleared at the end of this package.
+%    \begin{macrocode}
+\def\sa@collopts{}
+\AtEndOfPackage{\sa@collopts\let\sa@collopts\relax}
+%    \end{macrocode}
+% \end{macro}
+%
+% End of |\ifsa@sortsubpreambles|.
+%    \begin{macrocode}
+\fi
+%    \end{macrocode}
+%
+% \begin{environment}{standalonepreambles}
+% This environment simply adds a group and sets the endline character to a printed newline and the argument character
+% |#| as a normal character. The first suppresses |\par|'s in the stored sub-preambles while preserving newlines. The latter
+% is required to permit macro arguments in the preambles. Otherwise a |#| is doubled to |##| causing compile errors when the 
+% sub-preambles are used.
+% The |.sta| file is closed after this environment.
+%    \begin{macrocode}
+\def\standalonepreambles{%
+  \begingroup
+  \endlinechar=`\^^J%
+  \@makeother\#%
+}
+\def\endstandalonepreambles{%
+  \endgroup
+  \endinput
+}
+%    \end{macrocode}
+% \end{environment}
+%
+% \begin{environment}{subpreambles}
+% This environment rereads the sub-preambles from the |.sta| files and stores it globally under the name
+% ``\cs{prevsubpreamble@}\meta{file name}''. If sorting is enabled the sub-preambles are also scanned for 
+% loaded packages.
+%    \begin{macrocode}
+\long\gdef\subpreamble#1^^J#2^^J\endsubpreamble{%
+  \expandafter\gdef\csname prevsubpreamble@#1\endcsname{#2}%
+  \ifsa@sortsubpreambles
+    \sa@scanpackages#2\usepackage\sa@endmarker
+  \fi
+}
+\def\endsubpreamble{}%
+%    \end{macrocode}
+% \end{environment}
+%
+% If in |print| mode open the |.stp| file.
+%    \begin{macrocode}
+\ifsa@printsubpreambles
+  \immediate\openout\sa@out=\jobname.stp\relax
+\else
+%    \end{macrocode}
+% otherwise:
+%
+% Process |.sta| file from last run. All changes must be made by own macros which define the value globally.
+% Therefore the input is wrapped in a group. Some spaces or special line endings could process typeset content,
+% which causes errors inside the preamble. To be on the save side the input `content' is stored in a temp box.
+%    \begin{macrocode}
+\begingroup
+  \setbox\@tempboxa\hbox{%
+  \InputIfFileExists{\jobname.sta}{}{\PackageInfo{standalone}{STA file not found!}{}{}}%
+  }%
+\endgroup
+%    \end{macrocode}
+
+% \begin{macro}{\AtBeginDocument}
+% At begin of the document the |.sta| file is read again. This time the sub-preamble macros are executed as normal.
+% The |standalone| macros are defined to be without effect. If `sorting' is enabled \cs{usepackage} is temporarily 
+% redefined to ignore any given options, which where already passed (\cs{PassOptionsToPackage}) beforehand.
+%    \begin{macrocode}
+\AtBeginDocument{%
+  \let\subpreamble\@gobble
+  \let\endsubpreamble\relax
+  \let\standalonepreambles\relax
+  \let\endstandalonepreambles\relax
+  \ifsa@sortsubpreambles
+    \let\sa@orig@usepackage\usepackage
+    \let\usepackage\sa@usepackagewithoutoptions
+  \fi
+  \InputIfFileExists{\jobname.sta}{}{}%
+  \ifsa@sortsubpreambles
+    \let\usepackage\sa@orig@usepackage
+  \fi
+  \immediate\openout\sa@out=\jobname.sta\relax
+  \immediate\write\sa@out{%
+    \string\standalonepreambles\@percentchar
+  }%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\AtEndDocument}
+% At end of the document write end macro to and close |.sta| file.
+%    \begin{macrocode}
+\AtEndDocument{%
+  \sa@write{\string\endstandalonepreambles\@percentchar}%
+  \immediate\closeout\sa@out
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% End of |\ifsa@printsubpreambles|.
+%    \begin{macrocode}
+\fi
+%    \end{macrocode}
+%
+% End of |\ifsa@subpreambles|.
+%    \begin{macrocode}
+\fi
+%    \end{macrocode}
+%
+%
+% \subsubsection{Skipping of Sub-Preambles in Main Mode}
+%
+% This macros make the main document skip all preambles in sub-files.
+%
+% \begin{macro}{\sa@gobbleeol}
+% Gobbles all following line endings (i.e.\ empty lines) and then executes the command given by |#1|.
+% Because |\@ifnextchar| ignores spaces this also removes lines with only spaces.
+%    \begin{macrocode}
+\def\sa@gobbleeol#1^^J{%
+  \@ifnextchar^^J%
+    {\sa@gobbleeol{#1}}{#1}%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\sa@documentclass}
+% The |standalone| definition of \cs{documentclass}. If the sub-preambles are to be processed then the
+% starting content is written into the output file etc., but only for the first time this sub-file is included.
+% Some input related settings are set-up (line endings, macro argument and comments).
+% Finally \cs{sa@gobble} is called to process the preamble.
+%    \begin{macrocode}
+\newcommand{\sa@documentclass}[2][]{%
+  \let\document\sa@document
+  \begingroup
+  \ifsa@subpreambles
+    \@ifundefined{sa@written@\sa@filepath}%
+      {%
+        \ifsa@printsubpreambles
+          \ifsa@sortsubpreambles
+            \begingroup
+              \edef\@tempa{^^J\@percentchar\space Preamble from file '\sa@filepath'^^J}%
+              \expandafter\g@addto@macro\expandafter\sa@preamble\expandafter{\@tempa}%
+            \endgroup
+          \else
+            \sa@write{^^J\@percentchar\space Preamble from file '\sa@filepath'}%
+          \fi
+        \else
+          \sa@write{\noexpand\subpreamble{\sa@filepath}}%
+        \fi
+      }{}%
+    \global\@namedef{subpreamble@\sa@filepath}{}%
+    \endlinechar=`\^^J%
+    \@makeother\#%
+    \@nameuse{sa@percent}%
+  \fi
+  \def\sa@gobbleto{document}%
+  \sa@gobbleeol\sa@gobble^^J%
 }
 %    \end{macrocode}
 % \end{macro}
 %
 % \begin{macro}{\sa@gobble}
+% Gobbles everything to the next |\begin|, then checks if it was a |\begin{document}|.
+% If sub-preamble extraction is activated it accumulates the skipped content in macros
+% named ``\cs{subpreamble@}\meta{file name}''. Every sub-file is remembered and its preamble is only saved once.
+% In |print| mode the file body is ignored and a appropriate warning is printed,
+% otherwise the current and previous sub-preamble of the current processed file are compared. If different the file body is also
+% ignored to avoid errors due to possible newly required but not loaded packages. The user is warned again about this
+% and is asked to rerun \LaTeX{}.
 %    \begin{macrocode}
+\def\sa@preamble{}%
 \long\def\sa@gobble#1\begin#2{%
   \def\@tempa{#2}%
   \ifx\@tempa\sa@gobbleto
-    \def\next{\expandafter\endgroup\expandafter\begin\expandafter{\sa@gobbleto}}%
+    \ifsa@subpreambles
+      \expandafter\g@addto@macro\csname subpreamble@\sa@filepath\endcsname{#1}%
+      \@ifundefined{sa@written@\sa@filepath}%
+        {%
+          \ifsa@printsubpreambles
+            \ifsa@sortsubpreambles
+              \sa@removepackages#1\usepackage\sa@endmarker
+            \else
+              \begingroup
+              \let\sa@preamble\empty
+              \sa@removeonlyifstandalone#1\onlyifstandalone\sa@endmarker
+              \expandafter\sa@write\expandafter{\expandafter\unexpanded\expandafter{\sa@preamble}}%
+              \endgroup
+            \fi
+          \else
+            \sa@write{\unexpanded{#1}}%
+            \sa@write{\string\endsubpreamble\@percentchar}%
+          \fi
+        }{}%
+      \global\@namedef{sa@written@\sa@filepath}{}%
+      \ifsa@printsubpreambles
+        \def\next{%
+          \endgroup
+          \PackageWarning{standalone}{Running 'standalone' package in sub-preamble print mode. All body content of file `\sa@filepath' is ignored!}{}{}%
+          \endinput
+        }
+      \else
+      \expandafter
+      \ifx
+      \csname prevsubpreamble@\sa@filepath \expandafter\endcsname
+      \csname     subpreamble@\sa@filepath \endcsname
+        \def\next{\expandafter\endgroup\expandafter\begin\expandafter{\sa@gobbleto}}%
+      \else
+        %\expandafter\show\csname prevsubpreamble@\sa@filepath \endcsname
+        %\expandafter\show\csname     subpreamble@\sa@filepath \endcsname
+        \def\next{%
+          \endgroup
+          \PackageWarning{standalone}{Sub-preamble of file '\sa@filepath' has changed. Content will be ignored. Please rerun LaTeX!}{}{}%
+          \immediate\write\@mainaux{%
+            \@percentchar\space standalone package info: Rerun LaTeX!
+          }
+          \endinput
+        }
+      \fi
+      \fi
+    \else
+      \def\next{\expandafter\endgroup\expandafter\begin\expandafter{\sa@gobbleto}}%
+    \fi
   \else
+    \ifsa@subpreambles
+      \expandafter\g@addto@macro\csname subpreamble@\sa@filepath\endcsname{#1\begin{#2}}%
+      \@ifundefined{sa@written@\sa@filepath}%
+        {\sa@write{\unexpanded{#1\begin{#2}}}}{}%
+    \fi
     \def\next{\sa@gobble}%
   \fi
   \next
@@ -368,13 +1117,19 @@
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{environment}{standalone}
+% Provide an empty definition of the |standalone| environment. The class is defining it with the code required in |standalone| mode.
 %    \begin{macrocode}
 \@ifundefined{standalone}
   {\newenvironment{standalone}[1][]{}{}}
   {}
 %    \end{macrocode}
+% \end{environment}
 %
-% Gobbles all arguments: |<...>[<...>][...]{...}{...}|. Please note that the last two |{ }| arguments are also optional.
+% \begin{environment}{standalone}
+% Provide an `empty' definition of the |standaloneframe| environment.
+% It only gobbles all arguments: |<...>[<...>][...]{...}{...}|. Please note that the last two |{ }| arguments are also optional.
+% The class is defining it with the code required in |standalone| mode.
 %    \begin{macrocode}
 \@ifundefined{standaloneframe}
   {\@ifundefined{beamer@newenv}
@@ -400,19 +1155,22 @@
   }
   {}
 %    \end{macrocode}
+% \end{environment}
 %
 % \begin{macro}{\sa@orig@document}
+% \begin{macro}{\sa@orig@enddocument}
+% Store original |document| environment.
 %    \begin{macrocode}
 \let\sa@orig@document\document
-% \end{macro}
-%
-% \begin{macro}{\sa@orig@enddocument}
-%    \begin{macrocode}
 \let\sa@orig@enddocument\enddocument
 %    \end{macrocode}
 % \end{macro}
+% \end{macro}
 %
 % \begin{macro}{\document}
+% Redefine the |\begin{document}| of the main file to redefine \cs{documentclass}.
+% This can not be done using \cs{AtBeginDocument} because the original redefines
+% \cs{documentclass} itself after executing the hook.
 %    \begin{macrocode}
 \def\document{%
   \sa@orig@document
@@ -423,6 +1181,8 @@
 % \end{macro}
 %
 % \begin{macro}{\sa@document}
+% This is the |\begin{document}| of the sub files. It does nothing except of 
+% redefining |\end{document}| and calling our own |atbegindocument| hook.
 %    \begin{macrocode}
 \def\sa@document{%
   \let\enddocument\sa@enddocument
@@ -432,6 +1192,8 @@
 % \end{macro}
 %
 % \begin{macro}{\sa@enddocument}
+% This is the |\end{document}| of the sub files. It does nothing except of 
+% calling our own |atenddocument| hook and then the `after end document' handler.
 %    \begin{macrocode}
 \def\sa@enddocument{%
   \sa@atenddocument
@@ -440,23 +1202,9 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\sa@atbegindocument}
-%    \begin{macrocode}
-\def\sa@atbegindocument{%
-  \ignorespaces
-}%
-%    \end{macrocode}
-% \end{macro}
-%
-% \begin{macro}{\sa@atenddocument}
-%    \begin{macrocode}
-\def\sa@atenddocument{%
-  \unskip
-}%
-%    \end{macrocode}
-% \end{macro}
-%
 % \begin{macro}{\sa@@enddocument}
+% This is a `after end document' handler for the sub-files. It restores macros and 
+% ends the input of the file.
 %    \begin{macrocode}
 \def\sa@@enddocument{%
   %\let\document\sa@orig@document
@@ -466,23 +1214,24 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\sa@processpreamble}
+% \begin{macro}{\sa@atbegindocument}
+% This hook simply ignores all spaces after |\begin{document}| in the sub files.
 %    \begin{macrocode}
-\def\sa@processpreamble{%
-  \renewcommand\usepackage[2][]{%
-    \message{^^J%
-      INFO: Sub-file requires the following package(s):^^J
-      \space\space[##1]{##2}^^J%
-    }%
-  }%
-  \let\RequirePackage\usepackage
-}
+\def\sa@atbegindocument{%
+  \ignorespaces
+}%
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{macro}{\sa@atenddocument}
+% This hook simply ignores the last skip (normally the spaces) before |\end{document}| in the sub files.
 %    \begin{macrocode}
-%%\def\sa@@documentclass{\sa@processpreamble}
+\def\sa@atenddocument{%
+  \unskip
+}%
 %    \end{macrocode}
+% \end{macro}
+%
 %
 % \iffalse
 %</sty>
@@ -492,91 +1241,100 @@
 % \iffalse
 %<*cls>
 % \fi
+%
+% \subsubsection{If-Switches}
+%
+% \begin{macro}{\ifstandalone}
+% This if-switch is defined by both the class and package. This class sets
+% it to true while the package (loaded by the main document) sets it to false.
 %    \begin{macrocode}
-\def\sa@classoptionslist{}
+\newif\ifstandalone
+\standalonetrue
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\ifstandalonebeamer}
+% This if-switch is defined by both the class and package. This class sets
+% it to true only if the |beamer| option was given. The package (loaded by the main document) sets it always to false.
+%    \begin{macrocode}
+\newif\ifstandalonebeamer
+\standalonebeamerfalse
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\onlyifstandalone}
+% Macro version of |\ifstandalone|. The |{ }| around the argument protects the content from the package etc. scanners.
+%    \begin{macrocode}
+\let\onlyifstandalone\@firstofone
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \subsubsection{Options}
+%
+%    \begin{macrocode}
 \RequirePackage{kvoptions}
 \SetupKeyvalOptions{prefix=sa@}
+%    \end{macrocode}
+%
+% Use of |preview| package is optional but enabled by default. 
+% This defines the |\ifsa@preview| switch.
+%    \begin{macrocode}
 \DeclareBoolOption[true]{preview}
+%    \end{macrocode}
+%
+% Enable beamer support.
+%    \begin{macrocode}
+\DeclareVoidOption{beamer}{%
+  \def\sa@class{beamer}%
+  \sa@previewfalse
+  \standalonebeamertrue
+}
+%    \end{macrocode}
+%
+% Option to set underlying class. Default is |article|.
+%    \begin{macrocode}
+\DeclareStringOption[article]{class}
+%    \end{macrocode}
+%
+% The rest of the options are accumulated and set as the official class options
+% for the real class loaded afterwards. This avoids the passing of any |standalone| class options
+% to the underlying class in any way. The |beamer| class for example has an option called
+% `|class|' in a similar way the |standalone| class does, which would cause problems if not filtered out.
+%    \begin{macrocode}
+\def\sa@classoptionslist{}
+\DeclareDefaultOption{%
+  \xdef\sa@classoptionslist{\sa@classoptionslist,\CurrentOption}%
+}
+\ProcessKeyvalOptions*\relax
+\let\@classoptionslist\sa@classoptionslist
+%    \end{macrocode}
+%
+% Loads the class given by the |class| option with the rest of the options.
+%    \begin{macrocode}
+\begingroup
+\xdef\@tempa{[\sa@classoptionslist]{\sa@class}}
+\expandafter
+\endgroup
+\expandafter\LoadClass\@tempa
 %    \end{macrocode}
 %
 % \begin{environment}{standalone}
 % The \env{standalone} environment is defined by default to be without effect.
 % The \cs{endstandalone} macro is set to |\relax|, so a redefinition with
-% \cs{renewenvironment} can be detected later.
+% \cs{renewenvironment} in the configuration file can be detected later.
 %    \begin{macrocode}
 \let\standalone\empty
 \let\endstandalone\relax
 %    \end{macrocode}
 % \end{environment}
 %
-% \begin{macro}{\sa@cls@document}
-% \begin{macro}{\sa@cls@enddocument}
-%    \begin{macrocode}
-\def\sa@cls@document{\standalone}
-\def\sa@cls@enddocument{\endstandalone}
-%    \end{macrocode}
-% \end{macro}
-% \end{macro}
-%
-% The |beamer| option defines the \env{standalone} environment as a replacement
-% of \env{frame}.
-%    \begin{macrocode}
-\newif\ifstandalonebeamer
-\DeclareVoidOption{beamer}{%
-  \def\sa@class{beamer}%
-  \sa@previewfalse
-  \standalonebeamertrue
-  \newenvironment{standaloneframe}{%
-    \@ifnextchar<%
-      {\@standaloneframe}%
-      {\@@standaloneframe{}}%
-  }{\end{frame}}%
-  \def\@standaloneframe<##1>{%
-      \@@standaloneframe{<##1>}%
-  }
-  \def\@@standaloneframe##1{%
-    \@ifnextchar[%]
-      {\@@@standaloneframe{##1}}%
-      {\@@@standaloneframe{##1}[]}%
-  }%
-  \def\@@@standaloneframe##1[{%
-    \@ifnextchar<%
-      {\@@@@standaloneframe{##1}[}%
-      {\@@@@@@standaloneframe{##1}[}%
-  }%
-  \def\@@@@standaloneframe##1[##2]{%
-    \@ifnextchar[%]
-      {\@@@@@standaloneframe{##1}{##2}}%
-      {\begin{frame}##1[##2][environment=standaloneframe]}%
-  }%
-  \def\@@@@@standaloneframe##1##2[##3]{%
-      \begin{frame}##1[##2][environment=standaloneframe,##3]%
-  }%
-  \def\@@@@@@standaloneframe##1[##2]{%
-      \begin{frame}##1[environment=standaloneframe,##2]%
-  }%
-}
-%    \end{macrocode}
-%
-%    \begin{macrocode}
-\DeclareStringOption[article]{class}
-\DeclareDefaultOption{%
-  \xdef\sa@classoptionslist{\sa@classoptionslist,\CurrentOption}%
-}
-\ProcessKeyvalOptions*\relax
-%    \end{macrocode}
-%
-%    \begin{macrocode}
-\let\@classoptionslist\sa@classoptionslist
-\xdef\@tempa{[\sa@classoptionslist]{\sa@class}}
-\expandafter\LoadClass\@tempa
-%    \end{macrocode}
-%
+% Loads configuration file.
 %    \begin{macrocode}
 \input{standalone.cfg}
 %    \end{macrocode}
 %
-% \subsubsection*{Preview Code}
+% \subsubsection{Preview Code}
 % The \env{standalone} environment is redefined to use the |preview| environment as
 % long it was not redefined in the configuration file.
 %    \begin{macrocode}
@@ -590,17 +1348,69 @@
 \fi
 %    \end{macrocode}
 %
+% \subsubsection{Beamer Frame Environment}
+%
 %    \begin{macrocode}
-\RequirePackage{standalone}[2010/03/21]
-\standalonetrue
+\ifstandalonebeamer
+%    \end{macrocode}
+% \begin{environment}{standaloneframe}
+% Front-end for the beamer |frame| environment. Parses all arguments
+% the same way and calls it with an added option.
+%    \begin{macrocode}
+\newenvironment{standaloneframe}{%
+  \@ifnextchar<%
+    {\@standaloneframe}%
+    {\@@standaloneframe{}}%
+}{\end{frame}}%
+\def\@standaloneframe<#1>{%
+    \@@standaloneframe{<#1>}%
+}
+\def\@@standaloneframe#1{%
+  \@ifnextchar[%]
+    {\@@@standaloneframe{#1}}%
+    {\@@@standaloneframe{#1}[]}%
+}%
+\def\@@@standaloneframe#1[{%
+  \@ifnextchar<%
+    {\@@@@standaloneframe{#1}[}%
+    {\@@@@@@standaloneframe{#1}[}%
+}%
+\def\@@@@standaloneframe#1[#2]{%
+  \@ifnextchar[%]
+    {\@@@@@standaloneframe{#1}{#2}}%
+    {\begin{frame}#1[#2][environment=standaloneframe]}%
+}%
+\def\@@@@@standaloneframe#1#2[#3]{%
+    \begin{frame}#1[#2][environment=standaloneframe,#3]%
+}%
+\def\@@@@@@standaloneframe#1[#2]{%
+    \begin{frame}#1[environment=standaloneframe,#2]%
+}%
+%    \end{macrocode}
+% \end{environment}
+%    \begin{macrocode}
+\fi
 %    \end{macrocode}
 %
+% \subsubsection{}
+%
+% \begin{macro}{\sa@cls@orig@document}
+% \begin{macro}{\sa@cls@orig@enddocument}
+% Store original |document| environment.
+%    \begin{macrocode}
+\let\sa@cls@orig@document\document
+\let\sa@cls@orig@enddocument\enddocument
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
 % \begin{macro}{\document}
+% Adds own `after begin document' hook.
 %    \begin{macrocode}
 \def\document{%
-  \sa@orig@document
-  \let\documentclass\sa@documentclass
-  \sa@cls@document
+  \sa@cls@orig@document
+  \let\documentclass\sa@documentclass  % TODO: really required?
+  \sa@cls@afterbegindocument
 }
 %    \end{macrocode}
 % \end{macro}
@@ -608,10 +1418,22 @@
 % \begin{macro}{\enddocument}
 %    \begin{macrocode}
 \def\enddocument{%
-  \sa@cls@enddocument
-  \sa@orig@enddocument
+  \sa@cls@beforeenddocument
+  \sa@cls@orig@enddocument
 }
 %    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\sa@cls@afterbegindocument}
+% \begin{macro}{\sa@cls@beforeenddocument}
+% Hooks which add the \env{standalone} environment. Surrounding spaces
+% are removed. This hooks are used (instead of calling the content directly in the above macros)
+% to add the possibility to fine tune this later, e.g.\ in the configuration file.
+%    \begin{macrocode}
+\def\sa@cls@afterbegindocument{\expandafter\standalone\ignorespaces}
+\def\sa@cls@beforeenddocument{\unskip\endstandalone}
+%    \end{macrocode}
+% \end{macro}
 % \end{macro}
 %
 % \iffalse
@@ -625,6 +1447,10 @@
 %    \begin{macrocode}
 \expandafter\ifx\csname ifstandalone\endcsname\relax
 %    \end{macrocode}
+%
+% \begin{macro}{\ifstandalone}
+% Provides \cs{ifstandalone} switch which is |\iftrue| if the normal |\documentclass|
+% was not yet executed (and subsequently redefined to be |\@twoclasseserror|).
 %    \begin{macrocode}
 \expandafter\newif\csname ifstandalone\endcsname
 %    \end{macrocode}
@@ -634,6 +1460,8 @@
   \standalonetrue
 \fi
 %    \end{macrocode}
+% \end{macro}
+%
 %    \begin{macrocode}
 \fi
 %    \end{macrocode}
@@ -653,7 +1481,7 @@
 \PassOptionsToPackage{active,tightpage}{preview}%
 
 \ifstandalonebeamer
-  \setbeamertemplate{navigation symbols}{}
+  \setbeamertemplate{navigation symbols}{}%
 \fi
 %    \end{macrocode}
 % \iffalse
