@@ -58,7 +58,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{1076}
+% \CheckSum{1081}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -237,6 +237,17 @@
 % \DescribeMacro{\onlyifstandalone}\hspace*{-\parindent}\hspace*{-\marginparsep}\marg{code}\hspace*{\parindent}
 % This is the macro version of the |\ifstandalone| if-switch. It executes \meta{code} only in |standalone| mode. As mentioned in section~\ref{sec:pkgoptions}
 % it can also be used to hide |\usepackage| and similar macros from the extraction scanner of the |sort| option. The macro and its argument is not printed into the |.stp| file.
+%
+% \DescribeMacro{\standaloneignore}
+% In rare cases some code must be placed before the |\documentclass| of a sub-file (e.g.\ |\PassOptionsToPackage|).
+% Because the main document will only skip code between |\documentclass| and |\begin{document}| this code will be executed by it.
+% In order to avoid this the macro \cs{standaloneignore} can be used at the very beginning of a sub-file to skip over this code.
+% However it must be written as |\csname standaloneignore\endcsname| to avoid a `Undefined control sequence' error when compiled standalone.
+% After all the class is not loaded at this point, therefore no |standalone| macros are yet defined. 
+% The |\csname|\ldots|\endcsname| construct will simple make it equal to |\relax| in this case.
+%
+% Please note that all code before |\documentclass| is not processed by any of the \opt{subpreamble} options but always simply removed.
+% This macro was inspired by the similar macro |\docmute| of the |docmute| package.
 %
 % \newpage
 % \subsection{Examples}
@@ -1008,6 +1019,21 @@
   \@ifnextchar^^J%
     {\sa@gobbleeol{#1}}{#1}%
 }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\standaloneignore}
+% \changes{v0.3}{2010/03/26}{New macro}
+% This macro must only be used in a sub-file before a |\documentclass|. It gobbles everything up to this macro
+% and then executes the |standalone| definition of it shown further below.
+% It should be written as |\csname standaloneignore\endcsname| to ignore errors in standalone mode.
+% The second definition allows the user to also write |\csname standaloneignore \endcsname| (note the extra space)
+% without errors.
+%    \begin{macrocode}
+\long\def\standaloneignore#1\documentclass{%
+  \sa@documentclass
+}
+\@namedef{standaloneignore\space}{\standaloneignore}
 %    \end{macrocode}
 % \end{macro}
 %
