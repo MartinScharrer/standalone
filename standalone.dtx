@@ -26,13 +26,13 @@
 % \iffalse
 %<cls|sty|cfg|tex>% $Id$
 %<cls|sty>\NeedsTeXFormat{LaTeX2e}
-%<cls>\ProvidesClass{standalone}   [2010/03/23 v0.3-dev-collectpreambles Class to compile TeX sub-files standalone]
-%<sty>\ProvidesPackage{standalone} [2010/03/23 v0.3-dev-collectpreambles Package to include TeX sub-files which use the 'standalone' class]
-%<tex>\ProvidesFile{standalone.tex}[2010/03/23 v0.3-dev-collectpreambles Provides if-switch to show if file is compiled standalone]%
-%<cfg>\ProvidesFile{standalone.cfg}[2010/03/23 v0.3-dev-collectpreambles Default configuration file for 'standalone' class and package]%
+%<cls>\ProvidesClass{standalone}   [2010/03/26 v0.3-dev Class to compile TeX sub-files standalone]
+%<sty>\ProvidesPackage{standalone} [2010/03/26 v0.3-dev Package to include TeX sub-files which use the 'standalone' class]
+%<tex>\ProvidesFile{standalone.tex}[2010/03/26 v0.3-dev Provides if-switch to show if file is compiled standalone]%
+%<cfg>\ProvidesFile{standalone.cfg}[2010/03/26 v0.3-dev Default configuration file for 'standalone' class and package]%
 %<*driver>
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesFile{standalone.dtx}[2010/03/23 v0.3-dev-collectpreambles DTX File for 'standalone' cls/sty/tex/cfg files]
+\ProvidesFile{standalone.dtx}[2010/03/26 v0.3-dev DTX File for 'standalone' cls/sty/tex/cfg files]
 \documentclass{ltxdoc}
 \usepackage{ifpdf}
 \usepackage{listings}
@@ -79,10 +79,11 @@
 %
 % \changes{v0.1}{2010/03/21}{First released version}
 % \changes{v0.2}{2010/03/22}{Added support for beamer style settings in the config file using \cs{ifstandalonebeamer}. Updated documentation.}
+% \changes{v0.3}{2010/03/26}{Added package options to automatically copy sub-preamble code to the main preamble.}
 %
 % \GetFileInfo{\jobname.dtx}
 %
-% \DoNotIndex{\newcommand,\newenvironment,\def,\edef,\xdef,\DeclareRobustCommand}
+% \DoNotIndex{\newcommand,\newenvironment,\def,\edef,\xdef,\gdef,\DeclareRobustCommand}
 % \DoNotIndex{\expandafter,\if,\else,\fi,\ifnum,\ifx,\let,\global,\long}
 % \DoNotIndex{\newcounter,\newcount,\message,\meaning,\noexpand,\relax,\value}
 % \DoNotIndex{\setcounter,\addtocounter,\advance,\afterassignment,\AtEndOfPackage}
@@ -94,6 +95,7 @@
 % \DoNotIndex{\aftergroup,\CurrentOption,\DeclareBoolOption,\DeclareDefaultOption,\DeclareStringOption,\DeclareVoidOption}
 % \DoNotIndex{\endinput,\endpreview,\input,\LoadClass,\newif,\PassOptionsToPackage,\preview,\ProcessKeyvalOptions}
 % \DoNotIndex{\renewcommand,\renewenvironment,\setbeamertemplate,\SetupKeyvalOptions,\space,\unskip,\usepackage}
+% \DoNotIndex{\unexpanded,\write,\next,\jobname,\hbox}
 %
 % \ifpdf
 % \hypersetup{%
@@ -401,6 +403,7 @@
 % \end{macro}
 %
 % \begin{macro}{\ifstandalonebeamer}
+% \changes{v0.2}{2010/03/23}{New macro}
 % Make sure that |standalonebeamer| if-switch is defined and set it to false.
 % If the class was loaded beforehand with the |beamer| option it is already defined as true.
 % The |\csname| trickery is used to avoid issues if the switch was already defined.
@@ -413,6 +416,7 @@
 % \end{macro}
 %
 % \begin{macro}{\onlyifstandalone}
+% \changes{v0.3}{2010/03/26}{New macro}
 % Macro version of |\ifstandalone|. The |{ }| around the argument protects the content from the package etc. scanners.
 % Only defined if not already defined by the class, in the case of a |standalone| file included other |standalone| files.
 %    \begin{macrocode}
