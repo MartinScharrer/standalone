@@ -1,18 +1,3 @@
 %&pdflatex
-\documentclass{article}
-
-\usepackage{tikz}
-\usepackage[print,sort]{standalone}
-
-\listfiles
-\begin{document}
-  %\usebox\testsb
-  \par
-  \input{test}
-  \input{test}
-  \par
-  \input{test2}
-  \par
-%  \input{test3}
-\end{document}
-
+\PassOptionsToPackage{print,sort}{standalone}
+\input testmain
