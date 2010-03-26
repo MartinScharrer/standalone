@@ -55,7 +55,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{1060}
+% \CheckSum{1076}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -411,8 +411,11 @@
 %
 % \begin{macro}{\onlyifstandalone}
 % Macro version of |\ifstandalone|. The |{ }| around the argument protects the content from the package etc. scanners.
+% Only defined if not already defined by the class, in the case of a |standalone| file included other |standalone| files.
 %    \begin{macrocode}
-\let\onlyifstandalone\@gobble
+\@ifundefined{onlyifstandalone}
+  {\let\onlyifstandalone\@gobble}
+  {}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -506,6 +509,27 @@
 \def\sa@write{\immediate\write\sa@out}%
 %    \end{macrocode}
 % \end{macro}
+%
+%
+%    \begin{macrocode}
+\ifsa@printsubpreambles
+%    \end{macrocode}
+%
+% \begin{macro}{\sa@removeonlyifstandalone}
+% Scans for |\onlyifstandalone| and removes it argument.
+%    \begin{macrocode}
+\long\def\sa@removeonlyifstandalone#1\onlyifstandalone{%
+  \g@addto@macro\sa@preamble{#1}%
+  \@ifnextchar\sa@endmarker
+    {\@gobble}%
+    {\expandafter\sa@gobbleeol\expandafter\sa@removeonlyifstandalone\expandafter^^J\@gobble}%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%    \begin{macrocode}
+\fi
+%    \end{macrocode}
 %
 %
 % \subsubsection{Sorting of package options}
@@ -643,18 +667,6 @@
   \@ifnextchar\sa@endmarker
     {\@gobble}%
     {\sa@sorttikztiminglibs}%
-}
-%    \end{macrocode}
-% \end{macro}
-%
-% \begin{macro}{\sa@removeonlyifstandalone}
-% Scans for |\onlyifstandalone| and removes it argument.
-%    \begin{macrocode}
-\long\def\sa@removeonlyifstandalone#1\onlyifstandalone{%
-  \g@addto@macro\sa@preamble{#1}%
-  \@ifnextchar\sa@endmarker
-    {\@gobble}%
-    {\expandafter\sa@gobbleeol\expandafter\sa@removeonlyifstandalone\expandafter^^J\@gobble}%
 }
 %    \end{macrocode}
 % \end{macro}
@@ -1049,7 +1061,11 @@
             \ifsa@sortsubpreambles
               \sa@removepackages#1\usepackage\sa@endmarker
             \else
-              \sa@write{\unexpanded{#1}}%
+              \begingroup
+              \let\sa@preamble\empty
+              \sa@removeonlyifstandalone#1\onlyifstandalone\sa@endmarker
+              \expandafter\sa@write\expandafter{\expandafter\unexpanded\expandafter{\sa@preamble}}%
+              \endgroup
             \fi
           \else
             \sa@write{\unexpanded{#1}}%
