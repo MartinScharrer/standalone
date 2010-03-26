@@ -486,10 +486,21 @@
 %
 % \begin{macro}{\sa@filepath}
 % File name macro. If the |fink| package is loaded the macros \cs{finkdir} (with leading `|./|' removed) and \cs{finkpath} is used, otherwise the \LaTeX\ macro
-% \cs{@filef@und}. The latter causes issues if |\input| etc. was used before |\documentclass| in sub-files.
+% \cs{@filef@und} (with trailing space removed and with '.tex' added if it has no file extension). 
+% The latter causes issues if |\input| etc. was used before |\documentclass| in sub-files.
 %    \begin{macrocode}
 \@ifundefined{finkpath}{%
-  \def\sa@filepath{\@filef@und}%
+  \def\sa@rmspace#1 \empty{#1}%
+  \def\sa@chkext#1.#2 \empty#3{%
+    \ifx\empty#3\empty
+      \sa@rmspace#1\empty.#2%
+    \else
+      #1.#2%
+      \expandafter\sa@rmrest
+    \fi
+  }%
+  \def\sa@rmrest tex \empty{}%
+  \def\sa@filepath{\expandafter\sa@chkext\@filef@und\empty.tex \empty\empty}%
 }{%
   \def\sa@filepath{\expandafter\expandafter\expandafter\sa@rmdotslash\expandafter\finkdir\finkfile\empty./\empty}%
   \def\sa@rmdotslash#1./#2\empty{%
