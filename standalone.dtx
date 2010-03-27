@@ -26,13 +26,13 @@
 % \iffalse
 %<cls|sty|cfg|tex>% $Id$
 %<cls|sty>\NeedsTeXFormat{LaTeX2e}
-%<cls>\ProvidesClass{standalone}   [2010/03/26 v0.4-dev Class to compile TeX sub-files standalone]
-%<sty>\ProvidesPackage{standalone} [2010/03/26 v0.4-dev Package to include TeX sub-files with preambles]
-%<tex>\ProvidesFile{standalone.tex}[2010/03/26 v0.4-dev Provides if-switch to show if file is compiled standalone]%
-%<cfg>\ProvidesFile{standalone.cfg}[2010/03/26 v0.4-dev Default configuration file for 'standalone' class]%
+%<cls>\ProvidesClass{standalone}   [2010/03/27 v0.3a Class to compile TeX sub-files standalone]
+%<sty>\ProvidesPackage{standalone} [2010/03/27 v0.3a Package to include TeX sub-files with preambles]
+%<tex>\ProvidesFile{standalone.tex}[2010/03/27 v0.3a Provides if-switch to show if file is compiled standalone]%
+%<cfg>\ProvidesFile{standalone.cfg}[2010/03/27 v0.3a Default configuration file for 'standalone' class]%
 %<*driver>
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesFile{standalone.dtx}[2010/03/26 v0.4-dev DTX File for 'standalone' cls/sty/tex/cfg files]
+\ProvidesFile{standalone.dtx}[2010/03/27 v0.3a DTX File for 'standalone' cls/sty/tex/cfg files]
 \documentclass{ltxdoc}
 \usepackage{ifpdf}
 \usepackage{listings}
@@ -58,7 +58,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{1088}
+% \CheckSum{1111}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -80,6 +80,7 @@
 % \changes{v0.1}{2010/03/21}{First released version}
 % \changes{v0.2}{2010/03/22}{Added support for beamer style settings in the config file using \cs{ifstandalonebeamer}. Updated documentation.}
 % \changes{v0.3}{2010/03/26}{Added package options to automatically copy sub-preamble code to the main preamble.}
+% \changes{v0.3a}{2010/03/27}{Fixed bug related to line endings in \texttt{.sta} file. Listed sub-files now have \texttt{.tex} as default extension.}
 %
 % \GetFileInfo{\jobname.dtx}
 %
@@ -208,6 +209,14 @@
 % between `active' macros and macros which are commented out. All above mentioned macro inside comments will then be processed as when there where `active'.
 % The user might favour the information provided by the comments over this small risk and enable them using the \opt{comments} option.
 %
+% \subsection{Dependencies}
+% The |standalone| class requires the |kvoptions| package (Oberdiek bundle) and the |preview| package. Both should be available in a standard \LaTeX\ installation.
+% The |beamer| option of course requires the |beamer| bundle to be installed.
+% The |standalone| package does not require other packages, but can take advantage from the |fink| package (\emph{Fi}le \emph{N}ame \emph{K}eeper), 
+% to access the filenames of the sub-files. For this the |fink| package must be loaded before |standalone|. Without it a file name macro defined by \LaTeX\ itself
+% is used instead which should do also fine, but is reset at every |\input| macro. Placing this macro before |\documentclass| without marking
+% it with |\csname standaloneignore\endcsname| will then lead to wrong file names inside the |.sta| and |.stp| files.
+%
 % \subsection{Environments and Macros}
 %
 % \DescribeEnv{standalone}
@@ -249,10 +258,39 @@
 % Please note that all code before |\documentclass| is not processed by any of the \opt{subpreamble} options but always simply removed.
 % This macro was inspired by the similar macro |\docmute| of the |docmute| package.
 %
-% \newpage
-% \subsection{Examples}
+% ^^A\newpage
+% \subsection{Usage Examples}
 %
 % \def\lstlistingname{Example}
+%
+% \par\noindent
+% \begin{minipage}{\textwidth}
+% \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Use of \emph{standalone} package.}]
+%   % Main file
+%   % Real document class:
+%   \documentclass{article}
+%
+%   % Use the 'standalone' package:
+%   \usepackage{standalone}
+%
+%   % Load all packages needed for all sub-files:
+%   \usepackage{tikz}
+%
+%   % Inside the real 'document' environment
+%   % read the sub-file with '\input'
+%   \begin{document}
+%   % ...
+%   \begin{figure}
+%     \input{subfile}
+%     \caption{A subfile}
+%   \end{figure}
+%   % ...
+%   \end{document}
+% \end{lstlisting}
+% \end{minipage}
+%
+% \par\noindent
+% \begin{minipage}{\textwidth}
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Use of \emph{standalone} class.}]
 %   % A sub-file (e.g. picture) using the 'standalone' class:
 %   % Use 'standalone' as document class:
@@ -269,13 +307,17 @@
 %   \end{tikzpicture}
 %   \end{document}
 % \end{lstlisting}
+% \end{minipage}
 %
+% \par\noindent
+% \begin{minipage}{\textwidth}
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Effective code if compiled standalone.}]
 %   \documentclass{article}
 %
 %   \newenvironment{standalone}{\begin{preview}}{\end{preview}}
 %   \input{standalone.cfg}
-%   % which by defaults loads: \PassOptionsToPackage{active,tightpage}{preview}
+%   % which by defaults loads:
+%   % \PassOptionsToPackage{active,tightpage}{preview}
 %   \usepackage{preview}
 %
 %   \usepackage{tikz}
@@ -288,7 +330,10 @@
 %   \end{standalone}
 %   \end{document}
 % \end{lstlisting}
+% \end{minipage}
 %
+% \par\noindent
+% \begin{minipage}{\textwidth}
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Effective code if included in a main document.}]
 %   \begingroup
 %   \begin{tikzpicture}
@@ -297,30 +342,8 @@
 %   \endgroup
 %   \endinput
 % \end{lstlisting}
+% \end{minipage}
 %
-%
-% \subsection{Usage of the package}
-% \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Use of \emph{standalone} package.}]
-%   % Main file
-%   % Real document class:
-%   \documentclass{article}
-%
-%   % Use the 'standalone' package:
-%   \usepackage{standalone}
-%
-%   % Load all packages needed for all sub-files:
-%   \usepackage{tikz}
-%
-%   % Inside the real 'document' environment read the sub-file with '\input'
-%   \begin{document}
-%   % ...
-%   \begin{figure}
-%     \input{subfile}
-%     \caption{A subfile}
-%   \end{figure}
-%   % ...
-%   \end{document}
-% \end{lstlisting}
 %
 %
 % \subsection{Support for Beamer Presentations}\label{sec:beamer}
@@ -337,8 +360,9 @@
 % This if switch is only true if the class is compiled with the |beamer| option. The package sets it to false.
 % It can be used to place beamer specific options in the configuration files, which should be skipped for non-beamer standalone files.
 %
-% \newpage
-% \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Use of \emph{standalone} class.}]
+% \par\bigskip\noindent
+% \begin{minipage}{\textwidth}\noindent
+% \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Use of \texttt{standalone} class with \texttt{beamer} option.}]
 %   % Use of 'standalone' class with a beamer overlay:
 %   \documentclass[beamer]{standalone}
 %   % Load packages needed for this TeX file:
@@ -346,14 +370,17 @@
 %
 %   % Surround TeX code with 'document' environment as usually:
 %   \begin{document}
-%   \begin{standaloneframe}[options, e.g. 'fragile' for verbatim content]
+%   \begin{standaloneframe}[options] % e.g. 'fragile'
 %    % Add your TeX code:
 %     \only<1>{ One }%
 %     \only<2>{ Two }%
 %   \end{standaloneframe}
 %   \end{document}
 % \end{lstlisting}
+% \end{minipage}
 %
+% \par\bigskip\noindent
+% \begin{minipage}{\textwidth}\noindent
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Effective beamer code if compiled standalone.}]
 %   \documentclass{beamer}
 %   \input{standalone.cfg}
@@ -367,7 +394,10 @@
 %   \end{frame}
 %   \end{document}
 % \end{lstlisting}
+% \end{minipage}
 %
+% \par\bigskip\noindent
+% \begin{minipage}{\textwidth}\noindent
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Effective code if included in a beamer presentation.}]
 %   \begingroup
 %     \only<1>{ One }%
@@ -375,14 +405,18 @@
 %   \endgroup
 %   \endinput
 % \end{lstlisting}
+% \end{minipage}
 %
 % \subsection{\texttt{standalone.tex}}
+% \noindent
+% \begin{minipage}{\textwidth}\noindent
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Usage of 'standalone.tex'.}]
 %   \input{standalone} % use before any '\documentclass'
 %   \ifstandalone
 %     % Used only if compiled standalone
 %   \fi
 % \end{lstlisting}
+% \end{minipage}
 %
 % \subsection{Usage with \texttt{svn-multi} keywords}\label{sec:svnmulti}
 % If the version control package \texttt{svn-multi} is used, the keyword macros (|\svnid| or |\svnidlong|) 
