@@ -771,44 +771,16 @@
     \@ifundefined{sa@pkgdate@\pkg}%
       {\global\@namedef{sa@pkgdate@\pkg}{#3}}%
       {%
-        \begingroup
-        \edef\@tempa{{\csname sa@pkgdate@\pkg\endcsname}{#3}}%
-        \expandafter\sa@getlargerdate\@tempa
-        \expandafter\xdef\csname sa@pkgdate@\pkg\endcsname{\sa@thedate}%
-        \endgroup
+        \ifnum\expandafter\expandafter
+         \expandafter\sa@@getdate\csname sa@pkgdate@\pkg\endcsname//00\relax<\sa@@getdate#3//00\relax
+          \global\@namedef{sa@pkgdate@\pkg}{#3}%
+        \fi
       }%
     \fi
   }%
   \sa@gobbleeol\sa@removepackages^^J%
 }
-%    \end{macrocode}
-% \end{macro}
-%
-% \begin{macro}{\sa@getlargerdate}
-% Takes two package dates and returns the larger one as \cs{sa@thedate}.
-%    \begin{macrocode}
-\def\sa@getlargerdate#1#2{%
-  \sa@@getdate#1\relax\relax0/0/0\relax\empty\relax
-  \let\sa@datea\sa@date
-  \sa@@getdate#2\relax\relax0/0/0\relax\empty\relax
-  \ifdim\sa@datea pt>\sa@date pt
-    \def\sa@thedate{#1}%
-  \else
-    \def\sa@thedate{#2}%
-  \fi
-}
-\def\sa@@getdate#1/#2/#3\relax{%
-  \@ifnextchar\relax
-    {%
-      \def\sa@date{#1.#2#3}%
-      \sa@@rmdate
-    }%
-    {%
-      \def\sa@date{0}%
-      \sa@@rmdate
-    }%
-}
-\def\sa@@rmdate#1\empty\relax{}
+\def\sa@@getdate#1/#2/#3#4#5\relax{#1#2#3#4}
 %    \end{macrocode}
 % \end{macro}
 %
