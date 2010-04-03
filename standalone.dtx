@@ -18,7 +18,8 @@
 % The Current Maintainer of this work is Martin Scharrer.
 %
 % This work consists of the files standalone.dtx, standalone.ins
-% and the derived file standalone.sty.
+% and the derived files standalone.cls, standalone.sty, standalone.tex and
+% standalone.cfg.
 %
 % $Id$
 % \fi
@@ -41,15 +42,14 @@
 }{%
 \usepackage{hyperref}
 }
+\usepackage{ydoc-desc}
 
 \def\optpar#1{\marginpar{\hfill\opt{#1}}}
-\def\opt#1{{\sffamily#1}}
 
 \EnableCrossrefs
 \CodelineIndex
 \RecordChanges
 %\OnlyDescription
-\providecommand{\env}[1]{\texttt{#1}}
 \begin{document}
   \DocInput{\jobname.dtx}
   \PrintChanges
@@ -58,7 +58,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{1111}
+% \CheckSum{1072}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -219,15 +219,24 @@
 %
 % \subsection{Environments and Macros}
 %
-% \DescribeEnv{standalone}
-% The \env{standalone} environment is wrapped around the content of each sub-file when compiled standalone.
+% \DescribeEnv[<sub-file content>]{standalone}
+% The \env{standalone} environment is automatically wrapped around the content of each sub-file when compiled standalone.
 % By default it only contains a \env{preview} environment as long the class is not called with the |preview=false| option.
 % It can be redefined in the configuration file if required.
 % When compiled as part of a main document the \env{standalone} environment does nothing (apart of being a \TeX\ group).
 %
-% \DescribeEnv{standaloneframe}
-% The \env{standaloneframe} environment is only defined when the class is called with the |beamer| option and acts as a replacement
-% of the \env{frame} environment of beamer when compiled standalone. All optional arguments of \env{frame} are supported.
+% \begin{DescribeEnv}{standaloneframe}
+%   !\color{optional}\colorlet{meta}{metaoptional}!
+%   <<overlay specification>>'[<'<default overlay spec>'>]'
+%   !\egroup\hbox\bgroup\strut\hspace*{7em}!
+%   !\color{optional}\colorlet{meta}{metaoptional}!
+%   [<options>]{<optional frame title>}{<optional frame subtitle>}
+%   \relax\MacroArgs<code with beamer overlays>
+% \end{DescribeEnv}
+% The \env{standaloneframe} environment must be used in sub-file holding beamer overlay code.
+% It is only defined when the class is called with the |beamer| option and acts as a replacement
+% of the \env{frame} environment of beamer when compiled standalone.
+% All optional arguments of \env{frame} are supported but most might not be useful for normal sub-files.
 % When compiled as part of a main document it does nothing except of gobbling its arguments.
 %
 % \bigskip
@@ -243,7 +252,7 @@
 % compiled standalone with the |beamer| class option set.
 % The switch is set to \cs{iftrue} by the class when loaded with the |beamer| option and always to \cs{iffalse} by the package.
 %
-% \DescribeMacro{\onlyifstandalone}\hspace*{-\parindent}\hspace*{-\marginparsep}\marg{code}\hspace*{\parindent}
+% \DescribeMacro{\onlyifstandalone}{<code>}
 % This is the macro version of the |\ifstandalone| if-switch. It executes \meta{code} only in |standalone| mode. As mentioned in section~\ref{sec:pkgoptions}
 % it can also be used to hide |\usepackage| and similar macros from the extraction scanner of the |sort| option. The macro and its argument is not printed into the |.stp| file.
 %
