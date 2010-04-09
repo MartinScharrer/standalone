@@ -34,15 +34,11 @@
 %<*driver>
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesFile{standalone.dtx}[2010/03/27 v0.3a DTX File for 'standalone' cls/sty/tex/cfg files]
-\documentclass{ltxdoc}
+\documentclass{scrartcl}
+\usepackage{ydoc}
 \usepackage{ifpdf}
 \usepackage{listings}
-\IfFileExists{hypdoc.sty}{%
-\usepackage{hypdoc}
-}{%
 \usepackage{hyperref}
-}
-\usepackage{ydoc-desc}
 
 \def\optpar#1{\marginpar{\hfill\opt{#1}}}
 
@@ -75,7 +71,6 @@
 %   Right bracket \]     Circumflex    \^     Underscore    \_
 %   Grave accent  \`     Left brace    \{     Vertical bar  \|
 %   Right brace   \}     Tilde         \~}
-%
 %
 % \changes{v0.1}{2010/03/21}{First released version}
 % \changes{v0.2}{2010/03/22}{Added support for beamer style settings in the config file using \cs{ifstandalonebeamer}. Updated documentation.}
@@ -228,7 +223,7 @@
 % \begin{DescribeEnv}{standaloneframe}
 %   !\color{optional}\colorlet{meta}{metaoptional}!
 %   <<overlay specification>>'[<'<default overlay spec>'>]'
-%   !\egroup\hbox\bgroup\strut\hspace*{7em}!
+%   !\\\hspace*{7em}!
 %   !\color{optional}\colorlet{meta}{metaoptional}!
 %   [<options>]{<optional frame title>}{<optional frame subtitle>}
 %   \relax\MacroArgs<code with beamer overlays>
