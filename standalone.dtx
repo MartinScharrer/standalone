@@ -54,7 +54,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{1072}
+% \CheckSum{1078}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -1041,6 +1041,14 @@
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{macro}{\sa@gobbleline}
+% Gobbles the rest of the input line. This is required when skipping the body of a file to also skip
+% everything on the same line after |\begin{document}|.
+%    \begin{macrocode}
+\def\sa@gobbleline#1^^J{}%
+%    \end{macrocode}
+% \end{macro}
+%
 % \begin{macro}{\standaloneignore}
 % \changes{v0.3}{2010/03/26}{New macro}
 % This macro must only be used in a sub-file before a |\documentclass|. It gobbles everything up to this macro
@@ -1133,9 +1141,10 @@
         \def\next{%
           \endgroup
           \PackageWarning{standalone}{Running 'standalone' package in sub-preamble print mode. All body content of file `\sa@filepath' is ignored!}{}{}%
-          \null
+          \hbox to 1pt{\vbox to 1pt{}}%
           \endinput
-        }
+          \sa@gobbleline
+        }%
       \else
       \expandafter
       \ifx
@@ -1150,10 +1159,11 @@
           \PackageWarning{standalone}{Sub-preamble of file '\sa@filepath' has changed. Content will be ignored. Please rerun LaTeX!}{}{}%
           \immediate\write\@mainaux{%
             \@percentchar\space standalone package info: Rerun LaTeX!
-          }
-          \null
+          }%
+          \hbox to 1pt{\vbox to 1pt{}}%
           \endinput
-        }
+          \sa@gobbleline
+        }%
       \fi
       \fi
     \else
