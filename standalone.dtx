@@ -31,6 +31,7 @@
 %<sty>\ProvidesPackage{standalone} [2010/03/27 v0.3a Package to include TeX sub-files with preambles]
 %<tex>\ProvidesFile{standalone.tex}[2010/03/27 v0.3a Provides if-switch to show if file is compiled standalone]%
 %<cfg>\ProvidesFile{standalone.cfg}[2010/03/27 v0.3a Default configuration file for 'standalone' class]%
+%<includepic>\ProvidesPackage{includepic} [2011/01/20 v0.4 Include TeX pictures from external files like graphics]
 %<*driver>
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesFile{standalone.dtx}[2010/03/27 v0.3a DTX File for 'standalone' cls/sty/tex/cfg files]
@@ -106,7 +107,7 @@
 % \vspace*{-2em}
 % \begin{center}
 %   {\LARGE\sffamily The \emph{standalone} Class and Package\\[\medskipamount]}
-%   {\large Martin Scharrer \\[\medskipamount]\normalsize 
+%   {\large Martin Scharrer \\[\medskipamount]\normalsize
 %   \url{martin@scharrer-online.de}\\[.8ex]
 %   \url{http://www.ctan.org/pkg/standalone/}\\[\bigskipamount]}
 %   {\large Version \fileversion\ -- \filedate}\\
@@ -115,8 +116,8 @@
 %
 % \section{Introduction}
 % Larger \LaTeX{} documents can be split into multiple \TeX\ files which are then included in a main document with \cs{include}
-% for e.g.\ chapter files or \cs{input} for e.g.\ \TeX-coded pictures. Keeping pictures in their own sub-files improves readability 
-% of the main file and simplifies the sharing of them between different documents. However, during the, sometimes lengthly, 
+% for e.g.\ chapter files or \cs{input} for e.g.\ \TeX-coded pictures. Keeping pictures in their own sub-files improves readability
+% of the main file and simplifies the sharing of them between different documents. However, during the, sometimes lengthly,
 % drawing/coding process it has benefits to be able to compile the pictures on their own. The compile process is much quicker and
 % the resulting document only holds the picture which avoids constant page turning and zooming.
 %
@@ -124,13 +125,13 @@
 % the directories with a lot of extra files. A second method is to place the `main' components, i.e. a preamble, directly into the
 % picture files and make the main document ignore this code sections.
 %
-% The package |standalone| can be used in the main document to skip all extra preambles in included files. The main file must load all packages 
+% The package |standalone| can be used in the main document to skip all extra preambles in included files. The main file must load all packages
 % and settings required by the sub-files. Several package options are provided to collect the preambles of the sub-files automatically and execute them from the main file.
 %
 % A |standalone| class is also provided to minimise the extra preamble code needed in this files.
 % It's usage is optional, but simplifies and standardises how picture files are compiled standalone.
 % The class uses by default the |preview| package to create an output file which only contains the picture with no extra
-% margins, page numbers or anything else. A configuration file |standalone.cfg| read by the class allows the user to adjust settings and macros easily 
+% margins, page numbers or anything else. A configuration file |standalone.cfg| read by the class allows the user to adjust settings and macros easily
 % on a per directory base.
 %
 % \subsection*{Similar Packages}
@@ -141,11 +142,11 @@
 % \subsection{Quick instructions}
 % Load the |standalone| \emph{package} very early in the main document. Also all packages needed by all the sub-files must be loaded by the main document.
 % Include your picture or other sub-files using |\input| or a similar macro as normal.
-% In the sub-files use the |standalone| \emph{class} with a normal \cs{documentclass} and load all packages needed for the particular 
+% In the sub-files use the |standalone| \emph{class} with a normal \cs{documentclass} and load all packages needed for the particular
 % file. Finally wrap the actual content of the sub-file in a |document| environment.
 %
 % When the sub-file is compiled on its own the |\documentclass| and |document| environment will be active as normal. The main file, however,
-% will skip everything from the |\documentclass| till the |\begin{document}|. The (now fake) |document| environment is redefined to be a simple 
+% will skip everything from the |\documentclass| till the |\begin{document}|. The (now fake) |document| environment is redefined to be a simple
 % TeX-group. Any code after the |\end{document}| will be ignored. The real |document| environment of the main file will be unaffected and will work as normal.
 %
 % Instead of transferring the packages required by each sub-file manually to the main document preamble, this task can be automatised using
@@ -177,14 +178,14 @@
 % If such issues occur they can hardly be handled in an automatic way. Instead the sub-preambles must be carefully merged into the main preamble.
 % The option \opt{print}\optpar{print} was created to simplify this otherwise cumbersome task.
 % It concatenated all sub-preambles into a single file named `\meta{main tex file name}|.stp|' (for \emph{st}andalone, \emph{p}rint). Each preamble is commented with its original file name.
-% Please note that |.sta| file mentioned above, while quite similar, holds additional macros and might not be easily user readable or editable. 
+% Please note that |.sta| file mentioned above, while quite similar, holds additional macros and might not be easily user readable or editable.
 % After the file was generated it can be easily pasted into the main file preamble using a text editor.
 %
 % When the \opt{print} option is enabled the normal |.sta| file is not generated or loaded. Because this will cause most likely some errors related to packages not loaded, all sub-file bodies will be skipped.
 % A warning is printed for each sub-file to remind the user about this fact. The \opt{print} option is only indented to by used when required to get a list of sub-preambles. After including this list in the main file the option
 % must be removed to compile the main file normally.
 %
-% Finally if both the \opt{print} and \opt{sort}\optpar{print, sort} options are enabled, a `sorted' list of sub-preambles is printed into the |.stp| file. In this `sorted print' mode all |\usepackage| macros (and similar macros like 
+% Finally if both the \opt{print} and \opt{sort}\optpar{print, sort} options are enabled, a `sorted' list of sub-preambles is printed into the |.stp| file. In this `sorted print' mode all |\usepackage| macros (and similar macros like
 % |\usepgflibrary|, |\usetikzlibrary| and |\usetikztiminglibrary| from the |pgf|, |tikz| and |tikz-timing| packages, respectively) are removed from the rest of the sub-preamble code.
 % A list of packages (and libraries) without duplicates is printed at the begin of the |.stp| file (using |\usepackage|, of course). Every option provided by any sub-file for a package is added, again without duplicates.
 % If specific package date was requested in a sub-file it is also added. If multiple dates are requested for one package, the most recent (i.e.\ the ``highest one'', not the last processed) is used.
@@ -207,7 +208,7 @@
 % \subsection{Dependencies}
 % The |standalone| class requires the |kvoptions| package (Oberdiek bundle) and the |preview| package. Both should be available in a standard \LaTeX\ installation.
 % The |beamer| option of course requires the |beamer| bundle to be installed.
-% The |standalone| package does not require other packages, but can take advantage from the |fink| package (\emph{Fi}le \emph{N}ame \emph{K}eeper), 
+% The |standalone| package does not require other packages, but can take advantage from the |fink| package (\emph{Fi}le \emph{N}ame \emph{K}eeper),
 % to access the filenames of the sub-files. For this the |fink| package must be loaded before |standalone|. Without it a file name macro defined by \LaTeX\ itself
 % is used instead which should do also fine, but is reset at every |\input| macro. Placing this macro before |\documentclass| without marking
 % it with |\csname standaloneignore\endcsname| will then lead to wrong file names inside the |.sta| and |.stp| files.
@@ -236,14 +237,14 @@
 %
 % \bigskip
 % \DescribeMacro{\ifstandalone}
-% Both the class and the package provide the if-switch \cs{ifstandalone}, which can be used to only include code if the file is 
+% Both the class and the package provide the if-switch \cs{ifstandalone}, which can be used to only include code if the file is
 % compiled standalone. The switch is set to \cs{iftrue} by the class and to \cs{iffalse} by the package.
 %
 % The additional file |standalone.tex| also defines this switch by checking if \cs{documentclass} was already used. It can be included
 % with |\input{standalone}| and is intended for specialised files which do not use the |standalone| class.
 %
 % \DescribeMacro{\ifstandalonebeamer}
-% Both the class and the package provide the if-switch \cs{ifstandalonebeamer}, which can be used to only include code if the file is 
+% Both the class and the package provide the if-switch \cs{ifstandalonebeamer}, which can be used to only include code if the file is
 % compiled standalone with the |beamer| class option set.
 % The switch is set to \cs{iftrue} by the class when loaded with the |beamer| option and always to \cs{iffalse} by the package.
 %
@@ -256,7 +257,7 @@
 % Because the main document will only skip code between |\documentclass| and |\begin{document}| this code will be executed by it.
 % In order to avoid this the macro \cs{standaloneignore} can be used at the very beginning of a sub-file to skip over this code.
 % However it must be written as |\csname standaloneignore\endcsname| to avoid a `Undefined control sequence' error when compiled standalone.
-% After all the class is not loaded at this point, therefore no |standalone| macros are yet defined. 
+% After all the class is not loaded at this point, therefore no |standalone| macros are yet defined.
 % The |\csname|\ldots|\endcsname| construct will simple make it equal to |\relax| in this case.
 %
 % Please note that all code before |\documentclass| is not processed by any of the \opt{subpreamble} options but always simply removed.
@@ -423,7 +424,7 @@
 % \end{minipage}
 %
 % \subsection{Usage with \texttt{svn-multi} keywords}\label{sec:svnmulti}
-% If the version control package \texttt{svn-multi} is used, the keyword macros (|\svnid| or |\svnidlong|) 
+% If the version control package \texttt{svn-multi} is used, the keyword macros (|\svnid| or |\svnidlong|)
 % need to be placed after the |\begin{document}| to be taken into account by the main document.
 % The \texttt{svn-multi} package must be loaded by the sub-file preamble to avoid compile errors in standalone mode.
 % Alternative, if the keywords are not required in this mode, they can be surrounded by |\ifstandalone\else|\dots|\fi|.
@@ -524,7 +525,7 @@
 %
 % \begin{macro}{\sa@filepath}
 % File name macro. If the |fink| package is loaded the macros \cs{finkdir} (with leading `|./|' removed) and \cs{finkpath} is used, otherwise the \LaTeX\ macro
-% \cs{@filef@und} (with trailing space removed and with '.tex' added if it has no file extension). 
+% \cs{@filef@und} (with trailing space removed and with '.tex' added if it has no file extension).
 % The latter causes issues if |\input| etc. was used before |\documentclass| in sub-files.
 %    \begin{macrocode}
 \@ifundefined{finkpath}{%
@@ -931,7 +932,7 @@
 % \begin{environment}{standalonepreambles}
 % This environment simply adds a group and sets the endline character to a printed newline and the argument character
 % |#| as a normal character. The first suppresses |\par|'s in the stored sub-preambles while preserving newlines. The latter
-% is required to permit macro arguments in the preambles. Otherwise a |#| is doubled to |##| causing compile errors when the 
+% is required to permit macro arguments in the preambles. Otherwise a |#| is doubled to |##| causing compile errors when the
 % sub-preambles are used.
 % The |.sta| file is closed after this environment.
 %    \begin{macrocode}
@@ -949,7 +950,7 @@
 %
 % \begin{environment}{subpreambles}
 % This environment rereads the sub-preambles from the |.sta| files and stores it globally under the name
-% ``\cs{prevsubpreamble@}\meta{file name}''. If sorting is enabled the sub-preambles are also scanned for 
+% ``\cs{prevsubpreamble@}\meta{file name}''. If sorting is enabled the sub-preambles are also scanned for
 % loaded packages.
 %    \begin{macrocode}
 \long\gdef\subpreamble#1#2\endsubpreamble{%
@@ -983,7 +984,7 @@
 
 % \begin{macro}{\AtBeginDocument}
 % At begin of the document the |.sta| file is read again. This time the sub-preamble macros are executed as normal.
-% The |standalone| macros are defined to be without effect. If `sorting' is enabled \cs{usepackage} is temporarily 
+% The |standalone| macros are defined to be without effect. If `sorting' is enabled \cs{usepackage} is temporarily
 % redefined to ignore any given options, which where already passed (\cs{PassOptionsToPackage}) beforehand.
 %    \begin{macrocode}
 \AtBeginDocument{%
@@ -1246,7 +1247,7 @@
 % \end{macro}
 %
 % \begin{macro}{\sa@document}
-% This is the |\begin{document}| of the sub files. It does nothing except of 
+% This is the |\begin{document}| of the sub files. It does nothing except of
 % redefining |\end{document}| and calling our own |atbegindocument| hook.
 %    \begin{macrocode}
 \def\sa@document{%
@@ -1257,7 +1258,7 @@
 % \end{macro}
 %
 % \begin{macro}{\sa@enddocument}
-% This is the |\end{document}| of the sub files. It does nothing except of 
+% This is the |\end{document}| of the sub files. It does nothing except of
 % calling our own |atenddocument| hook and then the `after end document' handler.
 %    \begin{macrocode}
 \def\sa@enddocument{%
@@ -1268,7 +1269,7 @@
 % \end{macro}
 %
 % \begin{macro}{\sa@@enddocument}
-% This is a `after end document' handler for the sub-files. It restores macros and 
+% This is a `after end document' handler for the sub-files. It restores macros and
 % ends the input of the file.
 %    \begin{macrocode}
 \def\sa@@enddocument{%
@@ -1342,7 +1343,7 @@
 \SetupKeyvalOptions{prefix=sa@}
 %    \end{macrocode}
 %
-% Use of |preview| package is optional but enabled by default. 
+% Use of |preview| package is optional but enabled by default.
 % This defines the |\ifsa@preview| switch.
 %    \begin{macrocode}
 \DeclareBoolOption[true]{preview}
@@ -1519,14 +1520,70 @@
 % \end{macro}
 % \iffalse
 %</tex>
+%<*includepic>
+% \fi
+%
+% \subsection{Include picture like a graphic}
+%
+%    \begin{macrocode}
+\RequirePackage{graphicx}[1999/02/16]
+\RequirePackage{pgf}
+%    \end{macrocode}
+%
+% \begin{macro}{\includepicture}
+% Based on the code like \cs{includegraphics} from the |graphicx| package.
+% The |graphicx| keys are reused, which modify the token register.
+% The temp switch `a' is set to true to indicate to the keys that resizing
+% operation are done directly and not by the output driver.
+%    \begin{macrocode}
+\newcommand*\includepicture[2][]{%
+    \begingroup
+    \@tempswatrue
+    \toks@{{\hbox{\includepicture@input{#2}\unskip}}}%
+    \setkeys{Gin}{#1}%
+    \Gin@esetsize
+    \the\toks@
+    \endgroup
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\includepicture@input}
+% Inputs the given file and applies clipping or bounding box operations,
+% i.e.\ handles the `clip', `viewport' and `bb' etc. options.
+%    \begin{macrocode}
+\def\includepicture@input#1{%
+    \begingroup
+    \setbox\@tempboxa=\hbox{{\input{#1}}}%
+    \def\Gin@llx{0}%
+    \Gin@defaultbp\Gin@lly{-\dp\@tempboxa}%
+    \Gin@defaultbp\Gin@urx{\wd\@tempboxa}%
+    \Gin@defaultbp\Gin@ury{\ht\@tempboxa}%
+    \Gin@viewport@code
+    \begin{pgfpicture}[inner sep=0pt,outer sep=0pt]%
+        \pgfpathmoveto{\pgfqpoint{\Gin@llx bp}{\Gin@lly bp}}%
+        \pgfpathlineto{\pgfqpoint{\Gin@urx bp}{\Gin@lly bp}}%
+        \pgfpathlineto{\pgfqpoint{\Gin@urx bp}{\Gin@ury bp}}%
+        \pgfpathlineto{\pgfqpoint{\Gin@llx bp}{\Gin@ury bp}}%
+        \pgfpathclose
+        \expandafter\pgfusepath\ifGin@clip{clip}\else{use as bounding box}\fi
+        \pgfnode{rectangle}{base west}{\usebox\@tempboxa}{}{}%
+    \end{pgfpicture}%
+    \endgroup
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \iffalse
+%</includepic>
 % \fi
 %
 % \subsection{Config File}
 % Default content of the configuration file. Users can override this by placing an own
 % |standalone.cfg| file somewhere where \TeX\ can find it (user |texmf| directory or local directory).
-% This user file can load the default config file using 
+% This user file can load the default config file using
 % using |\InputIfFileExists{standalone/standalone.cfg}{}{}|.
-% Be default only the |preview| package option are set and 
+% Be default only the |preview| package option are set and
 % the navigation symbols of beamer standalones are disabled.
 % \iffalse
 %<*cfg>
