@@ -31,7 +31,6 @@
 %<sty>\ProvidesPackage{standalone} [2010/03/27 v0.3a Package to include TeX sub-files with preambles]
 %<tex>\ProvidesFile{standalone.tex}[2010/03/27 v0.3a Provides if-switch to show if file is compiled standalone]%
 %<cfg>\ProvidesFile{standalone.cfg}[2010/03/27 v0.3a Default configuration file for 'standalone' class]%
-%<includepic>\ProvidesPackage{includepic} [2011/01/20 v0.4 Include TeX pictures from external files like graphics]
 %<*driver>
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesFile{standalone.dtx}[2010/03/27 v0.3a DTX File for 'standalone' cls/sty/tex/cfg files]
@@ -1523,65 +1522,6 @@
 % \fi
 %
 % \iffalse
-%<*includepic>
-% \fi
-%
-% \subsection{Include picture like a graphic}
-%
-%    \begin{macrocode}
-\RequirePackage{graphicx}[1999/02/16]
-\RequirePackage{pgf}
-%    \end{macrocode}
-%
-% \begin{macro}{\includepicture}
-% Based on the code like \cs{includegraphics} from the |graphicx| package.
-% The |graphicx| keys are reused, which modify the token register.
-% The temp switch `a' is set to true to indicate to the keys that resizing
-% operation are done directly and not by the output driver.
-%    \begin{macrocode}
-\newcommand*\includepicture[2][]{%
-    \begingroup
-    \@tempswatrue
-    \toks@{{\hbox{\includepicture@input{#2}\unskip}}}%
-    \setkeys{Gin}{#1}%
-    \Gin@esetsize
-    \the\toks@
-    \endgroup
-}
-%    \end{macrocode}
-% \end{macro}
-%
-% \begin{macro}{\includepicture@input}
-% Inputs the given file and applies clipping or bounding box operations,
-% i.e.\ handles the `clip', `viewport' and `bb' etc. options.
-%    \begin{macrocode}
-\def\includepicture@input#1{%
-    \begingroup
-    \setbox\@tempboxa=\hbox{{\input{#1.tex}}}%
-    \def\Gin@llx{0}%
-    \Gin@defaultbp\Gin@lly{-\dp\@tempboxa}%
-    \Gin@defaultbp\Gin@urx{\wd\@tempboxa}%
-    \Gin@defaultbp\Gin@ury{\ht\@tempboxa}%
-    \Gin@viewport@code
-    \begin{pgfpicture}[inner sep=0pt,outer sep=0pt]%
-        \pgfpathmoveto{\pgfqpoint{\Gin@llx bp}{\Gin@lly bp}}%
-        \pgfpathlineto{\pgfqpoint{\Gin@urx bp}{\Gin@lly bp}}%
-        \pgfpathlineto{\pgfqpoint{\Gin@urx bp}{\Gin@ury bp}}%
-        \pgfpathlineto{\pgfqpoint{\Gin@llx bp}{\Gin@ury bp}}%
-        \pgfpathclose
-        \expandafter\pgfusepath\ifGin@clip{clip}\else{use as bounding box}\fi
-        \pgfnode{rectangle}{base west}{\usebox\@tempboxa}{}{}%
-    \end{pgfpicture}%
-    \endgroup
-}
-%    \end{macrocode}
-% \end{macro}
-%
-% \iffalse
-%</includepic>
-% \fi
-%
-% \iffalse
 %<*sty>
 % \fi
 % \begin{macro}{\includestandalone}
@@ -1590,7 +1530,7 @@
 % 2 = build PDF if not exists
 % 3 = build PDF if older than TEX
 %    \begin{macrocode}
-\RequirePackage{includepic}
+\RequirePackage{gincltex}
 \def\sa@graphicext{.pdf}
 \def\sa@mode{2}
 
@@ -1645,27 +1585,27 @@
     \ifcase\sa@mode
     \relax%0
         \IfFileExists{#2\sa@graphicext}%
-            {\includegraphics[#1]{#2}}%
-            {\includepicture [#1]{#2}}%
+            {\includegraphics[#1]{#2.pdf}}%
+            {\includegraphics[#1]{#2.tex}}%
     \or% 1
-        \includepicture[#1]{#2}%
+        \includegraphics[#1]{#2.tex}%
     \or% 2
         \IfFileExists{#2\sa@graphicext}%
-            {\includegraphics[#1]{#2}}%
+            {\includegraphics[#1]{#2.pdf}}%
             {\sa@buildgraphic{#2}%
              \IfFileExists{#2\sa@graphicext}%
-                {\includegraphics[#1]{#2}}%
+                {\includegraphics[#1]{#2.pdf}}%
                 {\PackageWarning{standalone}%
                  {Graphic '#2\sa@graphicext' could not be build.^^J%
                   Shell escape activated?}%
-                \includepicture [#1]{#2}%
+                \includegraphics[#1]{#2.tex}%
                 }%
             }%
     \else% 3
         \IfFileExists{#2\sa@graphicext}%
             {\sa@comparegranpic{#2}}%
             {\sa@buildgraphic{#2}}%
-        \includegraphics[#1]{#2}%
+        \includegraphics[#1]{#2.pdf}%
     \fi
 }
 %    \end{macrocode}
