@@ -55,7 +55,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{1078}
+% \CheckSum{1250}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -1144,7 +1144,7 @@
           \PackageWarning{standalone}{Running 'standalone' package in sub-preamble print mode. All body content of file `\sa@filepath' is ignored!}{}{}%
           \hbox to 1pt{\vbox to 1pt{}}%
           \endinput
-          \sa@gobbleline
+          %\sa@gobbleline
         }%
       \else
       \expandafter
@@ -1163,7 +1163,7 @@
           }%
           \hbox to 1pt{\vbox to 1pt{}}%
           \endinput
-          \sa@gobbleline
+          %\sa@gobbleline
         }%
       \fi
       \fi
@@ -1520,6 +1520,9 @@
 % \end{macro}
 % \iffalse
 %</tex>
+% \fi
+%
+% \iffalse
 %<*includepic>
 % \fi
 %
@@ -1554,7 +1557,7 @@
 %    \begin{macrocode}
 \def\includepicture@input#1{%
     \begingroup
-    \setbox\@tempboxa=\hbox{{\input{#1}}}%
+    \setbox\@tempboxa=\hbox{{\input{#1.tex}}}%
     \def\Gin@llx{0}%
     \Gin@defaultbp\Gin@lly{-\dp\@tempboxa}%
     \Gin@defaultbp\Gin@urx{\wd\@tempboxa}%
@@ -1576,6 +1579,99 @@
 %
 % \iffalse
 %</includepic>
+% \fi
+%
+% \iffalse
+%<*sty>
+% \fi
+% \begin{macro}{\includestandalone}
+% 0 = PDF if exists, TEX otherwise
+% 1 = force TEX
+% 2 = build PDF if not exists
+% 3 = build PDF if older than TEX
+%    \begin{macrocode}
+\RequirePackage{includepic}
+\def\sa@graphicext{.pdf}
+\def\sa@mode{2}
+
+\def\sa@comparegranpic#1{%
+    \begingroup
+    \let\next\empty
+    \expandafter\sa@comparegranpic@\pdffilemoddate{#1\sa@graphicext}\relax
+    \let\sa@picdate\sa@date
+    \let\sa@pictime\sa@time
+    \expandafter\sa@comparegranpic@\pdffilemoddate{#1.tex}\relax
+    \ifnum\sa@date>\sa@picdate\relax
+        \def\next{\sa@buildgraphic{#1}}%
+    \else
+        \ifnum\sa@date=\sa@picdate\relax
+            \ifnum\sa@time>\sa@pictime\relax
+                \def\next{\sa@buildgraphic{#1}}%
+            \fi
+        \fi
+    \fi
+    \expandafter
+    \endgroup
+    \next
+}
+
+%%    D:20110121235959-00'00'
+%%    D:20110121235959Z00'00'
+%%    D:12345678123456--7----
+
+\begingroup
+\@makeother\D
+\@makeother:
+\global\@namedef{sa@comparegranpic@}D:#1#2#3#4#5#6#7#8#9\relax{%
+    \def\sa@date{#1#2#3#4#5#6#7#8}%
+    \sa@comparegranpic@@#9\relax
+}
+\endgroup
+
+\def\sa@comparegranpic@@#1#2#3#4#5#6#7\relax{%
+    \def\sa@time{#1#2#3#4#5#6}%
+    \def\sa@tz{#7}%
+}
+
+\def\sa@buildgraphic#1{%
+    \ifeof18
+        \PackageError{standalone}{Shell escape needed to create graphic!}{}%
+    \else
+        \immediate\write18{pdflatex --shell-escape --interaction=batchmode #1}%
+    \fi
+}
+
+\newcommand*\includestandalone[2][]{%
+    \ifcase\sa@mode
+    \relax%0
+        \IfFileExists{#2\sa@graphicext}%
+            {\includegraphics[#1]{#2}}%
+            {\includepicture [#1]{#2}}%
+    \or% 1
+        \includepicture[#1]{#2}%
+    \or% 2
+        \IfFileExists{#2\sa@graphicext}%
+            {\includegraphics[#1]{#2}}%
+            {\sa@buildgraphic{#2}%
+             \IfFileExists{#2\sa@graphicext}%
+                {\includegraphics[#1]{#2}}%
+                {\PackageWarning{standalone}%
+                 {Graphic '#2\sa@graphicext' could not be build.^^J%
+                  Shell escape activated?}%
+                \includepicture [#1]{#2}%
+                }%
+            }%
+    \else% 3
+        \IfFileExists{#2\sa@graphicext}%
+            {\sa@comparegranpic{#2}}%
+            {\sa@buildgraphic{#2}}%
+        \includegraphics[#1]{#2}%
+    \fi
+}
+%    \end{macrocode}
+% \end{macro}
+% \iffalse
+%</sty>
 % \fi
 %
 % \subsection{Config File}
