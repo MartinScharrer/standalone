@@ -47,7 +47,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{226}
+% \CheckSum{232}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -172,6 +172,17 @@
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{macro}{\gincltex@input}
+% Macro to input the \LaTeX{} source file.
+% Because |\includegraphics| can be used inside this file certain internal |graphics| macros
+% must be reset to there default value.
+%    \begin{macrocode}
+\def\gincltex@input#1{%
+    {\let\Gin@ext\relax\input{#1}}%
+}
+%    \end{macrocode}
+% \end{macro}
+%
 % \begin{macro}{\Ginclude@tex}
 % This driver macro is called from the standard |\includegraphics| macro to include the \LaTeX{} source file.
 % Some |\includegraphics| options like |angle| are handled by wrapping this macro in the appropriate
@@ -184,7 +195,7 @@
 % If not it is saved here.
 %    \begin{macrocode}
     \ifvoid\gincltex@box
-        \sbox\gincltex@box{{\input{#1}}}%
+        \sbox\gincltex@box{{\gincltex@input{#1}}}%
     \fi
 %    \end{macrocode}
 % The bounding box points (lower left, upper right) are calculated. It is assumed that the `graphic' baseline starts at the
@@ -244,7 +255,7 @@
   \IfFileExists{#1.bb}%
     {\edef\Gread@BBox{\@percentchar\@percentchar HiResBoundingBox}\Gread@eps{#1.bb}}%
     {%
-      \sbox\gincltex@box{{\input{#1}}}%
+      \sbox\gincltex@box{{\gincltex@input{#1}}}%
       \def\Gin@llx{0}%
       \Gin@defaultbp\Gin@lly{-\dp\gincltex@box}%
       \Gin@defaultbp\Gin@urx{\wd\gincltex@box}%
@@ -308,7 +319,7 @@
 %    \begin{macrocode}
 \def\Gread@tex#1{%
     \ifcase0\ifGin@draft\@ifundefined{gincltex@bb@#1}{0}{1}\fi\relax
-        \sbox\gincltex@box{{\input{#1}}}%
+        \sbox\gincltex@box{{\gincltex@input{#1}}}%
         \def\Gin@llx{0}%
         \Gin@defaultbp\Gin@lly{-\dp\gincltex@box}%
         \Gin@defaultbp\Gin@urx{\wd\gincltex@box}%
