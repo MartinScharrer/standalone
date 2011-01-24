@@ -1,0 +1,13 @@
+\documentclass{standalone}
+\usepackage{tikz}
+\ifstandalone
+\setlength\PreviewBorder{0bp}
+\fi
+\begin{document}%
+\sffamily
+\message{^^J COMPILING TEST DOCUMENT ^^J}%
+\begin{tikzpicture}%
+    \clip (0,0) rectangle (100bp,50bp);
+	\node [anchor=south west,fill=blue,draw,outer sep=0bp,minimum width=100bp,minimum height=50bp] {\huge TEST};
+\end{tikzpicture}%
+\end{document}%

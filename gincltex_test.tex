@@ -1,0 +1,434 @@
+\documentclass[landscape]{article}
+\usepackage[margin=1cm]{geometry}
+
+\usepackage[%active,
+tightpage]{preview}
+\usepackage{graphicx}
+\usepackage{standalone}
+\usepackage {tikz}
+
+\newsavebox\boxa
+\newsavebox\boxb
+\newsavebox\boxc
+\newlength\dW
+\newlength\dH
+\newlength\dD
+\newlength\dWmax
+\newlength\dHmax
+\newlength\dDmax
+\newlength\EPSILON
+\setlength\EPSILON{0.05pt}
+\parskip0pt
+
+\newcounter{test}
+\newcounter{ok}
+\newcounter{perfect}
+\newcounter{fail}
+
+\def\OK{\textcolor{yellow}{OK}\stepcounter{ok}}
+\def\PERFECT{\textcolor{green}{PERFECT}\stepcounter{perfect}}
+\def\FAIL#1{\textcolor{red}{FAIL: }#1\stepcounter{fail}}
+\def\maxerrorattest{}%
+
+\makeatletter
+\def\test#1{%
+    \stepcounter{test}%
+    \begingroup
+    \savebox\boxa{{\includegraphics[#1]{test}}}
+    \savebox\boxb{{\includegraphics[#1]{test.tex}}}
+    %\savebox\boxc{{\includepicture [#1]{test}}}
+    \begin{preview}
+    \begin{tabular}{lll}
+    \fbox{\usebox\boxa} & \fbox{\usebox\boxb} & \fbox{\usebox\boxc} \\
+    \the\wd\boxa\ x \the\ht\boxa+\the\dp\boxa
+    \message{^^JA: \the\wd\boxa\space x \the\ht\boxa+\the\dp\boxa}%
+    &
+    \the\wd\boxb\ x \the\ht\boxb+\the\dp\boxb
+    \message{^^JB: \the\wd\boxb\space x \the\ht\boxb+\the\dp\boxb}%
+    %&
+    %\the\wd\boxc\ x \the\ht\boxc+\the\dp\boxc
+    %\message{^^JC: \the\wd\boxc\space x \the\ht\boxc+\the\dp\boxc^^J}%
+    \\
+    \pgfmathsetlength\dW{abs(\wd\boxa - \wd\boxb)}%
+    \pgfmathsetlength\dH{abs(\ht\boxa - \ht\boxb)}%
+    \pgfmathsetlength\dD{abs(\dp\boxa - \dp\boxb)}%
+    \ifdim\dW>\dWmax
+        \global\dWmax=\dW
+        \xdef\maxerrorattest{\the\value{test}}%
+    \fi
+    \ifdim\dH>\dHmax
+        \global\dHmax=\dH
+        \xdef\maxerrorattest{\the\value{test}}%
+    \fi
+    \ifdim\dD>\dDmax
+        \global\dDmax=\dD
+        \xdef\maxerrorattest{\the\value{test}}%
+    \fi
+    \edef\@tempa{%
+    \ifdim\EPSILON<\dW
+        dW = \the\dW\space
+    \fi
+    \ifdim\EPSILON<\dH
+        dH = \the\dH\space
+    \fi
+    \ifdim\EPSILON<\dD
+        dD = \the\dD\space
+    \fi
+    }%
+    \edef\@tempa{%
+    \ifx\@tempa\empty
+        \ifcase 0%
+            \ifdim\dD=\z@
+            \ifdim\dW=\z@
+            \ifdim\dH=\z@
+                1%
+            \fi
+            \fi
+            \fi
+        \space
+            \noexpand\OK
+        \else
+            \noexpand\PERFECT
+        \fi
+    \else
+        \noexpand\FAIL{\@tempa}
+    \fi}%
+    \@tempa
+    \def\OK{OK}
+    \def\PERFECT{PERFECT}
+    \def\FAIL##1{FAIL: ##1}
+    \message{^^JTEST \the\value{test}: \@tempa^^J}%
+    \\
+    \end{tabular}
+    \end{preview}
+    \endgroup
+}
+\AtEndDocument{%
+    \message{^^J%
+        dWmax = \the\dWmax^^J%
+        dHmax = \the\dHmax^^J%
+        dDmax = \the\dDmax^^J%
+        ^^J%
+        }%
+    \message{^^J%
+        Results from \arabic{test} tests:^^J%
+        PERFECT = \arabic{perfect}^^J%
+        OK =      \arabic{ok}^^J%
+        FAIL =    \arabic{fail}^^J%
+        ^^J%
+        Max error at test: \maxerrorattest^^J
+        ^^J%
+        }%
+}
+\makeatother
+
+\setlength\fboxsep{0pt}
+\begin{document}
+\sffamily
+
+% 0
+\test {}
+
+% 1
+\test {width=86.0151pt,height=89.4618pt}
+
+% 2
+\test {totalheight=194.025pt}
+
+% 3
+\test {width=178.811pt,angle=297.959,height=79.8561pt}
+
+% 4
+\test {totalheight=286.363pt,width=232.386pt,angle=308.606}
+
+% 5
+\test {totalheight=265.468pt,width=291.418pt}
+
+% 6
+\test {angle=290.225}
+
+% 7
+\test {height=264.621pt}
+
+% 8
+\test {totalheight=72.4715pt,angle=358.66,width=268.838pt}
+
+% 9
+\test {height=51.5216pt,width=175.181pt,angle=16.5881}
+
+% 10
+\test {angle=57.6473,totalheight=259.35pt}
+
+% 11
+\test {totalheight=258.126pt}
+
+% 12
+\test {height=55.5259pt}
+
+% 13
+\test {height=141.659pt,width=244.412pt}
+
+% 14
+\test {totalheight=119.648pt,angle=136.636}
+
+% 15
+\test {height=71.3356pt,angle=350.99,width=245.794pt}
+
+% 16
+\test {angle=228.404,width=200.063pt,totalheight=169.485pt}
+
+% 17
+\test {width=108.111pt,totalheight=137.096pt,angle=60.8109}
+
+% 18
+\test {totalheight=51.8848pt,width=221.544pt}
+
+% 19
+\test {angle=55.3654,width=53.6453pt,totalheight=212.879pt}
+
+% 20
+\test {height=180.89pt}
+
+% 21
+\test {angle=4.19119}
+
+% 22
+\test {width=128.302pt,totalheight=114.362pt}
+
+% 23
+\test {angle=91.4173,height=66.9241pt}
+
+% 24
+\test {height=134.917pt,angle=272.834,width=259.905pt}
+
+% 25
+\test {height=124.018pt,angle=170.151}
+
+% 26
+\test {totalheight=59.3279pt}
+
+% 27
+\test {totalheight=220.036pt,angle=284.193,width=252.94pt}
+
+% 28
+\test {totalheight=190.135pt}
+
+% 29
+\test {angle=253.06}
+
+% 30
+\test {angle=152.107}
+
+% 31
+\test {angle=292.287}
+
+% 32
+\test {width=156.655pt}
+
+% 33
+\test {totalheight=287.479pt,angle=13.2203}
+
+% 34
+\test {angle=327.205,totalheight=94.1541pt}
+
+% 35
+\test {height=213.003pt,width=166.15pt}
+
+% 36
+\test {totalheight=197.332pt}
+
+% 37
+\test {width=117.283pt,height=111.276pt}
+
+% 38
+\test {angle=148.058}
+
+% 39
+\test {angle=277.001}
+
+% 40
+\test {totalheight=87.6738pt,angle=108.114}
+
+% 41
+\test {height=187.379pt,width=287.277pt}
+
+% 42
+\test {angle=12.9728}
+
+% 43
+\test {height=220.983pt,width=181.761pt,angle=38.8005}
+
+% 44
+\test {width=296.673pt,totalheight=298.739pt,angle=104.946}
+
+% 45
+\test {totalheight=99.5411pt,width=58.1972pt}
+
+% 46
+\test {angle=60.7159,totalheight=128.715pt}
+
+% 47
+\test {height=123.804pt}
+
+% 48
+\test {angle=306.69,height=280.816pt}
+
+% 49
+\test {angle=283.339,height=259.686pt}
+
+% 50
+\test {angle=257.993,width=55.9924pt,totalheight=179.437pt}
+
+% 51
+\test {width=79.2735pt}
+
+% 52
+\test {height=188.42pt}
+
+% 53
+\test {totalheight=195.847pt,angle=343.033,width=173.045pt}
+
+% 54
+\test {angle=66.1224,width=114.882pt}
+
+% 55
+\test {height=196.56pt,angle=309.96}
+
+% 56
+\test {height=115.304pt,width=120.607pt,angle=73.1101}
+
+% 57
+\test {width=100.666pt,height=59.3353pt,angle=106.467}
+
+% 58
+\test {angle=311.97,totalheight=53.1788pt,width=156.41pt}
+
+% 59
+\test {totalheight=129.562pt,width=110.542pt,angle=225.951}
+
+% 60
+\test {width=97.2228pt}
+
+% 61
+\test {width=297.685pt}
+
+% 62
+\test {width=264.273pt,height=123.92pt,angle=241.425}
+
+% 63
+\test {angle=261.758,totalheight=293.135pt}
+
+% 64
+\test {height=277.548pt,angle=283.666}
+
+% 65
+\test {angle=96.0716,width=138.044pt}
+
+% 66
+\test {height=92.8053pt,width=171.059pt}
+
+% 67
+\test {totalheight=72.6159pt,width=229.863pt,angle=171.158}
+
+% 68
+\test {width=296.789pt,angle=345.431,totalheight=129.038pt}
+
+% 69
+\test {angle=338.864}
+
+% 70
+\test {totalheight=271.319pt,width=249.049pt,angle=70.9084}
+
+% 71
+\test {angle=324.211,width=164.497pt,totalheight=163.257pt}
+
+% 72
+\test {totalheight=85.0144pt,angle=322.916}
+
+% 73
+\test {totalheight=282.855pt}
+
+% 74
+\test {width=55.0637pt}
+
+% 75
+\test {angle=155.253}
+
+% 76
+\test {totalheight=140.606pt,angle=289.67}
+
+% 77
+\test {width=198.912pt}
+
+% 78
+\test {width=164.755pt,totalheight=249.528pt,angle=321.995}
+
+% 79
+\test {height=250.013pt}
+
+% 80
+\test {width=98.8069pt}
+
+% 81
+\test {height=216.323pt}
+
+% 82
+\test {angle=42.4951,totalheight=81.3839pt}
+
+% 83
+\test {height=260.728pt,width=50.3054pt}
+
+% 84
+\test {totalheight=289.612pt,angle=157.522}
+
+% 85
+\test {height=101.962pt}
+
+% 86
+\test {angle=0.677453,height=215.974pt,width=108.827pt}
+
+% 87
+\test {width=231.919pt,angle=323.248}
+
+% 88
+\test {totalheight=159.82pt,angle=247.513,width=227.999pt}
+
+% 89
+\test {height=274.417pt,width=107.558pt,angle=159.372}
+
+% 90
+\test {angle=330.027,width=268.335pt,height=145.338pt}
+
+% 91
+\test {width=298.611pt,totalheight=79.4036pt}
+
+% 92
+\test {totalheight=232.327pt,width=256.049pt}
+
+% 93
+\test {totalheight=288.953pt}
+
+% 94
+\test {height=196.187pt}
+
+% 95
+\test {height=241.707pt,width=223.99pt}
+
+% 96
+\test {angle=135.871,height=212.876pt,width=233.835pt}
+
+% 97
+\test {totalheight=279.798pt,angle=48.9705,width=90.6072pt}
+
+% 98
+\test {height=225.765pt,angle=347.81,width=193.349pt}
+
+% 99
+\test {height=199.405pt,width=283.784pt}
+
+% 100
+\test {totalheight=197.001pt}
+
+
+\end{document}
+
