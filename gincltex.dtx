@@ -33,6 +33,7 @@
 %<*driver>
 \documentclass{ltxdoc}
 \usepackage{gincltex}
+\usepackage{hyperref}
 
 \EnableCrossrefs
 %\CodelineIndex
@@ -46,7 +47,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{0}
+% \CheckSum{226}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -83,22 +84,54 @@
 % \null
 % \vspace*{-2em}
 % \begin{center}
-%   {\LARGE\sffamily The gincltex Package\\}
-%   {\large Martin Scharrer \\\normalsize 
+%   {\LARGE\sffamily The \emph{gincltex} Package\\[\medskipamount]}
+%   {\large\sffamily Part of the \emph{standalone} bundle\\[\medskipamount]}
+%   {\large Martin Scharrer \\[\medskipamount]\normalsize
 %   \url{martin@scharrer-online.de}\\[.8ex]
-%   \url{http://www.ctan.org/pkg/gincltex/}\\[1.2ex]}
+%   \url{http://www.ctan.org/pkg/standalone/}\\[\bigskipamount]}
 %   {\large Version \fileversion\ -- \filedate}\\
 % \end{center}
 % \vspace{1.2em}%
 %
 % \section{Introduction}
-% This package ...
+% This small package builds on the standard \LaTeX{} packages |graphic| and |graphicx|
+% and its extended form |graphicx| and allows external \LaTeX{} source files
+% to be included like image files:
+% \begin{quote}
+%   |\includegraphics[<options>]{somefile.tex}|
+% \end{quote}
+%
+% Usually such \LaTeX{} files hold a picture environment like
+% |picture|, |pspicture|, |pgfpicture| or |tikzpicture|, which may take advantage
+% from the |standalone| class.
+%
+% All options of |\includegraphics| described in the manual of |graphic|/|graphicx| (the |grfguide|)
+% should be supported. Therefore it is possible to resize, rotate and clip the content
+% of the \LaTeX{} source file in the same way as for images.
 %
 % \section{Usage}
+% After loading the package the |.tex| extension is supported by |\includegraphics|
+% and the macro can be used in its normal form for \LaTeX{} files.
+% The content of the file is typeset first inside an |\hbox| (the primitive version of |\mbox|)
+% and then modified according to the given macro options.
+%
+% \subsection{Draft support}
+% The package supports the |draft| option of |graphics| which only displays an empty box
+% with the file name for all included graphics.
+% In this mode the source file should not be processed to reduce compile time.
+% However the size of the resulting box from the source file must be know in order
+% to reserve the required space. Therefore the \emph{bounding box} information is
+% cached for future runs with active |draft| option. The location where the information
+% is cached can be controlled with the |bb| option.
+%
+% \subsection{Package options}
+% The place where the bounding box information is cached can be adjusted with the 
+% |bb| option. By default |bb=aux| is active which stores the bounding box information
+% in the |.aux| file. With |bb=file| this information is written in EPS format into
+% |.tex.bb| files, e.g. for each source file |name.tex| a file |name.tex.bb| is created.
+%
 %
 % \StopEventually{}
-% \FloatBarrier
-% \clearpage
 % \iffalse
 %<*package>
 % \fi
