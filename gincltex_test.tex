@@ -5,6 +5,7 @@
 tightpage]{preview}
 \usepackage{graphicx}
 \usepackage{standalone}
+\usepackage{gincltex}
 \usepackage {tikz}
 
 \newsavebox\boxa
@@ -34,8 +35,8 @@ tightpage]{preview}
 \def\test#1{%
     \stepcounter{test}%
     \begingroup
-    \savebox\boxa{{\includegraphics[#1]{test}}}
-    \savebox\boxb{{\includegraphics[#1]{test.tex}}}
+    \savebox\boxa{{\includegraphics[#1]{testpic}}}
+    \savebox\boxb{{\includegraphics[#1]{testpic.tex}}}
     %\savebox\boxc{{\includepicture [#1]{test}}}
     \begin{preview}
     \begin{tabular}{lll}
