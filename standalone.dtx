@@ -54,7 +54,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{1185}
+% \CheckSum{0}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -507,6 +507,24 @@
 }
 \DeclareOption{nocomments}{%
   \def\sa@percent{}%
+}
+\DeclareOption{mode=none}{%
+    \let\sa@mode\relax
+}
+\DeclareOption{mode=pdf|tex}{%
+    \def\sa@mode{0}%
+}
+\DeclareOption{mode=tex}{%
+    \def\sa@mode{1}%
+}
+\DeclareOption{mode=pdf}{%
+    \def\sa@mode{2}%
+}
+\DeclareOption{mode=build}{%
+    \def\sa@mode{3}%
+}
+\DeclareOption{mode=buildnew}{%
+    \def\sa@mode{4}%
 }
 \ProcessOptions*\relax
 %    \end{macrocode}
@@ -1524,15 +1542,18 @@
 % \iffalse
 %<*sty>
 % \fi
+%    \begin{macrocode}
+\expandafter\ifx\csname sa@mode\endcsname\relax\else
+%    \end{macrocode}
 % \begin{macro}{\includestandalone}
-% 0 = PDF if exists, TEX otherwise
-% 1 = force TEX
-% 2 = build PDF if not exists
-% 3 = build PDF if older than TEX
 %    \begin{macrocode}
 \RequirePackage{gincltex}
-\def\sa@graphicext{.pdf}
-\def\sa@mode{2}
+\RequirePackage{ifpdf}
+\ifpdf
+    \def\sa@graphicext{.pdf}
+\else
+    \def\sa@graphicext{.eps}
+\fi
 
 \def\sa@comparegranpic#1{%
     \begingroup
@@ -1555,10 +1576,6 @@
     \next
 }
 
-%%    D:20110121235959-00'00'
-%%    D:20110121235959Z00'00'
-%%    D:12345678123456--7----
-
 \begingroup
 \@makeother\D
 \@makeother:
@@ -1573,43 +1590,73 @@
     \def\sa@tz{#7}%
 }
 
+\def\sa@compilecmd{\ifpdf pdf\fi latex --interaction=batchmode \image}%
+
 \def\sa@buildgraphic#1{%
     \ifeof18
         \PackageError{standalone}{Shell escape needed to create graphic!}{}%
     \else
-        \immediate\write18{pdflatex --shell-escape --interaction=batchmode #1}%
+        \begingroup
+        \def\image{#1}%
+        \immediate\write18{\sa@compilecmd}%
+        \endgroup
     \fi
 }
 
 \newcommand*\includestandalone[2][]{%
+    \begingroup
+    \edef\@tempa{{#2\sa@graphicext}}%
+    \expandafter\includestandalone@\@tempa{#2}{#1}%
+    \endgroup
+}
+
+%% 0 = PDF if exists, TEX otherwise
+%% 1 = force TEX
+%% 2 = force PDF
+%% 3 = build PDF if not exists
+%% 4 = build PDF if older than TEX
+\def\includestandalone@#1#2#3{%
     \ifcase\sa@mode
-    \relax%0
-        \IfFileExists{#2\sa@graphicext}%
-            {\includegraphics[#1]{#2.pdf}}%
-            {\includegraphics[#1]{#2.tex}}%
+    \relax% 0
+        \IfFileExists{#1}%
+            {\includegraphics[#3]{#1}}%
+            {\includegraphics[#3]{#2.tex}}%
     \or% 1
-        \includegraphics[#1]{#2.tex}%
+        \includegraphics[#3]{#2.tex}%
     \or% 2
-        \IfFileExists{#2\sa@graphicext}%
-            {\includegraphics[#1]{#2.pdf}}%
+        \includegraphics[#3]{#1}%
+    \or% 3
+        \IfFileExists{#1}%
+            {\includegraphics[#3]{#1}}%
             {\sa@buildgraphic{#2}%
-             \IfFileExists{#2\sa@graphicext}%
-                {\includegraphics[#1]{#2.pdf}}%
+             \IfFileExists{#1}%
+                {\includegraphics[#3]{#1}}%
                 {\PackageWarning{standalone}%
-                 {Graphic '#2\sa@graphicext' could not be build.^^J%
+                 {Graphic '#1' could not be build.^^J%
                   Shell escape activated?}%
-                \includegraphics[#1]{#2.tex}%
+                 \includegraphics[#3]{#2.tex}%
                 }%
             }%
-    \else% 3
-        \IfFileExists{#2\sa@graphicext}%
+    \else% 4
+        \IfFileExists{#1}%
             {\sa@comparegranpic{#2}}%
-            {\sa@buildgraphic{#2}}%
-        \includegraphics[#1]{#2.pdf}%
+            {\sa@buildgraphic{#2}%
+             \IfFileExists{#1}%
+                {\includegraphics[#3]{#1}}%
+                {\PackageWarning{standalone}%
+                    {Graphic '#1' could not be build.^^J%
+                    Shell escape activated?}%
+                    \includegraphics[#3]{#2.tex}%
+                }%
+            }%
     \fi
 }
 %    \end{macrocode}
+%
 % \end{macro}
+%    \begin{macrocode}
+\fi
+%    \end{macrocode}
 % \iffalse
 %</sty>
 % \fi
