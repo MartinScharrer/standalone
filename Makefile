@@ -6,38 +6,35 @@ RMDIR=rm -rf
 PDFLATEX=pdflatex -interaction=batchmode
 LATEXMK=latexmk -pdf -silent
 
-PACKEDFILES=standalone.cls standalone.sty standalone.cfg standalone.tex
-DOCFILES=standalone.pdf
-SRCFILES=standalone.dtx standalone.ins README Makefile
+PACKEDFILES=standalone.cls standalone.sty standalone.cfg standalone.tex gincltex.sty
+DOCFILES=standalone.pdf gincltex.pdf
+SRCFILES=standalone.dtx standalone.ins gincltex.dtx gincltex.ins README Makefile
 
 all: unpack doc
 
 package: unpack
 class: unpack
 
-${PACKEDFILES}: standalone.dtx standalone.ins
+${PACKEDFILES}: standalone.dtx standalone.ins gincltex.dtx gincltex.ins 
 	yes | pdflatex standalone.ins
+	yes | pdflatex gincltex.ins
 
 unpack: ${PACKEDFILES}
 
 # 'doc' and 'standalone.pdf' call itself until everything is stable
-doc: standalone.pdf
+doc: standalone.pdf gincltex.pdf
 	@${MAKE} --no-print-directory standalone.pdf
 
 pdfopt: doc
 	@-pdfopt standalone.pdf .temp.pdf && mv .temp.pdf standalone.pdf
 
-standalone.pdf: standalone.dtx standalone.gls standalone.ind
-	${LATEXMK} standalone.dtx
-
-standalone.idx standalone.glo: standalone.dtx
-	${LATEXMK} standalone.dtx
-
-standalone.ind: standalone.idx
+%.pdf: %.dtx
+	${PDFLATEX} $<
 	-makeindex -s gind.ist -o "$@" "$<"
-
-standalone.gls: standalone.glo
 	-makeindex -s gglo.ist -o "$@" "$<"
+	${PDFLATEX} $<
+	${PDFLATEX} $<
+
 
 .PHONY: test
 
@@ -46,6 +43,7 @@ test: unpack
 
 clean:
 	-latexmk -C standalone.dtx
+	-latexmk -C gincltex.dtx
 	${RM} ${PACKEDFILES} *.zip *.log *.aux *.toc *.vrb *.nav *.pdf *.snm *.out *.fdb_latexmk *.glo *.gls *.hd *.sta *.stp
 	${RMDIR} tds
 
