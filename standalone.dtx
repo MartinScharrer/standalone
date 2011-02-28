@@ -153,10 +153,15 @@
 %
 % \subsection{Class Options}
 % The |standalone| class will load a real document class. By default this is |article|. The document class normally has not much
-% influence on sub-files like pictures, especially when the |preview| package is active. However, the used class can be adjusted by the user
+% influence on sub-files like pictures, especially when the \pkg{preview} package is active. However, the used class can be adjusted by the user
 % with the |class=|\meta{class name} option.
 %
-% A special |beamer| option is provided to handle beamer frames and overlays correctly. See section~\ref{sec:beamer} for more information.
+% The boolean \opt{preview} option can be used to disable the use of the \pkg{review} package. The default is |preview=true|. The package is not loaded if |preview=false| is set.
+% The preview border can be set using the \opt{border} option. This border will be added to the file content.
+% The usage is either \MacroArgs'border='{<left>~<lower>~<right>~<upper>}, \MacroArgs'border='{<left/right>~<lower/upper>} or \MacroArgs'border='<all sides>.
+% The default unit is |bp| (big points) which is the unit used by the PostScript and PDF formats. If |preview=false| is set this option will be ignored.
+%
+% A special \opt{beamer} option is provided to handle beamer frames and overlays correctly. See section~\ref{sec:beamer} for more information.
 %
 % All other used options are passed to the loaded class.
 %
@@ -1434,10 +1439,10 @@
       {\endpreview}
   }{}%
   \RequirePackage{preview}
-%    \begin{macrocode}
+%    \end{macrocode}
 % Read the preview border values. The default unit is |bp| (PostScript points).
 % Allowed are one, two or four values.
-%    \end{macrocode}
+%    \begin{macrocode}
   \ifx\sa@border\relax\else
     \begingroup
     \def\rem@bp#1bp\relax#2\@nnil{#1}%
