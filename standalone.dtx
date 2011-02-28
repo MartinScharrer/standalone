@@ -1366,6 +1366,12 @@
 \DeclareBoolOption[true]{preview}
 %    \end{macrocode}
 %
+% To set the preview border:
+%    \begin{macrocode}
+\DeclareStringOption{border}
+\let\sa@border\relax
+%    \end{macrocode}
+%
 % Enable beamer support.
 %    \begin{macrocode}
 \DeclareVoidOption{beamer}{%
@@ -1428,6 +1434,27 @@
       {\endpreview}
   }{}%
   \RequirePackage{preview}
+%    \begin{macrocode}
+% Read the preview border values. The default unit is |bp| (PostScript points).
+% Allowed are one, two or four values.
+%    \end{macrocode}
+  \ifx\sa@border\relax\else
+    \begingroup
+    \def\rem@bp#1bp\relax#2\@nnil{#1}%
+    \def\default@bp#1{\expandafter\rem@bp\the\dimexpr#1 bp\relax bp\relax\@nnil}%
+    \def\sa@readborder#1 #2 #3 #4 {%
+       \ifx\\#2#3#4\\%
+         \@defaultunits\global\PreviewBorder=\dimexpr#1 bp\relax\@nnil%
+       \else
+       \ifx\\#4\\%
+        \xdef\PreviewBbAdjust{-\default@bp{#1} -\default@bp{#2} \default@bp{#1} \default@bp{#2}}%
+       \else
+        \xdef\PreviewBbAdjust{-\default@bp{#1} -\default@bp{#2} \default@bp{#3} \default@bp{#4}}%
+       \fi\fi
+    }%
+    \@firstofone{\expandafter\sa@readborder\sa@border} {} {} {} {} \relax
+    \endgroup
+  \fi
 \fi
 %    \end{macrocode}
 %
