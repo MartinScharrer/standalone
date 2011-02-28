@@ -27,20 +27,20 @@
 % \iffalse
 %<cls|sty|cfg|tex>% $Id$
 %<cls|sty>\NeedsTeXFormat{LaTeX2e}
-%<cls>\ProvidesClass{standalone}   [2010/03/27 v0.3a Class to compile TeX sub-files standalone]
-%<sty>\ProvidesPackage{standalone} [2010/03/27 v0.3a Package to include TeX sub-files with preambles]
-%<tex>\ProvidesFile{standalone.tex}[2010/03/27 v0.3a Provides if-switch to show if file is compiled standalone]%
-%<cfg>\ProvidesFile{standalone.cfg}[2010/03/27 v0.3a Default configuration file for 'standalone' class]%
+%<cls>\ProvidesClass{standalone}   [2010/02/28 v0.4 Class to compile TeX sub-files standalone]
+%<sty>\ProvidesPackage{standalone} [2010/02/28 v0.4 Package to include TeX sub-files with preambles]
+%<tex>\ProvidesFile{standalone.tex}[2010/02/28 v0.4 Provides if-switch to show if file is compiled standalone]%
+%<cfg>\ProvidesFile{standalone.cfg}[2010/02/28 v0.4 Default configuration file for 'standalone' class]%
 %<*driver>
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesFile{standalone.dtx}[2010/03/27 v0.3a DTX File for 'standalone' cls/sty/tex/cfg files]
+\ProvidesFile{standalone.dtx}[2011/02/28 v0.4 DTX File for 'standalone' cls/sty/tex/cfg files]
 \documentclass{scrartcl}
 \usepackage{ydoc}
 \usepackage{ifpdf}
 \usepackage{listings}
 \usepackage{hyperref}
 
-\def\optpar#1{\marginpar{\hfill\opt{#1}}}
+\def\optpar#1{\marginpar{\raggedright\opt{#1}}}
 
 \EnableCrossrefs
 \CodelineIndex
@@ -54,7 +54,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{0}
+% \CheckSum{1298}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -76,6 +76,7 @@
 % \changes{v0.2}{2010/03/22}{Added support for beamer style settings in the config file using \cs{ifstandalonebeamer}. Updated documentation.}
 % \changes{v0.3}{2010/03/26}{Added package options to automatically copy sub-preamble code to the main preamble.}
 % \changes{v0.3a}{2010/03/27}{Fixed bug related to line endings in \texttt{.sta} file. Listed sub-files now have \texttt{.tex} as default extension.}
+% \changes{v0.4}{2011/02/28}{Added option 'border' for easy adjustments of the preview border.}
 %
 % \GetFileInfo{\jobname.dtx}
 %
@@ -152,16 +153,16 @@
 % the options listed in section~\ref{sec:pkgoptions}
 %
 % \subsection{Class Options}
-% The |standalone| class will load a real document class. By default this is |article|. The document class normally has not much
+% The |standalone| class will load a real document class.\optpar{class} By default this is |article|. The document class normally has not much
 % influence on sub-files like pictures, especially when the \pkg{preview} package is active. However, the used class can be adjusted by the user
 % with the |class=|\meta{class name} option.
 %
-% The boolean \opt{preview} option can be used to disable the use of the \pkg{review} package. The default is |preview=true|. The package is not loaded if |preview=false| is set.
-% The preview border can be set using the \opt{border} option. This border will be added to the file content.
+% The boolean \opt{preview}\optpar{preview} option can be used to disable the use of the \pkg{review} package. The default is |preview=true|. The package is not loaded if |preview=false| is set.
+% The preview border can be set using the \opt{border}\optpar{border} option. This border will be added to the file content.
 % The usage is either \MacroArgs'border='{<left>~<lower>~<right>~<upper>}, \MacroArgs'border='{<left/right>~<lower/upper>} or \MacroArgs'border='<all sides>.
 % The default unit is |bp| (big points) which is the unit used by the PostScript and PDF formats. If |preview=false| is set this option will be ignored.
 %
-% A special \opt{beamer} option is provided to handle beamer frames and overlays correctly. See section~\ref{sec:beamer} for more information.
+% A special \opt{beamer}\optpar{beamer} option is provided to handle beamer frames and overlays correctly. See section~\ref{sec:beamer} for more information.
 %
 % All other used options are passed to the loaded class.
 %
@@ -189,7 +190,7 @@
 % A warning is printed for each sub-file to remind the user about this fact. The \opt{print} option is only indented to by used when required to get a list of sub-preambles. After including this list in the main file the option
 % must be removed to compile the main file normally.
 %
-% Finally if both the \opt{print} and \opt{sort}\optpar{print, sort} options are enabled, a `sorted' list of sub-preambles is printed into the |.stp| file. In this `sorted print' mode all |\usepackage| macros (and similar macros like
+% Finally if both the \opt{print} and \opt{sort}\optpar{print}\optpar{sort} options are enabled, a `sorted' list of sub-preambles is printed into the |.stp| file. In this `sorted print' mode all |\usepackage| macros (and similar macros like
 % |\usepgflibrary|, |\usetikzlibrary| and |\usetikztiminglibrary| from the |pgf|, |tikz| and |tikz-timing| packages, respectively) are removed from the rest of the sub-preamble code.
 % A list of packages (and libraries) without duplicates is printed at the begin of the |.stp| file (using |\usepackage|, of course). Every option provided by any sub-file for a package is added, again without duplicates.
 % If specific package date was requested in a sub-file it is also added. If multiple dates are requested for one package, the most recent (i.e.\ the ``highest one'', not the last processed) is used.
@@ -201,7 +202,7 @@
 % The macro \cs{onlyifstandalone}\marg{code} (see below) was created because of this two reasons. Its argument braces hide the content from the scanner.
 % It is then also completely removed from the printed sub-preamble code.
 %
-% The complementary options \opt{comments}/\opt{nocomments}\optpar{comments/nocomments} select if the |.stp| file should also include the comments of the sub-preambles.
+% The complementary options \opt{comments}/\opt{nocomments}\optpar{comments}\optpar{nocomments} select if the |.stp| file should also include the comments of the sub-preambles.
 % Comments are included by default in the non-sorting print mode (\opt{print} without \opt{sort} option), but can cause `wrong' results during the `sorting' process and are therefore removed by default in this mode.
 % The reason for this can be explained as follows.
 % In order to transfer the comments from the sub-files to the |.stp| file \TeX\ must be instructed to handle them as normal input and not discard them.
