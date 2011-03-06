@@ -500,7 +500,7 @@
 \RequirePackage{ifpdf}
 \RequirePackage{pgfopts}
 %    \end{macrocode}
-\pgfkeys{/standalone.sty/.cd,
+\pgfkeys{/standalone/.cd,
   subpreambles/.is if=sa@subpreambles,
   subpreambles/.default=true,
 %
@@ -532,7 +532,7 @@
     \def\sa@percent{}%
   },
   comments/.default=true,
-  nocomments/.style={/standalone.sty/comments=false},
+  nocomments/.style={/standalone/comments=false},
   nocomments/.value forbidden,
 %
   mode/.is choice,
@@ -562,7 +562,7 @@
   external/cmd/.store in=\sa@compilecmd,
   external/cmd={\ifpdf pdf\fi latex --interaction=batchmode \image},
 }
-\ProcessPgfOptions{/standalone.sty}
+\ProcessPgfOptions{/standalone}
 %    \end{macrocode}
 %
 % In non-sorted print mode comments are preserved by default.
@@ -575,6 +575,12 @@
   \fi
 \fi
 %    \end{macrocode}
+%
+% \begin{macro}{\standaloneconfig}
+%    \begin{macrocode}
+\newcommand*{\standaloneconfig}{\pgfqkeys{/standalone}}
+%    \end{macrocode}
+% \end{macro}
 %
 % \begin{macro}{\sa@filepath}
 % File name macro. If the |fink| package is loaded the macros \cs{finkdir} (with leading `|./|' removed) and \cs{finkpath} is used, otherwise the \LaTeX\ macro
@@ -1537,7 +1543,7 @@
 % This defines the |\ifsa@preview| switch.
 %    \begin{macrocode}
 \newif\ifsa@preview
-\pgfkeys{/standalone/.cd,
+\pgfkeys{/standalone.cls/.cd,
    preview/.is if=sa@preview,
    preview/.default=true,
    preview=true,
@@ -1546,7 +1552,7 @@
 %
 % To set the preview border:
 %    \begin{macrocode}
-\pgfkeys{/standalone/.cd,
+\pgfkeys{/standalone.cls/.cd,
    border/.store in=\sa@border,
    border/.value required,
 }
@@ -1555,7 +1561,7 @@
 %
 % Enable beamer support.
 %    \begin{macrocode}
-\pgfkeys{/standalone/.cd,
+\pgfkeys{/standalone.cls/.cd,
   beamer/.code={%
     \def\sa@class{beamer}%
     \sa@previewfalse
@@ -1567,7 +1573,7 @@
 %
 % Option to set underlying class. Default is |article|.
 %    \begin{macrocode}
-\pgfkeys{/standalone/.cd,
+\pgfkeys{/standalone.cls/.cd,
    class/.store in=\sa@class,
    class/.value required,
    class=article,
@@ -1580,10 +1586,10 @@
 % `|class|' in a similar way the |standalone| class does, which would cause problems if not filtered out.
 %    \begin{macrocode}
 \def\sa@classoptionslist{}
-\pgfkeys{/standalone/.unknown/.code={%
+\pgfkeys{/standalone.cls/.unknown/.code={%
   \xdef\sa@classoptionslist{\sa@classoptionslist,\pgfkeyscurrentname}%
 }}
-\ProcessPgfOptions{/standalone}
+\ProcessPgfOptions{/standalone.cls}
 \let\@classoptionslist\sa@classoptionslist
 %    \end{macrocode}
 %
