@@ -10,6 +10,15 @@ PACKEDFILES=standalone.cls standalone.sty standalone.cfg standalone.tex gincltex
 DOCFILES=standalone.pdf gincltex.pdf
 SRCFILES=standalone.dtx standalone.ins gincltex.dtx gincltex.ins README Makefile
 
+
+RED   = \033[01;31m
+GREEN = \033[01;32m
+BOLD  = \033[01m
+NORMAL = \033[00m
+
+OK = ${GREEN}OK${NORMAL}
+FAIL = ${RED}FAILURE${NORMAL}
+
 all: unpack doc
 
 package: unpack
@@ -39,7 +48,7 @@ pdfopt: doc
 .PHONY: test
 
 test: unpack
-	for T in test*.tex; do echo "$$T"; pdflatex -interaction=batchmode $$T && echo "OK" || echo "Failure"; done
+	@for T in test*.tex; do echo "-------------------------------------------------------------"; echo "${BOLD}$$T${NORMAL}"; pdflatex -interaction=batchmode $$T && echo "${OK}" || echo "${FAIL}"; done
 
 clean:
 	-latexmk -C standalone.dtx
