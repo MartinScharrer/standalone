@@ -6,9 +6,9 @@ RMDIR=rm -rf
 PDFLATEX=pdflatex -interaction=batchmode
 LATEXMK=latexmk -pdf -silent
 
-PACKEDFILES=standalone.cls standalone.sty standalone.cfg standalone.tex gincltex.sty
-DOCFILES=standalone.pdf gincltex.pdf
-SRCFILES=standalone.dtx standalone.ins gincltex.dtx gincltex.ins README Makefile
+PACKEDFILES=standalone.cls standalone.sty standalone.cfg standalone.tex
+DOCFILES=standalone.pdf
+SRCFILES=standalone.dtx standalone.ins README Makefile
 
 
 RED   = \033[01;31m
@@ -24,14 +24,13 @@ all: unpack doc
 package: unpack
 class: unpack
 
-${PACKEDFILES}: standalone.dtx standalone.ins gincltex.dtx gincltex.ins 
+${PACKEDFILES}: standalone.dtx standalone.ins
 	yes | pdflatex standalone.ins
-	yes | pdflatex gincltex.ins
 
 unpack: ${PACKEDFILES}
 
 # 'doc' and 'standalone.pdf' call itself until everything is stable
-doc: standalone.pdf gincltex.pdf
+doc: standalone.pdf
 	@${MAKE} --no-print-directory standalone.pdf
 
 pdfopt: doc
@@ -52,7 +51,6 @@ test: unpack
 
 clean:
 	-latexmk -C standalone.dtx
-	-latexmk -C gincltex.dtx
 	${RM} ${PACKEDFILES} *.zip *.log *.aux *.toc *.vrb *.nav *.pdf *.snm *.out *.fdb_latexmk *.glo *.gls *.hd *.sta *.stp
 	${RMDIR} tds
 
