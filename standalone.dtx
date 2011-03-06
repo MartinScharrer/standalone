@@ -497,42 +497,65 @@
 %
 % \subsubsection{Options}
 %    \begin{macrocode}
-\DeclareOption{subpreambles}{%
-  \sa@subpreamblestrue
-}
-\DeclareOption{sort}{%
-  \sa@subpreamblestrue
-  \sa@sortsubpreamblestrue
-}
-\DeclareOption{print}{%
-  \sa@subpreamblestrue
-  \sa@printsubpreamblestrue
-}
-\DeclareOption{comments}{%
-  \def\sa@percent{\@makeother\%}%
-}
-\DeclareOption{nocomments}{%
-  \def\sa@percent{}%
-}
-\DeclareOption{mode=none}{%
+\RequirePackage{pgfopts}
+%    \end{macrocode}
+\pgfkeys{/standalone.sty/.cd,
+  subpreambles/.is if=sa@subpreambles,
+  subpreambles/.default=true,
+%
+  sort/.is choice,
+  sort/true/.code={%
+    \sa@sortsubpreamblestrue
+    \sa@subpreamblestrue
+  },
+  sort/false/.code={%
+    \sa@sortsubpreamblesfalse
+  },
+  sort/.default=true,
+%
+  print/.is choice,
+  print/true/.code={%
+    \sa@printsubpreamblestrue
+    \sa@subpreamblestrue
+  },
+  print/false/.code={%
+    \sa@printsubpreamblesfalse
+  },
+  print/.default=true,
+%
+  comments/.is choice,
+  comments/true/.code={%
+    \def\sa@percent{\@makeother\%}%
+  },
+  comments/false/.code={%
+    \def\sa@percent{}%
+  },
+  comments/.default=true,
+  nocomments/.style={/standalone.sty/comments=false},
+  nocomments/.value forbidden,
+%
+  mode/.is choice,
+  mode/none/.code={%
     \let\sa@mode\relax
-}
-\DeclareOption{mode=pdf|tex}{%
+  },
+  mode/pdf|tex/.code={%
     \def\sa@mode{0}%
-}
-\DeclareOption{mode=tex}{%
+  },
+  mode/tex/.code={%
     \def\sa@mode{1}%
-}
-\DeclareOption{mode=pdf}{%
+  },
+  mode/pdf/.code={%
     \def\sa@mode{2}%
-}
-\DeclareOption{mode=build}{%
+  },
+  mode/build/.code={%
     \def\sa@mode{3}%
-}
-\DeclareOption{mode=buildnew}{%
+  },
+  mode/buildnew/.code={%
     \def\sa@mode{4}%
+  },
+  mode=tex,
 }
-\ProcessOptions*\relax
+\ProcessPgfOptions{/standalone.sty}
 %    \end{macrocode}
 %
 % In non-sorted print mode comments are preserved by default.
@@ -1589,79 +1612,36 @@
 % \iffalse
 %<*sty>
 % \fi
+%
 %    \begin{macrocode}
 \RequirePackage{ifpdf}
-\expandafter\ifx\csname sa@mode\endcsname\relax\else
-%    \end{macrocode}
-% \begin{macro}{\includestandalone}
-%    \begin{macrocode}
-\RequirePackage{gincltex}
 \ifpdf
     \def\sa@graphicext{.pdf}
 \else
     \def\sa@graphicext{.eps}
 \fi
-
-\def\sa@comparegranpic#1{%
-    \begingroup
-    \let\next\empty
-    \expandafter\sa@comparegranpic@\pdffilemoddate{#1\sa@graphicext}\relax
-    \let\sa@picdate\sa@date
-    \let\sa@pictime\sa@time
-    \expandafter\sa@comparegranpic@\pdffilemoddate{#1.tex}\relax
-    \ifnum\sa@date>\sa@picdate\relax
-        \def\next{\sa@buildgraphic{#1}}%
-    \else
-        \ifnum\sa@date=\sa@picdate\relax
-            \ifnum\sa@time>\sa@pictime\relax
-                \def\next{\sa@buildgraphic{#1}}%
-            \fi
-        \fi
-    \fi
-    \expandafter
-    \endgroup
-    \next
-}
-
-\begingroup
-\@makeother\D
-\@makeother:
-\global\@namedef{sa@comparegranpic@}D:#1#2#3#4#5#6#7#8#9\relax{%
-    \def\sa@date{#1#2#3#4#5#6#7#8}%
-    \sa@comparegranpic@@#9\relax
-}
-\endgroup
-
-\def\sa@comparegranpic@@#1#2#3#4#5#6#7\relax{%
-    \def\sa@time{#1#2#3#4#5#6}%
-    \def\sa@tz{#7}%
-}
-
-\def\sa@compilecmd{\ifpdf pdf\fi latex --interaction=batchmode \image}%
-
-\def\sa@buildgraphic#1{%
-    \ifeof18
-        \PackageError{standalone}{Shell escape needed to create graphic!}{}%
-    \else
-        \begingroup
-        \def\image{#1}%
-        \immediate\write18{\sa@compilecmd}%
-        \endgroup
-    \fi
-}
-
+\RequirePackage{gincltex}
+%    \end{macrocode}
+%
+% \begin{macro}{\includestandalone}
+%    \begin{macrocode}
 \newcommand*\includestandalone[2][]{%
     \begingroup
     \edef\@tempa{{#2\sa@graphicext}}%
     \expandafter\includestandalone@\@tempa{#2}{#1}%
     \endgroup
 }
-
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \begin{macro}{\includestandalone@}
 %% 0 = PDF if exists, TEX otherwise
 %% 1 = force TEX
 %% 2 = force PDF
 %% 3 = build PDF if not exists
 %% 4 = build PDF if older than TEX
+%    \begin{macrocode}
 \def\includestandalone@#1#2#3{%
     \ifcase\sa@mode
     \relax% 0
@@ -1699,11 +1679,89 @@
     \fi
 }
 %    \end{macrocode}
+% \end{macro}
+%
+%
+% \begin{macro}{\sa@comparegranpic}[1]{file base name}
+% Compares if the |.tex| file newer than the corresponding graphic file and
+% rebuilds the graphic if so.
+%    \begin{macrocode}
+\def\sa@comparegranpic#1{%
+    \begingroup
+    \let\next\empty
+    \expandafter\sa@comparegranpic@\pdffilemoddate{#1\sa@graphicext}\relax
+    \let\sa@picdate\sa@date
+    \let\sa@pictime\sa@time
+    \expandafter\sa@comparegranpic@\pdffilemoddate{#1.tex}\relax
+    \ifnum\sa@date>\sa@picdate\relax
+        \def\next{\sa@buildgraphic{#1}}%
+    \else
+        \ifnum\sa@date=\sa@picdate\relax
+            \ifnum\sa@time>\sa@pictime\relax
+                \def\next{\sa@buildgraphic{#1}}%
+            \fi
+        \fi
+    \fi
+    \expandafter
+    \endgroup
+    \next
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \begin{macro}{\sa@comparegranpic@}
+% Used to parse the file modification date. 1st stage.
+%    \begin{macrocode}
+\begingroup
+\@makeother\D
+\@makeother:
+\global\@namedef{sa@comparegranpic@}D:#1#2#3#4#5#6#7#8#9\relax{%
+    \def\sa@date{#1#2#3#4#5#6#7#8}%
+    \sa@comparegranpic@@#9\relax
+}
+\endgroup
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\sa@comparegranpic@@}
+% Used to parse the file modification date. 2nd stage.
+%    \begin{macrocode}
+\def\sa@comparegranpic@@#1#2#3#4#5#6#7\relax{%
+    \def\sa@time{#1#2#3#4#5#6}%
+    \def\sa@tz{#7}%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \begin{macro}{\sa@compilecmd}
+% Holds the compile command used for graphics.
+%    \begin{macrocode}
+\def\sa@compilecmd{\ifpdf pdf\fi latex --interaction=batchmode \image}%
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \begin{macro}{\sa@buildgraphic}
+% Compiles the given external file.
+% The state of the shell escape is checked.
+%    \begin{macrocode}
+\def\sa@buildgraphic#1{%
+    \ifeof18
+        \PackageError{standalone}{Shell escape needed to create graphic!}{}%
+    \else
+        \begingroup
+        \def\image{#1}%
+        \immediate\write18{\sa@compilecmd}%
+        \endgroup
+    \fi
+}
+%    \end{macrocode}
+% \end{macro}
+%
 %
 % \end{macro}
-%    \begin{macrocode}
-\fi
-%    \end{macrocode}
 % \iffalse
 %</sty>
 % \fi
