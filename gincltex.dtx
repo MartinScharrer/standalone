@@ -34,7 +34,7 @@
 \documentclass{ltxdoc}
 \usepackage{gincltex}
 \usepackage{hyperref}
-
+\let\pkg\texttt
 \EnableCrossrefs
 %\CodelineIndex
 \RecordChanges
@@ -85,7 +85,6 @@
 % \vspace*{-2em}
 % \begin{center}
 %   {\LARGE\sffamily The \emph{gincltex} Package\\[\medskipamount]}
-%   {\large\sffamily Part of the \emph{standalone} bundle\\[\medskipamount]}
 %   {\large Martin Scharrer \\[\medskipamount]\normalsize
 %   \url{martin@scharrer-online.de}\\[.8ex]
 %   \url{http://www.ctan.org/pkg/standalone/}\\[\bigskipamount]}
@@ -93,10 +92,21 @@
 % \end{center}
 % \vspace{1.2em}%
 %
+% \begin{abstract}
+% This small package builds on the standard \LaTeX{} packages \pkg{graphic} and/or \pkg{graphicx}
+% and allows external \LaTeX{} source files to be included like graphic files, i.e. adds support for the `|.tex|'
+% extension.
+% Some of the lower level operations like clipping and trimming are implemented using the \pkg{pgf} package.
+% This package uses a very similar technique than the author's other package \pkg{adjustbox}, but provides a different
+% interface.
+% \\[\medskipamount]
+% \textbf{Please note} that this package is new and the implementation might change in future revisions.
+% This might cause minor rounding differences in the exact size of the resulting \TeX{} box around the included files.
+% \end{abstract}
+%
 % \section{Introduction}
 % This small package builds on the standard \LaTeX{} packages |graphic| and |graphicx|
-% and its extended form |graphicx| and allows external \LaTeX{} source files
-% to be included like image files:
+% and allows external \LaTeX{} source files to be included like graphic files:
 % \begin{quote}
 %   |\includegraphics[<options>]{somefile.tex}|
 % \end{quote}
@@ -109,11 +119,19 @@
 % should be supported. Therefore it is possible to resize, rotate and clip the content
 % of the \LaTeX{} source file in the same way as for images.
 %
+% An alternative is the \pkg{adjustbox} package from the same author which allows the same options
+% as for |\includegraphics| for arbitrary TeX material:
+% \begin{quote}
+%   |\adjustbox{<includegraphics options>}{\input{somefile}}|
+% \end{quote}
+%
 % \section{Usage}
 % After loading the package the |.tex| extension is supported by |\includegraphics|
 % and the macro can be used in its normal form for \LaTeX{} files.
 % The content of the file is typeset first inside an |\hbox| (the primitive version of |\mbox|)
 % and then modified according to the given macro options.
+% Either the \pkg{graphic} or \pkg{graphicx} package must also be loaded by the user.
+% This package doe
 %
 % \subsection{Draft support}
 % The package supports the |draft| option of |graphics| which only displays an empty box
@@ -137,6 +155,7 @@
 % \fi
 % \section{Implementation}
 % \subsection{Package Option}
+% At the moment the key=value format is simply hard coded.
 %    \begin{macrocode}
 \newif\if@gincltex@bbfile
 \DeclareOption{bb=file}{\@gincltex@bbfiletrue}
@@ -351,5 +370,7 @@
 %    \end{macrocode}
 %
 % \Finale
+% \iffalse
 %</package>
+% \fi
 
