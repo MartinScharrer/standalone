@@ -582,40 +582,11 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\sa@filepath}
-% File name macro. If the |fink| package is loaded the macros \cs{finkdir} (with leading `|./|' removed) and \cs{finkpath} is used, otherwise the \LaTeX\ macro
-% \cs{@filef@und} (with trailing space removed and with '.tex' added if it has no file extension).
-% The latter causes issues if |\input| etc. was used before |\documentclass| in sub-files.
+%
+% The \pkg{currfile} package is used to get the file paths of the included sub-files.
 %    \begin{macrocode}
-\@ifundefined{finkpath}{%
-  \def\sa@rmspace#1 \empty{#1}%
-  \def\sa@chkext#1.#2 \empty#3{%
-    \ifx\empty#3\empty
-      \sa@rmspace#1\empty.#2%
-    \else
-      #1.#2%
-      \expandafter\sa@rmrest
-    \fi
-  }%
-  \def\sa@rmrest tex \empty{}%
-  \def\sa@filepath{\expandafter\sa@chkext\@filef@und\empty.tex \empty\empty}%
-}{%
-  \def\sa@filepath{\expandafter\expandafter\expandafter\sa@rmdotslash\expandafter\finkdir\finkfile\empty./\empty}%
-  \def\sa@rmdotslash#1./#2\empty{%
-    \ifx\empty#1\empty
-      \sa@@rmdotslash#2%
-    \else
-      \ifx\empty#2\empty
-        #1%
-      \else
-        \sa@@rmdotslash#1./#2%
-      \fi
-    \fi
-  }
-  \def\sa@@rmdotslash#1./\empty{#1}%
-}
+\RequirePackage{currfile}
 %    \end{macrocode}
-% \end{macro}
 %
 % \subsubsection{Processing of Sub-Preambles}
 %
@@ -1134,22 +1105,22 @@
   \let\document\sa@document
   \begingroup
   \ifsa@subpreambles
-    \@ifundefined{sa@written@\sa@filepath}%
+    \@ifundefined{sa@written@\currfilepath}%
       {%
         \ifsa@printsubpreambles
           \ifsa@sortsubpreambles
             \begingroup
-              \edef\@tempa{^^J\@percentchar\space Preamble from file '\sa@filepath'^^J}%
+              \edef\@tempa{^^J\@percentchar\space Preamble from file '\currfilepath'^^J}%
               \expandafter\g@addto@macro\expandafter\sa@preamble\expandafter{\@tempa}%
             \endgroup
           \else
-            \sa@write{^^J\@percentchar\space Preamble from file '\sa@filepath'}%
+            \sa@write{^^J\@percentchar\space Preamble from file '\currfilepath'}%
           \fi
         \else
-          \sa@write{\string\subpreamble{\sa@filepath}}%
+          \sa@write{\string\subpreamble{\currfilepath}}%
         \fi
       }{}%
-    \global\@namedef{subpreamble@\sa@filepath}{}%
+    \global\@namedef{subpreamble@\currfilepath}{}%
     \ifsa@printsubpreambles
       \endlinechar=`\^^J%
     \else
@@ -1178,8 +1149,8 @@
   \def\@tempa{#2}%
   \ifx\@tempa\sa@gobbleto
     \ifsa@subpreambles
-      \expandafter\g@addto@macro\csname subpreamble@\sa@filepath\endcsname{#1}%
-      \@ifundefined{sa@written@\sa@filepath}%
+      \expandafter\g@addto@macro\csname subpreamble@\currfilepath\endcsname{#1}%
+      \@ifundefined{sa@written@\currfilepath}%
         {%
           \ifsa@printsubpreambles
             \ifsa@sortsubpreambles
@@ -1196,11 +1167,11 @@
             \sa@write{\string\endsubpreamble}%
           \fi
         }{}%
-      \global\@namedef{sa@written@\sa@filepath}{}%
+      \global\@namedef{sa@written@\currfilepath}{}%
       \ifsa@printsubpreambles
         \def\next{%
           \endgroup
-          \PackageWarning{standalone}{Running 'standalone' package in sub-preamble print mode. All body content of file `\sa@filepath' is ignored!}{}{}%
+          \PackageWarning{standalone}{Running 'standalone' package in sub-preamble print mode. All body content of file `\currfilepath' is ignored!}{}{}%
           \hbox to 1pt{\vbox to 1pt{}}%
           \endinput
           %\sa@gobbleline
@@ -1208,15 +1179,15 @@
       \else
       \expandafter
       \ifx
-      \csname prevsubpreamble@\sa@filepath \expandafter\endcsname
-      \csname     subpreamble@\sa@filepath \endcsname
+      \csname prevsubpreamble@\currfilepath\expandafter\endcsname
+      \csname     subpreamble@\currfilepath\endcsname
         \def\next{\expandafter\endgroup\expandafter\begin\expandafter{\sa@gobbleto}}%
       \else
-        %\expandafter\show\csname prevsubpreamble@\sa@filepath \endcsname
-        %\expandafter\show\csname     subpreamble@\sa@filepath \endcsname
+        %\expandafter\show\csname prevsubpreamble@\currfilepath\endcsname
+        %\expandafter\show\csname     subpreamble@\currfilepath\endcsname
         \def\next{%
           \endgroup
-          \PackageWarning{standalone}{Sub-preamble of file '\sa@filepath' has changed. Content will be ignored. Please rerun LaTeX!}{}{}%
+          \PackageWarning{standalone}{Sub-preamble of file '\currfilepath' has changed. Content will be ignored. Please rerun LaTeX!}{}{}%
           \immediate\write\@mainaux{%
             \@percentchar\space standalone package info: Rerun LaTeX!
           }%
@@ -1231,8 +1202,8 @@
     \fi
   \else
     \ifsa@subpreambles
-      \expandafter\g@addto@macro\csname subpreamble@\sa@filepath\endcsname{#1\begin{#2}}%
-      \@ifundefined{sa@written@\sa@filepath}%
+      \expandafter\g@addto@macro\csname subpreamble@\currfilepath\endcsname{#1\begin{#2}}%
+      \@ifundefined{sa@written@\currfilepath}%
         {\sa@write{\unexpanded{#1\begin{#2}}}}{}%
     \fi
     \def\next{\sa@gobble}%
