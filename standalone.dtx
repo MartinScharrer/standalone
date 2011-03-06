@@ -1362,34 +1362,48 @@
 % \subsubsection{Options}
 %
 %    \begin{macrocode}
-\RequirePackage{kvoptions}
-\SetupKeyvalOptions{prefix=sa@}
+\RequirePackage{pgfopts}
 %    \end{macrocode}
 %
 % Use of |preview| package is optional but enabled by default.
 % This defines the |\ifsa@preview| switch.
 %    \begin{macrocode}
-\DeclareBoolOption[true]{preview}
+\newif\ifsa@preview
+\pgfkeys{/standalone/.cd,
+   preview/.is if=sa@preview,
+   preview/.default=true,
+   preview=true,
+}
 %    \end{macrocode}
 %
 % To set the preview border:
 %    \begin{macrocode}
-\DeclareStringOption{border}
+\pgfkeys{/standalone/.cd,
+   border/.store in=\sa@border,
+   border/.value required,
+}
 \let\sa@border\relax
 %    \end{macrocode}
 %
 % Enable beamer support.
 %    \begin{macrocode}
-\DeclareVoidOption{beamer}{%
-  \def\sa@class{beamer}%
-  \sa@previewfalse
-  \standalonebeamertrue
+\pgfkeys{/standalone/.cd,
+  beamer/.code={%
+    \def\sa@class{beamer}%
+    \sa@previewfalse
+    \standalonebeamertrue
+  },
+  beamer/.value forbidden,
 }
 %    \end{macrocode}
 %
 % Option to set underlying class. Default is |article|.
 %    \begin{macrocode}
-\DeclareStringOption[article]{class}
+\pgfkeys{/standalone/.cd,
+   class/.store in=\sa@class,
+   class/.value required,
+   class=article,
+}
 %    \end{macrocode}
 %
 % The rest of the options are accumulated and set as the official class options
@@ -1398,10 +1412,10 @@
 % `|class|' in a similar way the |standalone| class does, which would cause problems if not filtered out.
 %    \begin{macrocode}
 \def\sa@classoptionslist{}
-\DeclareDefaultOption{%
-  \xdef\sa@classoptionslist{\sa@classoptionslist,\CurrentOption}%
-}
-\ProcessKeyvalOptions*\relax
+\pgfkeys{/standalone/.unknown/.code={%
+  \xdef\sa@classoptionslist{\sa@classoptionslist,\pgfkeyscurrentname}%
+}}
+\ProcessPgfOptions{/standalone}
 \let\@classoptionslist\sa@classoptionslist
 %    \end{macrocode}
 %
@@ -1576,12 +1590,12 @@
 %<*sty>
 % \fi
 %    \begin{macrocode}
+\RequirePackage{ifpdf}
 \expandafter\ifx\csname sa@mode\endcsname\relax\else
 %    \end{macrocode}
 % \begin{macro}{\includestandalone}
 %    \begin{macrocode}
 \RequirePackage{gincltex}
-\RequirePackage{ifpdf}
 \ifpdf
     \def\sa@graphicext{.pdf}
 \else
