@@ -54,7 +54,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{1298}
+% \CheckSum{0}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -499,7 +499,7 @@
 %    \begin{macrocode}
 \RequirePackage{ifpdf}
 \RequirePackage{pgfopts}
-%    \end{macrocode}
+%
 \pgfkeys{/standalone/.cd,
   subpreambles/.is if=sa@subpreambles,
   subpreambles/.default=true,
@@ -1551,6 +1551,22 @@
 }
 %    \end{macrocode}
 %
+%    \begin{macrocode}
+\newif\ifsa@convert
+\pgfkeys{/standalone.cls/.cd,
+  convert/.is if=sa@convert,
+  convert/.cd,
+  command/.initial={convert -density \density\space \infile\space \ifx\size\empty\else -resize\space\size \fi\space \outfile},
+  density/.initial=300,
+  size/.initial={},
+  inext/.initial={.pdf},
+  infile/.initial={\jobname\inext},
+  outext/.initial={.png},
+  outfile/.initial={\jobname\outext},
+}
+%    \end{macrocode}
+%
+%
 % The rest of the options are accumulated and set as the official class options
 % for the real class loaded afterwards. This avoids the passing of any |standalone| class options
 % to the underlying class in any way. The |beamer| class for example has an option called
@@ -1620,6 +1636,25 @@
     \@firstofone{\expandafter\sa@readborder\sa@border} {} {} {} {} \relax
     \endgroup
   \fi
+\fi
+%    \end{macrocode}
+%
+% \subsubsection{Converting}
+%    \begin{macrocode}
+\ifsa@convert
+  \begingroup
+  \pgfkeysgetvalue{/standalone.cls/convert/infile}{\infile}%
+  \pgfkeysgetvalue{/standalone.cls/convert/inext}{\inext}%
+  \IfFileExists{\infile}{%
+    \pgfkeysgetvalue{/standalone.cls/convert/density}{\density}%
+    \pgfkeysgetvalue{/standalone.cls/convert/size}{\size}%
+    \pgfkeysgetvalue{/standalone.cls/convert/outext}{\outext}%
+    \pgfkeysgetvalue{/standalone.cls/convert/outfile}{\outfile}%
+    \pgfkeysgetvalue{/standalone.cls/convert/command}{\sa@buildcommand}%
+    \immediate\write18{\sa@buildcommand}%
+    \immediate\write0{\sa@buildcommand}%
+  }{}%
+  \endgroup
 \fi
 %    \end{macrocode}
 %
