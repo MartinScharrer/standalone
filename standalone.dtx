@@ -1558,9 +1558,15 @@
 \newif\ifsa@convert
 \pgfkeys{/standalone/cls/.cd,
   convert/.is if=sa@convert,
+%
+  png/.style={/standalone/cls,convert=true,convert/outext={.png}},
+  png800/.style={/standalone/cls,png,convert/size=800},
+  jpg/.style={/standalone/cls,convert=true,convert/outext={.jpg}},
+  gif/.style={/standalone/cls,convert=true,convert/outext={.gif}},
+%
   convert/.cd,
   command/.initial={convert -density \density\space \infile\space \ifx\size\empty\else -resize\space\size \fi\space \outfile},
-  density/.initial=300,
+  density/.initial={300},
   size/.initial={},
   inext/.initial={.pdf},
   inname/.initial={\jobname},
