@@ -578,7 +578,9 @@
 %
 % \begin{macro}{\standaloneconfig}
 %    \begin{macrocode}
+\@ifclassloaded{standalone}{}{%
 \newcommand*{\standaloneconfig}{\pgfqkeys{/standalone}}
+}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1508,13 +1510,14 @@
 %
 %    \begin{macrocode}
 \RequirePackage{pgfopts}
+\pgfkeys{/standalone/cls/.is family}
 %    \end{macrocode}
 %
 % Use of |preview| package is optional but enabled by default.
 % This defines the |\ifsa@preview| switch.
 %    \begin{macrocode}
 \newif\ifsa@preview
-\pgfkeys{/standalone.cls/.cd,
+\pgfkeys{/standalone/cls/.cd,
    preview/.is if=sa@preview,
    preview/.default=true,
    preview=true,
@@ -1523,7 +1526,7 @@
 %
 % To set the preview border:
 %    \begin{macrocode}
-\pgfkeys{/standalone.cls/.cd,
+\pgfkeys{/standalone/cls/.cd,
    border/.store in=\sa@border,
    border/.value required,
 }
@@ -1532,7 +1535,7 @@
 %
 % Enable beamer support.
 %    \begin{macrocode}
-\pgfkeys{/standalone.cls/.cd,
+\pgfkeys{/standalone/cls/.cd,
   beamer/.code={%
     \def\sa@class{beamer}%
     \sa@previewfalse
@@ -1544,7 +1547,7 @@
 %
 % Option to set underlying class. Default is |article|.
 %    \begin{macrocode}
-\pgfkeys{/standalone.cls/.cd,
+\pgfkeys{/standalone/cls/.cd,
    class/.store in=\sa@class,
    class/.value required,
    class=article,
@@ -1553,23 +1556,31 @@
 %
 %    \begin{macrocode}
 \newif\ifsa@convert
-\pgfkeys{/standalone.cls/.cd,
+\pgfkeys{/standalone/cls/.cd,
   convert/.is if=sa@convert,
   convert/.cd,
   command/.initial={convert -density \density\space \infile\space \ifx\size\empty\else -resize\space\size \fi\space \outfile},
   density/.initial=300,
   size/.initial={},
   inext/.initial={.pdf},
-  infile/.initial={\jobname\inext},
+  inname/.initial={\jobname},
+  infile/.initial={\inname\inext},
   outext/.initial={.png},
-  outfile/.initial={\jobname\outext},
+  outname/.initial={\inname},
+  outfile/.initial={\outname\outext},
 }
 %    \end{macrocode}
+%
+% \begin{macro}{\standaloneconfig}
+%    \begin{macrocode}
+\newcommand*{\standaloneconfig}{\pgfqkeys{/standalone}}
+%    \end{macrocode}
+% \end{macro}
 %
 % \begin{environment}{standalone}
 % The \env{standalone} environment is defined by default to be without effect.
 % The \cs{endstandalone} macro is set to |\relax|, so a redefinition with
-% \cs{renewenvironment} in the configuration file can be detected later.
+% \cs{renewenvironment} in the configuration file is possible and also can later be detected.
 %    \begin{macrocode}
 \let\standalone\empty
 \let\endstandalone\relax
@@ -1592,10 +1603,10 @@
 % `|class|' in a similar way the |standalone| class does, which would cause problems if not filtered out.
 %    \begin{macrocode}
 \def\sa@classoptionslist{}
-\pgfkeys{/standalone.cls/.unknown/.code={%
+\pgfkeys{/standalone/cls/.unknown/.code={%
   \xdef\sa@classoptionslist{\sa@classoptionslist,\pgfkeyscurrentname}%
 }}
-\ProcessPgfOptions{/standalone.cls}
+\ProcessPgfOptions{/standalone/cls}
 \let\@classoptionslist\sa@classoptionslist
 %    \end{macrocode}
 %
@@ -1648,16 +1659,19 @@
 %    \begin{macrocode}
 \ifsa@convert
   \begingroup
-  \pgfkeysgetvalue{/standalone.cls/convert/infile}{\infile}%
-  \pgfkeysgetvalue{/standalone.cls/convert/inext}{\inext}%
+  \pgfkeys{/standalone/cls/convert/.cd,
+        infile/.get=\infile,
+        inext/.get=\inext,
+        inname/.get=\inname,%
+        density/.get=\density,%
+        size/.get=\size,%
+        outext/.get=\outext,%
+        outname/.get=\outname,%
+        outfile/.get=\outfile,%
+        command/.get=\sa@buildcommand,%
+  }%
   \IfFileExists{\infile}{%
-    \pgfkeysgetvalue{/standalone.cls/convert/density}{\density}%
-    \pgfkeysgetvalue{/standalone.cls/convert/size}{\size}%
-    \pgfkeysgetvalue{/standalone.cls/convert/outext}{\outext}%
-    \pgfkeysgetvalue{/standalone.cls/convert/outfile}{\outfile}%
-    \pgfkeysgetvalue{/standalone.cls/convert/command}{\sa@buildcommand}%
     \immediate\write18{\sa@buildcommand}%
-    \immediate\write0{\sa@buildcommand}%
   }{}%
   \endgroup
 \fi
