@@ -1566,6 +1566,25 @@
 }
 %    \end{macrocode}
 %
+% \begin{environment}{standalone}
+% The \env{standalone} environment is defined by default to be without effect.
+% The \cs{endstandalone} macro is set to |\relax|, so a redefinition with
+% \cs{renewenvironment} in the configuration file can be detected later.
+%    \begin{macrocode}
+\let\standalone\empty
+\let\endstandalone\relax
+%    \end{macrocode}
+% \end{environment}
+%
+% Loads configuration file.
+%    \begin{macrocode}
+\let\sa@preamble\empty
+\let\sa@orig@InPreamble\InPreamble
+\def\InPreamble{\g@addto@macro\sa@preamble}
+\input{standalone.cfg}
+\let\InPreamble\sa@orig@InPreamble
+%    \end{macrocode}
+%
 %
 % The rest of the options are accumulated and set as the official class options
 % for the real class loaded afterwards. This avoids the passing of any |standalone| class options
@@ -1587,21 +1606,7 @@
 \expandafter
 \endgroup
 \expandafter\LoadClass\@tempa
-%    \end{macrocode}
-%
-% \begin{environment}{standalone}
-% The \env{standalone} environment is defined by default to be without effect.
-% The \cs{endstandalone} macro is set to |\relax|, so a redefinition with
-% \cs{renewenvironment} in the configuration file can be detected later.
-%    \begin{macrocode}
-\let\standalone\empty
-\let\endstandalone\relax
-%    \end{macrocode}
-% \end{environment}
-%
-% Loads configuration file.
-%    \begin{macrocode}
-\input{standalone.cfg}
+\sa@preamble
 %    \end{macrocode}
 %
 % \subsubsection{Preview Code}
@@ -1780,9 +1785,11 @@
 %    \begin{macrocode}
 \PassOptionsToPackage{active,tightpage}{preview}%
 
+\InPreamble{%
 \ifstandalonebeamer
   \setbeamertemplate{navigation symbols}{}%
 \fi
+}
 %    \end{macrocode}
 % \iffalse
 %</cfg>
