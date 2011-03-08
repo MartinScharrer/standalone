@@ -1556,15 +1556,25 @@
 %
 %    \begin{macrocode}
 \newif\ifsa@convert
+\newif\ifsa@convert@debug
 \pgfkeys{/standalone/cls/.cd,
-  convert/.is if=sa@convert,
+  convert/.style={/standalone/cls/convert/.cd,true,#1},
+  convert/.default=true,
 %
-  png/.style={/standalone/cls,convert=true,convert/outext={.png}},
-  png800/.style={/standalone/cls,png,convert/size=800},
-  jpg/.style={/standalone/cls,convert=true,convert/outext={.jpg}},
-  gif/.style={/standalone/cls,convert=true,convert/outext={.gif}},
+  png/.style={/standalone/cls/convert/png},
+  png800/.style={/standalone/cls/convert/png800},
+  jpg/.style={/standalone/cls/convert/jpg},
+  gif/.style={/standalone/cls/convert/gif},
 %
   convert/.cd,
+  png/.style={/standalone/cls/convert=true,/standalone/cls/convert/outext={.png}},
+  png800/.style={/standalone/cls/png,convert/size=800},
+  jpg/.style={/standalone/cls/convert=true,/standalone/cls/convert/outext={.jpg}},
+  gif/.style={/standalone/cls/convert=true,/standalone/cls/convert/outext={.gif}},
+%
+  true/.code={\sa@converttrue},
+  false/.code={\sa@convertfalse},
+%
   command/.initial={convert -density \density\space \infile\space \ifx\size\empty\else -resize\space\size \fi\space \outfile},
   density/.initial={300},
   size/.initial={},
@@ -1574,6 +1584,7 @@
   outext/.initial={.png},
   outname/.initial={\inname},
   outfile/.initial={\outname\outext},
+  debug/.is if=sa@convert@debug,
 }
 %    \end{macrocode}
 %
@@ -1677,6 +1688,9 @@
         command/.get=\sa@buildcommand,%
   }%
   \IfFileExists{\infile}{%
+    \ifsa@convert@debug
+        \typeout{Standalone convert: \sa@buildcommand}%
+    \fi
     \immediate\write18{\sa@buildcommand}%
   }{}%
   \endgroup
