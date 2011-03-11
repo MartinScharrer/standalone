@@ -1457,11 +1457,15 @@
 %    \begin{macrocode}
 \def\sa@buildgraphic#1{%
     \ifeof18
-        \PackageError{standalone}{Shell escape needed to create graphic!}{}%
+        \PackageError{standalone}{Shell escape needed to create graphic! Use the '-shell-escape' option.}{}%
     \else
         \begingroup
-        \def\image{#1}%
+        \edef\image{#1}%
         \immediate\write18{\sa@compilecmd}%
+        \IfFileExists{\image}{}{%
+            \PackageError{standalone}{Creation of graphic '\image' failed!^^J%
+                                      Check if the '-shell-escape' option is active}{}%
+        }%
         \endgroup
     \fi
 }
@@ -1575,7 +1579,8 @@
   true/.code={\sa@converttrue},
   false/.code={\sa@convertfalse},
 %
-  command/.initial={convert -density \density\space \infile\space \ifx\size\empty\else -resize\space\size \fi\space \outfile},
+  command/.initial={\convertexe -density \density\space \infile\space \ifx\size\empty\else -resize\space\size \fi\space \outfile},
+  convertexe/.initial={imgconvert},
   density/.initial={300},
   size/.initial={},
   inext/.initial={.pdf},
@@ -1680,18 +1685,19 @@
         infile/.get=\infile,
         inext/.get=\inext,
         inname/.get=\inname,%
+        convertexe/.get=\convertexe,%
         density/.get=\density,%
         size/.get=\size,%
         outext/.get=\outext,%
         outname/.get=\outname,%
         outfile/.get=\outfile,%
-        command/.get=\sa@buildcommand,%
+        command/.get=\sa@convertcommand,%
   }%
   \IfFileExists{\infile}{%
     \ifsa@convert@debug
-        \typeout{Standalone convert: \sa@buildcommand}%
+        \typeout{Standalone convert: \sa@convertcommand}%
     \fi
-    \immediate\write18{\sa@buildcommand}%
+    \immediate\write18{\sa@convertcommand}%
   }{}%
   \endgroup
 \fi
@@ -1818,6 +1824,10 @@
 % \fi
 %    \begin{macrocode}
 \PassOptionsToPackage{active,tightpage}{preview}%
+
+\IfFileExists{/usr/bin/convert}{%
+    \standaloneconfig{cls/convert/convertexe={convert}}%
+}{}
 
 \InPreamble{%
 \ifstandalonebeamer
