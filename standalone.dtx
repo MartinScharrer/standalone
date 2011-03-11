@@ -1462,10 +1462,6 @@
         \begingroup
         \edef\image{#1}%
         \immediate\write18{\sa@compilecmd}%
-        \IfFileExists{\image}{}{%
-            \PackageError{standalone}{Creation of graphic '\image' failed!^^J%
-                                      Check if the '-shell-escape' option is active}{}%
-        }%
         \endgroup
     \fi
 }
