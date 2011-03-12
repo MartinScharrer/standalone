@@ -5,8 +5,8 @@
 % \subsection{The Class File}
 %    \begin{macrocode}
 \NeedsTeXFormat{LaTeX2e}
-\RequiresPackage{svn-prov}[2010/08/24]
-\ProvidesClassSVN{$Id$}[v0.4][Class to compile TeX sub-files standalone]
+\RequirePackage{svn-prov}[2010/08/24]
+\ProvidesClassSVN[standalone]{$Id$}[v0.4][Class to compile TeX sub-files standalone]
 %    \end{macrocode}
 %
 % \subsubsection{If-Switches}
@@ -14,6 +14,7 @@
 % \begin{macro}{\ifstandalone}
 % This if-switch is defined by both the class and package. This class sets
 % it to true while the package (loaded by the main document) sets it to false.
+%    \begin{macrocode}
 \newif\ifstandalone
 \standalonetrue
 %    \end{macrocode}
