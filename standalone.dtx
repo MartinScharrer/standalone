@@ -439,10 +439,12 @@
 %
 % \section{Implementation}
 %
-% \subsection{The Package File}
+%
 % \iffalse
 %<*sty>
 % \fi
+% \subsection{The Package File}
+%
 % The package file is to be loaded by a main document which includes |standalone| sub-files.
 % It is also loaded by the |standalone| class to share code. The class then redefines certain macros.
 %
@@ -1468,15 +1470,15 @@
 %    \end{macrocode}
 % \end{macro}
 %
-%
 % \iffalse
 %</sty>
 % \fi
 %
-% \subsection{The Class File}
+%
 % \iffalse
 %<*cls>
 % \fi
+% \subsection{The Class File}
 %
 % \subsubsection{If-Switches}
 %
@@ -1831,10 +1833,12 @@
 %</cls>
 % \fi
 %
-% \subsection{Simple TeX File}
-% \iffalse
+%
+%\iffalse
 %<*tex>
 % \fi
+% \subsection{Simple TeX File}
+%
 % \begin{macro}{\ifstandalone}
 % Provides \cs{ifstandalone} switch which is |\iftrue| if the normal |\documentclass|
 % was not yet executed (and subsequently redefined to be |\@twoclasseserror|).
@@ -1848,6 +1852,7 @@
 \fi
 %    \end{macrocode}
 % \end{macro}
+%
 % \iffalse
 %</tex>
 % \fi
@@ -1875,13 +1880,11 @@
   \setbeamertemplate{navigation symbols}{}%
 \fi
 }
+%% vim: ft=tex
 %    \end{macrocode}
 % \iffalse
 %</cfg>
 % \fi
 %
-% \iffalse
-%<cfg>% vim: ft=tex
-% \fi
 % \Finale
 % \endinput
