@@ -1,0 +1,1 @@
+../standalone_cls.dtx
