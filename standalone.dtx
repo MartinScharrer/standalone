@@ -1556,26 +1556,37 @@
 %
 %    \begin{macrocode}
 \newif\ifsa@convert
-\newif\ifsa@convert@debug
 \pgfkeys{/standalone/cls/.cd,
   convert/.style={/standalone/cls/convert/.cd,true,#1},
+  convert/.unknown/.style={/errors/unknown choice value=\pgfkeyscurrentkey\pgfkeyscurrentvalue},
   convert/.default=true,
 %
-  png/.style={/standalone/cls/convert/png},
-  png800/.style={/standalone/cls/convert/png800},
-  jpg/.style={/standalone/cls/convert/jpg},
-  gif/.style={/standalone/cls/convert/gif},
+  png/.@cmd/.link=/standalone/cls/convert/png/.@cmd,
+  png72/.@cmd/.link=/standalone/cls/convert/png72/.@cmd,
+  png150/.@cmd/.link=/standalone/cls/convert/png150/.@cmd,
+  png300/.@cmd/.link=/standalone/cls/convert/png300/.@cmd,
+  jpg/.@cmd/.link=/standalone/cls/convert/jpg/.@cmd,
+  gif/.@cmd/.link=/standalone/cls/convert/gif/.@cmd,
 %
   convert/.cd,
-  png/.style={/standalone/cls/convert=true,/standalone/cls/convert/outext={.png}},
-  png800/.style={/standalone/cls/png,convert/size=800},
-  jpg/.style={/standalone/cls/convert=true,/standalone/cls/convert/outext={.jpg}},
-  gif/.style={/standalone/cls/convert=true,/standalone/cls/convert/outext={.gif}},
+  png/.style={/standalone/cls/convert/.cd,true,outext={.png},#1},
+  png72/.style={/standalone/cls/convert/.cd,true,outext={.png},density=72,#1},
+  png150/.style={/standalone/cls/convert/.cd,true,outext={.png},density=150,#1},
+  png300/.style={/standalone/cls/convert/.cd,true,outext={.png},density=300,#1},
+  jpg/.style={/standalone/cls/convert/.cd,true,outext={.jpg},#1},
+  gif/.style={/standalone/cls/convert/.cd,true,outext={.gif},#1},
 %
   true/.code={\sa@converttrue},
   false/.code={\sa@convertfalse},
+  false,
 %
-  command/.initial={\convertexe -density \density\space \infile\space \ifx\size\empty\else -resize\space\size \fi\space \outfile},
+  command/.initial={},
+  imagemagick/.style={/standalone/cls/convert/command={\convertexe\space -density \density\space \infile\space \ifx\size\empty\else -resize \size\fi\space -quality 90 \outfile}},
+  ghostscript/.style={/standalone/cls/convert/command={gs -dSAFER -dBATCH -dNOPAUSE -sDEVICE=\gsdevice\space -r\density\space -sOutputFile=\outfile\space \infile}},
+  gs/.@cmd/.link=/standalone/cls/convert/ghostscript/.@cmd,
+  gsdevice/ext.jpg/.initial={jpg},
+  gsdevice/ext.png/.initial={png16m},
+  gsdevice/.initial={\pgfkeysvalueof{/standalone/cls/convert/gsdevice/ext\outext}},
   convertexe/.initial={imgconvert},
   density/.initial={300},
   size/.initial={},
@@ -1585,8 +1596,16 @@
   outext/.initial={.png},
   outname/.initial={\inname},
   outfile/.initial={\outname\outext},
-  debug/.is if=sa@convert@debug,
+  imagemagick,
+%
+  onfailure/.is choice,
+  onfailure/error/.code={\let\sa@convert@failuremsg\ClassError},
+  onfailure/warning/.code={\let\sa@convert@failuremsg\ClassWarning},
+  onfailure/info/.code={\let\sa@convert@failuremsg\ClassInfo},
+  onfailure/ignore/.code={\def\sa@convert@failuremsg{\expandafter\@gobbletwo\@gobble}\let\sa@convert@notfoundmsg\@gobbletwo},
+  onfailure=error,
 }
+\let\sa@convert@notfoundmsg\ClassWarning
 %    \end{macrocode}
 %
 % \begin{macro}{\standaloneconfig}
@@ -1677,10 +1696,25 @@
 %    \begin{macrocode}
 \ifsa@convert
   \begingroup
+  \def\sa@convert#1{%
+      \edef\filemodbefore{\csname pdffilemoddate\endcsname{\outfile}}%
+      \immediate\write18{\sa@convertcommand}%
+      \IfFileExists{\outfile}{%
+          \edef\filemodafter{\csname pdffilemoddate\endcsname{\outfile}}%
+          \ifx\filemodbefore\filemodafter
+              \expandafter\ifx\csname pdffilemoddate\endcsname\relax\else
+                  \sa@convert@failuremsg{standalone}{#1}{}%
+              \fi
+          \fi
+      }{%
+          \sa@convert@failuremsg{standalone}{#1}{}%
+      }%
+  }
   \pgfkeys{/standalone/cls/convert/.cd,
         infile/.get=\infile,
         inext/.get=\inext,
         inname/.get=\inname,%
+        gsdevice/.get=\gsdevice,%
         convertexe/.get=\convertexe,%
         density/.get=\density,%
         size/.get=\size,%
@@ -1690,11 +1724,22 @@
         command/.get=\sa@convertcommand,%
   }%
   \IfFileExists{\infile}{%
-    \ifsa@convert@debug
-        \typeout{Standalone convert: \sa@convertcommand}%
+    \ifcase0%
+        \expandafter\ifx\csname pdfshellescape\endcsname\relax
+        \ifeof18\else 3\fi
+        \else\the\pdfshellescape\fi
+    \relax% 0
+        \sa@convert@failuremsg
+            {standalone}{Shell escape disabled! Cannot convert file '\infile'.}{}%
+    \or% 1  % ok
+        \sa@convert{Conversion unsuccessful!^^JThere might be something wrong with your conversation software or the file^^Jpermissions!}%
+    \else% 2 or 3
+        \sa@convert{Conversion failed! Please ensure that shell escape is enabled (e.g. use '-shell-escape').}%
     \fi
-    \immediate\write18{\sa@convertcommand}%
-  }{}%
+  }{%
+    \sa@convert@notfoundmsg
+        {standalone}{Cannot convert missing input file '\infile'.}%
+  }%
   \endgroup
 \fi
 %    \end{macrocode}
