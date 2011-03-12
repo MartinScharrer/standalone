@@ -1,4 +1,8 @@
 %
+% \iffalse
+%<*cfg>
+% \fi
+%
 % \subsection{Config File}
 % Default content of the configuration file. Users can override this by placing an own
 % |standalone.cfg| file somewhere where \TeX\ can find it (user |texmf| directory or local directory).
@@ -6,9 +10,10 @@
 % using |\InputIfFileExists{standalone/standalone.cfg}{}{}|.
 % Be default only the |preview| package option are set and
 % the navigation symbols of beamer standalones are disabled.
-% \iffalse
-%<*cfg>
-% \fi
+%    \begin{macrocode}
+\ProvidesFileSVN{$Id$}[v0.4][Default configuration file for 'standalone' class]%
+%    \end{macrocode}
+%
 %    \begin{macrocode}
 \PassOptionsToPackage{active,tightpage}{preview}%
 
