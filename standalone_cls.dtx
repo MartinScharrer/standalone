@@ -150,13 +150,9 @@
 %    \end{macrocode}
 % \end{environment}
 %
-% Loads configuration file.
+% Load configuration file.
 %    \begin{macrocode}
-\let\sa@preamble\empty
-\let\sa@orig@InPreamble\InPreamble
-\def\InPreamble{\g@addto@macro\sa@preamble}
 \input{standalone.cfg}
-\let\InPreamble\sa@orig@InPreamble
 %    \end{macrocode}
 %
 %
