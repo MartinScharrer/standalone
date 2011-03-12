@@ -1,0 +1,29 @@
+%
+% \subsection{Config File}
+% Default content of the configuration file. Users can override this by placing an own
+% |standalone.cfg| file somewhere where \TeX\ can find it (user |texmf| directory or local directory).
+% This user file can load the default config file using
+% using |\InputIfFileExists{standalone/standalone.cfg}{}{}|.
+% Be default only the |preview| package option are set and
+% the navigation symbols of beamer standalones are disabled.
+% \iffalse
+%<*cfg>
+% \fi
+%    \begin{macrocode}
+\PassOptionsToPackage{active,tightpage}{preview}%
+
+\IfFileExists{/usr/bin/convert}{%
+    \standaloneconfig{cls/convert/convertexe={convert}}%
+}{}
+
+\InPreamble{%
+\ifstandalonebeamer
+  \setbeamertemplate{navigation symbols}{}%
+\fi
+}
+%% vim: ft=tex
+%    \end{macrocode}
+% \iffalse
+%</cfg>
+% \fi
+%
