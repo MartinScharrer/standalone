@@ -9,9 +9,11 @@
 %\RequirePackage{helvet}
 %\RequirePackage{charter}
 %\usepackage{courier}
-\usepackage{libertine}
+\IfFileExists{libertine.sty}{\usepackage{libertine}}{}
+\IfFileExists{lmodern.sty}{%
 %\usepackage{lmodern}
 \renewcommand{\ttdefault}{lmtt}
+}{}
 %\addtolength{\oddsidemargin}{1cm}
 %\addtolength{\textwidth}{-1cm}
 \urlstyle{sf}
