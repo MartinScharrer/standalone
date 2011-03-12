@@ -8,13 +8,43 @@
 %<*driver>
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesFile{standalone.dtx}[2011/02/28 v0.4 DTX File for 'standalone' cls/sty/tex/cfg files]
-\documentclass{scrartcl}
+\documentclass[a4paper,11pt]{article}%{scrartcl}
 \usepackage{ydoc}
+\usepackage[T1]{fontenc}
+%\RequirePackage{helvet}
+%\RequirePackage{charter}
+%\usepackage{courier}
+\usepackage{libertine}
+%\usepackage{lmodern}
+\renewcommand{\ttdefault}{lmtt}
+%\addtolength{\oddsidemargin}{1cm}
+%\addtolength{\textwidth}{-1cm}
+\urlstyle{sf}
+\hypersetup{urlcolor=blue}
+
+\usepackage{microtype}
+
+\lstset{basicstyle=\ttfamily,commentstyle=\color{black!60}}
+
+\definecolor{macrodesc}{rgb}{0,0.2,0.6}
+\definecolor{macroimpl}{rgb}{0,0.1,0.3}
+\definecolor{meta}{rgb}{0,0.25,0.75}
+\def\oargstyle{\blendcolors*{!60!white}\color{black!75}}
+\definecolor{opt}{rgb}{0.5,0.16666,0}
+\definecolor{pkg}{rgb}{0.3666,0.1333,0}
+
 \usepackage{ifpdf}
 \usepackage{listings}
 \usepackage{hyperref}
-
-\def\optpar#1{\marginpar{\raggedright\opt{#1}}}
+\reversemarginpar
+\let\origopt\opt
+\def\origopt#1{\textsf{\textcolor{opt}{#1}}}
+\def\pkg#1{\texttt{\textcolor{pkg}{#1}}}
+\makeatletter
+\def\opt{\@ifstar\staropt\origopt}
+\makeatother
+\def\staropt#1{\origopt{#1}\optpar{#1}}
+\def\optpar#1{\marginpar{\hbox to \marginparwidth{\hss\opt{#1}}}}
 
 \EnableCrossrefs
 \CodelineIndex
@@ -84,9 +114,9 @@
 % \null
 % \vspace*{-2em}
 % \begin{center}
-%   {\LARGE\sffamily The \emph{standalone} Class and Package\\[\medskipamount]}
-%   {\large Martin Scharrer \\[\medskipamount]\normalsize
-%   \url{martin@scharrer-online.de}\\[.8ex]
+%   {\LARGE\textsf{The \emph{standalone} Class and Package\\[\bigskipamount]}}
+%   {\large Martin Scharrer \\[\smallskipamount]\normalsize
+%   \url{martin@scharrer-online.de}\\[\medskipamount]
 %   \url{http://www.ctan.org/pkg/standalone/}\\[\bigskipamount]}
 %   {\large Version \fileversion\ -- \filedate}\\
 % \end{center}
@@ -133,33 +163,38 @@
 % \subsection{Class Options}
 % The |standalone| class will load a real document class.\optpar{class} By default this is |article|. The document class normally has not much
 % influence on sub-files like pictures, especially when the \pkg{preview} package is active. However, the used class can be adjusted by the user
-% with the |class=|\meta{class name} option.
+% with the \opt{class}|=|\meta{class name} option.
 %
-% The boolean \opt{preview}\optpar{preview} option can be used to disable the use of the \pkg{review} package. The default is |preview=true|. The package is not loaded if |preview=false| is set.
-% The preview border can be set using the \opt{border}\optpar{border} option. This border will be added to the file content.
-% The usage is either \MacroArgs'border='{<left>~<lower>~<right>~<upper>}, \MacroArgs'border='{<left/right>~<lower/upper>} or \MacroArgs'border='<all sides>.
+% The boolean \opt*{preview} option can be used to disable the use of the \pkg{review} package. The default is |preview=true|. The package is not loaded if |preview=false| is set.
+% The preview border can be set using the \opt*{border} option. This border will be added to the file content.
+% It can be used in one of the three following ways:
+% \begin{quote}
+% \MacroArgs!\opt{\texttt{border}}!'='<all sides> \\
+% \MacroArgs!\opt{\texttt{border}}!'='{<left>~<lower>~<right>~<upper>} \\
+% \MacroArgs!\opt{\texttt{border}}!'='{<left/right>~<lower/upper>}
+% \end{quote}
 % The default unit is |bp| (big points) which is the unit used by the PostScript and PDF formats. If |preview=false| is set this option will be ignored.
 %
-% A special \opt{beamer}\optpar{beamer} option is provided to handle beamer frames and overlays correctly. See section~\ref{sec:beamer} for more information.
+% A special \opt*{beamer} option is provided to handle beamer frames and overlays correctly. See section~\ref{sec:beamer} for more information.
 %
 % All other used options are passed to the loaded class.
 %
 % \subsection{Package Options}\label{sec:pkgoptions}
 % The |standalone| package removes all sub-file preambles (``sub-preambles'') by default when loaded.
-% However, if the package is loaded with the \opt{subpreambles}\optpar{subpreambles} options, all sub-preambles are stored in an auxiliary file with the name `\meta{main tex file name}|.sta|' (for \emph{sta}ndalone).
+% However, if the package is loaded with the \opt*{subpreambles} options, all sub-preambles are stored in an auxiliary file with the name `\meta{main tex file name}|.sta|' (for \emph{sta}ndalone).
 % This file is then loaded or processed at the beginning of the next \LaTeX\ run (i.e.\ at the place in the preamble where the |standalone| package is loaded).
 % The way how the \opt{subpreambles} option works can be controlled by the options \opt{sort}, \opt{print} and \opt{comments}/\opt{nocomments}.
 % Please note that the \opt{sort} and \opt{print} options require of course the \opt{subpreambles} option and will enable it if not already done so.
 %
 % With only the \opt{subpreambles} option set, the sub-preambles are simple read and executed unchanged. This includes the risk of option clashes if one package is loaded with different
-% options inside the sub-preambles and/or the main preamble. This is avoided by the \opt{sort}\optpar{sort} option, which accumulates all packages loaded by all sub-files together with their options.
+% options inside the sub-preambles and/or the main preamble. This is avoided by the \opt*{sort} option, which accumulates all packages loaded by all sub-files together with their options.
 % The options are then marked to be loaded by the package using \LaTeX{}s \cs{PassOptionsToPackage} macro. The packages are loaded at the end of the preamble using the \cs{AtBeginDocument} hook.
 % This allows the user to load the same packages with own options in the main file, after the |subversion| package is loaded, without any option clashes.
 %
 % While the \opt{sort} option is giving already good results, problems with the order of packages can still occur. Some packages provide, redefine or patch the same macros, so that they must be loaded in
 % the correct order to give the desired result. Potential additional code in the sub-preambles, required for some sub-figures but maybe incompatible with others, complicates the situation further.
 % If such issues occur they can hardly be handled in an automatic way. Instead the sub-preambles must be carefully merged into the main preamble.
-% The option \opt{print}\optpar{print} was created to simplify this otherwise cumbersome task.
+% The option \opt*{print} was created to simplify this otherwise cumbersome task.
 % It concatenated all sub-preambles into a single file named `\meta{main tex file name}|.stp|' (for \emph{st}andalone, \emph{p}rint). Each preamble is commented with its original file name.
 % Please note that |.sta| file mentioned above, while quite similar, holds additional macros and might not be easily user readable or editable.
 % After the file was generated it can be easily pasted into the main file preamble using a text editor.
@@ -168,19 +203,19 @@
 % A warning is printed for each sub-file to remind the user about this fact. The \opt{print} option is only indented to by used when required to get a list of sub-preambles. After including this list in the main file the option
 % must be removed to compile the main file normally.
 %
-% Finally if both the \opt{print} and \opt{sort}\optpar{print}\optpar{sort} options are enabled, a `sorted' list of sub-preambles is printed into the |.stp| file. In this `sorted print' mode all |\usepackage| macros (and similar macros like
-% |\usepgflibrary|, |\usetikzlibrary| and |\usetikztiminglibrary| from the |pgf|, |tikz| and |tikz-timing| packages, respectively) are removed from the rest of the sub-preamble code.
+% Finally if both the \opt*{print} and \opt*{sort} options are enabled, a `sorted' list of sub-preambles is printed into the |.stp| file. In this `sorted print' mode all |\usepackage| macros (and similar macros like
+% |\usepgflibrary|, |\usetikzlibrary| as well as |\usetikztiminglibrary| from the |pgf|, |tikz| and |tikz-timing| packages, respectively) are removed from the rest of the sub-preamble code.
 % A list of packages (and libraries) without duplicates is printed at the begin of the |.stp| file (using |\usepackage|, of course). Every option provided by any sub-file for a package is added, again without duplicates.
 % If specific package date was requested in a sub-file it is also added. If multiple dates are requested for one package, the most recent (i.e.\ the ``highest one'', not the last processed) is used.
 % After this list(s) the rest of the sub-preamble code is printed with the above macros removed. This mode frees the user from the need to remove duplicates and collect package options manually.
 %
-% Please note that all |\usepackage| and similar macros inside braces |{ }| will not be seen by |standalone|s sort macro and therefore are not extracted or handled in any special form mentioned above.
+% Please note that all |\usepackage| and similar macros inside braces |{}| will not be seen by |standalone|s sort macro and therefore are not extracted or handled in any special form mentioned above.
 % This can be exploited to load certain packages only in |standalone| mode but not in the main document.
 % Unfortunately, macros inside |\ifstandalone|\ldots|\fi| are seen and extracted while not wanted inside the main file.
 % The macro \cs{onlyifstandalone}\marg{code} (see below) was created because of this two reasons. Its argument braces hide the content from the scanner.
 % It is then also completely removed from the printed sub-preamble code.
 %
-% The complementary options \opt{comments}/\opt{nocomments}\optpar{comments}\optpar{nocomments} select if the |.stp| file should also include the comments of the sub-preambles.
+% The complementary options \opt*{comments}/\opt*{nocomments} select if the |.stp| file should also include the comments of the sub-preambles.
 % Comments are included by default in the non-sorting print mode (\opt{print} without \opt{sort} option), but can cause `wrong' results during the `sorting' process and are therefore removed by default in this mode.
 % The reason for this can be explained as follows.
 % In order to transfer the comments from the sub-files to the |.stp| file \TeX\ must be instructed to handle them as normal input and not discard them.
@@ -205,10 +240,8 @@
 % When compiled as part of a main document the \env{standalone} environment does nothing (apart of being a \TeX\ group).
 %
 % \begin{DescribeEnv}{standaloneframe}
-%   !\color{optional}\colorlet{meta}{metaoptional}!
-%   <<overlay specification>>'[<'<default overlay spec>'>]'
-%   !\\\hspace*{7em}!
-%   !\color{optional}\colorlet{meta}{metaoptional}!
+%   !\begingroup\oargstyle!<< <overlay specification> >>!\endgroup!
+%   ['<'<default overlay spec>'>']!\\\hspace*{7em}!
 %   [<options>]{<optional frame title>}{<optional frame subtitle>}
 %   \relax\MacroArgs<code with beamer overlays>
 % \end{DescribeEnv}
@@ -252,7 +285,7 @@
 % \def\lstlistingname{Example}
 %
 % \par\noindent
-% \begin{minipage}{\textwidth}
+% \begin{minipage}{\textwidth}\small
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Use of \emph{standalone} package.}]
 %   % Main file
 %   % Real document class:
@@ -278,7 +311,7 @@
 % \end{minipage}
 %
 % \par\noindent
-% \begin{minipage}{\textwidth}
+% \begin{minipage}{\textwidth}\small
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Use of \emph{standalone} class.}]
 %   % A sub-file (e.g. picture) using the 'standalone' class:
 %   % Use 'standalone' as document class:
@@ -298,7 +331,7 @@
 % \end{minipage}
 %
 % \par\noindent
-% \begin{minipage}{\textwidth}
+% \begin{minipage}{\textwidth}\small
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Effective code if compiled standalone.}]
 %   \documentclass{article}
 %
@@ -321,7 +354,7 @@
 % \end{minipage}
 %
 % \par\noindent
-% \begin{minipage}{\textwidth}
+% \begin{minipage}{\textwidth}\small
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Effective code if included in a main document.}]
 %   \begingroup
 %   \begin{tikzpicture}
@@ -349,7 +382,7 @@
 % It can be used to place beamer specific options in the configuration files, which should be skipped for non-beamer standalone files.
 %
 % \par\bigskip\noindent
-% \begin{minipage}{\textwidth}\noindent
+% \begin{minipage}{\textwidth}\noindent\small
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Use of \texttt{standalone} class with \texttt{beamer} option.}]
 %   % Use of 'standalone' class with a beamer overlay:
 %   \documentclass[beamer]{standalone}
@@ -368,7 +401,7 @@
 % \end{minipage}
 %
 % \par\bigskip\noindent
-% \begin{minipage}{\textwidth}\noindent
+% \begin{minipage}{\textwidth}\noindent\small
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Effective beamer code if compiled standalone.}]
 %   \documentclass{beamer}
 %   \input{standalone.cfg}
@@ -385,7 +418,7 @@
 % \end{minipage}
 %
 % \par\bigskip\noindent
-% \begin{minipage}{\textwidth}\noindent
+% \begin{minipage}{\textwidth}\noindent\small
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Effective code if included in a beamer presentation.}]
 %   \begingroup
 %     \only<1>{ One }%
@@ -397,7 +430,7 @@
 %
 % \subsection{\texttt{standalone.tex}}
 % \noindent
-% \begin{minipage}{\textwidth}\noindent
+% \begin{minipage}{\textwidth}\noindent\small
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Usage of 'standalone.tex'.}]
 %   \input{standalone} % use before any '\documentclass'
 %   \ifstandalone
