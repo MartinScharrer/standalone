@@ -1,15 +1,20 @@
-%% $Id$
+% \iffalse
+%<*dtx>
+\begingroup
+%</dtx>
+%<*install>
 \input docstrip.tex
 \preamble
 
-Copyright (c) 2010 by Martin Scharrer <martin@scharrer-online.de>
+Copyright (c) 2010-2011 by Martin Scharrer <martin@scharrer-online.de>
+----------------------------------------------------------------------
 
 This work may be distributed and/or modified under the
 conditions of the LaTeX Project Public License, either version 1.3c
 of this license or (at your option) any later version.
 The latest version of this license is in
 
-   http://www.latex-project.org/lppl.txt
+  http://www.latex-project.org/lppl.txt
 
 and version 1.3c or later is part of all distributions of LaTeX
 version 2008/05/04 or later.
@@ -19,10 +24,12 @@ This work has the LPPL maintenance status `maintained'.
 The Current Maintainer of this work is Martin Scharrer.
 
 This work consists of the files standalone.dtx, standalone.ins
-and the derived file standalone.sty.
+and the derived files standalone.cls, standalone.sty, standalone.tex and
+standalone.cfg.
 
 \endpreamble
 \keepsilent
+\askforoverwritefalse
 
 \generate{%
   \file{standalone.cls}{\from{standalone.dtx}{cls}}%
@@ -30,23 +37,34 @@ and the derived file standalone.sty.
   \nopreamble\nopostamble
   \file{standalone.tex}{\from{standalone.dtx}{tex}}%
   \file{standalone.cfg}{\from{standalone.dtx}{cfg}}%
+  %\file{standalone.ins}{\from{standalone.dtx}{install}}%
 }
 
-\obeyspaces
-\Msg{*************************************************************}
-\Msg{*                                                           *}
-\Msg{* To finish the installation you have to move the following *}
-\Msg{* file into a directory searched by TeX:                    *}
-\Msg{*                                                           *}
-\Msg{*     standalone.sty                                        *}
-\Msg{*                                                           *}
-\Msg{* To produce the documentation run the file standalone.dtx  *}
-\Msg{* through LaTeX.                                            *}
-\Msg{*                                                           *}
-\Msg{* Happy TeXing!                                             *}
-\Msg{*                                                           *}
-\Msg{*************************************************************}
+\expandafter\obeyspaces
+\csname AtEndDocument\endcsname{%
+\ifx\Msg\undefined\let\Msg\typeout\fi
+\Msg{*************************************************************}%
+\Msg{*                                                           *}%
+\Msg{* To finish the installation you have to move the following *}%
+\Msg{* file into a directory searched by TeX:                    *}%
+\Msg{*                                                           *}%
+\Msg{*     standalone.sty                                        *}%
+\Msg{*     standalone.cls                                        *}%
+\Msg{*     standalone.tex                                        *}%
+\Msg{*     standalone.cfg                                        *}%
+\Msg{*                                                           *}%
+\Msg{* To produce the documentation run the file standalone.dtx  *}%
+\Msg{* through LaTeX.                                            *}%
+\Msg{*                                                           *}%
+\Msg{* Happy TeXing!                                             *}%
+\Msg{*                                                           *}%
+\Msg{*************************************************************}%
+}%
 
-\endbatchfile
+%<install>\endbatchfile
+%</install>
+%<*dtx>
+\endgroup
+%</dtx>
 %% vim: ft=tex
-
+% \fi

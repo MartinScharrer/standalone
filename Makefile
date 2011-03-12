@@ -89,8 +89,9 @@ standalone.tds.zip: ${SRCFILES} ${PACKEDFILES} ${DOCFILES} | pdfopt
 	${CP} ${SRCFILES}    tds/source/latex/standalone
 	cd tds; zip -r ../$@ .
 
+dtx: standalone.dtx
 
-standalone.dtx: standalone_doc.dtx standalone_sty.dtx standalone_cls.dtx standalone_tex.dtx standalone_cfg.dtx
+standalone.dtx: standalone.ins standalone_doc.dtx standalone_sty.dtx standalone_cls.dtx standalone_tex.dtx standalone_cfg.dtx
 	@echo Creating $@
 	@cat $^ | perl -ne 'if (/^(\s*\\DocInput)/) { if (!$$n++) { print "$${1}{standalone.dtx}\n"; } } else { print }' > $@
 	@echo '% \Finale' >> $@
