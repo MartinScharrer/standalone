@@ -8,7 +8,7 @@ LATEXMK=latexmk -pdf -silent
 
 PACKEDFILES=standalone.cls standalone.sty standalone.cfg standalone.tex
 DOCFILES=standalone.pdf
-SRCFILES=standalone.dtx standalone.ins README Makefile
+SRCFILES=standalone.dtx README Makefile
 
 
 RED   = \033[01;31m
@@ -24,8 +24,8 @@ all: unpack doc
 package: unpack
 class: unpack
 
-${PACKEDFILES}: standalone.dtx standalone.ins
-	yes | pdflatex standalone.ins
+${PACKEDFILES}: standalone.dtx
+	yes | pdflatex standalone.dtx
 
 unpack: ${PACKEDFILES}
 
@@ -51,7 +51,7 @@ test: unpack
 
 clean:
 	-latexmk -C standalone.dtx
-	${RM} ${PACKEDFILES} *.zip *.log *.aux *.toc *.vrb *.nav *.pdf *.snm *.out *.fdb_latexmk *.glo *.gls *.hd *.sta *.stp
+	${RM} ${PACKEDFILES} *.zip *.log *.aux *.toc *.vrb *.nav *.pdf *.snm *.out *.fdb_latexmk *.glo *.gls *.hd *.sta *.stp *.cod
 	${RMDIR} tds
 
 install: unpack doc ${INSTALLDIR} ${DOCINSTALLDIR}
