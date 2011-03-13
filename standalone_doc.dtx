@@ -49,6 +49,7 @@
 \let\origopt\opt
 \def\origopt#1{\textsf{\textcolor{opt}{#1}}}
 \def\pkg#1{\texttt{\textcolor{pkg}{#1}}}
+\let\cls\pkg
 \makeatletter
 \def\opt{\@ifstar\staropt\origopt}
 \makeatother
@@ -140,6 +141,7 @@
 % \end{abstract}
 %
 % \begin{multicols}{2}
+% \setcounter{tocdepth}{2}
 % \tableofcontents
 % \end{multicols}
 %
@@ -252,12 +254,17 @@
 % The user might favour the information provided by the comments over this small risk and enable them using the \opt{comments} option.
 %
 % \subsection{Dependencies}
-% The |standalone| class requires the |kvoptions| package (Oberdiek bundle) and the |preview| package. Both should be available in a standard \LaTeX\ installation.
-% The |beamer| option of course requires the |beamer| bundle to be installed.
-% The |standalone| package does not require other packages, but can take advantage from the |fink| package (\emph{Fi}le \emph{N}ame \emph{K}eeper),
-% to access the filenames of the sub-files. For this the |fink| package must be loaded before |standalone|. Without it a file name macro defined by \LaTeX\ itself
-% is used instead which should do also fine, but is reset at every |\input| macro. Placing this macro before |\documentclass| without marking
-% it with |\csname standaloneignore\endcsname| will then lead to wrong file names inside the |.sta| and |.stp| files.
+% The \cls{standalone} class and package require the \pkg{pgfkeys} package (PGF/TikZ bundle) as well as the \pkg{svn-prov} package.
+% The \pkg{preview} package is required by the \opt{preview} option.
+% The \pkg{beamer} option of course requires the \pkg{beamer} bundle to be installed.
+%
+% The \pkg{standalone} package requires the \pkg{currfile} package (which in turn uses \pkg{filehook}) to track the correct file names of
+% sub-files included using |\input|.
+% For the compilation support for included standalone files the \pkg{gincltex} and \pkg{filemod} packages are also required.
+%
+% To compile the documentation of \cls{standalone} the \cls{ydoc} bundle is required.
+%
+% All of these packages are included in recent versions of the TeXLive or MikTeX distributions and are freely available on CTAN (\url{http://www.ctan.org/}).
 %
 % \subsection{Environments and Macros}
 %
@@ -309,6 +316,9 @@
 %
 %
 % \subsection{Convert to Image}
+% \textbf{This feature is new and not fully tested on every platform yet. Please do not hesitate to contact the author by e-mail about issues or suggestions.}
+%
+% \par\medskip\noindent
 % The compiled output PDF (DVI/PS support pending) can be converted to an image (recommended is PNG, but JPG or other are also supported) with
 % the help of an external application. The resulting image is useful for web-publishing or importing the standalone TeX picture into a
 % software with can't handle PDF/(E)PS.
@@ -332,6 +342,11 @@
 % Produces BMP with 400x400px\\*
 % |  \documentclass[convert={outext=.bmp,size=400}]{standalone}|
 %
+%
+% \subsubsection{DVI Support}
+% The conversion option is mainly developed with PDF output in mind. To the knowledge of the author
+% DVI output requires the conversion to PostScript (PS) before it can be converted to an image.
+% This is done by and pre-command which is executed before the actual conversion command. It defaults to `|dvips \jobname|' or is empty if PDF output is detected.
 %
 % \subsubsection{Conversion Programs}
 % The actual conversion is done using an external program. This program is called by the \cls{standalone} class direct after the class options are processed.
