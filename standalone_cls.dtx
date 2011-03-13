@@ -5,7 +5,7 @@
 % \subsection{The Class File}
 %    \begin{macrocode}
 \NeedsTeXFormat{LaTeX2e}
-\RequirePackage{svn-prov}[2010/08/24]
+\RequirePackage{svn-prov}[2010/04/24]
 \ProvidesClassSVN[standalone]{$Id$}[v0.4][Class to compile TeX sub-files standalone]
 %    \end{macrocode}
 %
@@ -40,6 +40,7 @@
 % \subsubsection{Options}
 %
 %    \begin{macrocode}
+\RequirePackage{ifpdf}
 \RequirePackage{pgfopts}
 \pgfkeys{/standalone/cls/.is family}
 %    \end{macrocode}
@@ -123,7 +124,7 @@
   gs/.@cmd/.link=/standalone/cls/convert/ghostscript/.@cmd,
   gsdevice/ext.jpg/.initial={jpg},
   gsdevice/ext.png/.initial={png16m},
-  gsdevice/.initial={\pgfkeysvalueof{/standalone/cls/convert/gsdevice/ext\outext}},
+  gsdevice/.initial={\pgfkeysifdefined{/standalone/cls/convert/gsdevice/ext\outext}{\pgfkeysvalueof{/standalone/cls/convert/gsdevice/ext\outext}}{\expandafter\@gobble\outext}},
   convertexe/.initial={imgconvert},
   density/.initial={300},
   size/.initial={},
@@ -256,8 +257,9 @@
         outname/.get=\outname,%
         outfile/.get=\outfile,%
         command/.get=\sa@convertcommand,%
-        precommand/.eget=\sa@preconvertcommand,
+        precommand/.get=\sa@preconvertcommand,
   }%
+  \edef\sa@preconvertcommand{\sa@preconvertcommand}%
   \ifx\sa@preconvertcommand\empty\else
     \immediate\write18{\sa@preconvertcommand}%
   \fi
