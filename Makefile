@@ -28,7 +28,7 @@ ${PACKEDFILES}: standalone.dtx
 	yes | pdflatex standalone.dtx
 
 unpack: standalone.dtx
-	pdflatex '\def\installonly{\endgroup\enddocument}\input{standalone.dtx}'
+	${PDFLATEX} -interaction=nonstopmode '\def\endinstall{\endgroup\enddocument}\input{standalone.dtx}'
 
 # 'doc' and 'standalone.pdf' call itself until everything is stable
 doc: standalone.pdf
@@ -41,13 +41,13 @@ once: standalone.dtx
 pdfopt: doc
 	@-pdfopt standalone.pdf .temp.pdf && mv .temp.pdf standalone.pdf
 
-%.pdf: %.dtx
+standalone.pdf: standalone.dtx
 	${PDFLATEX} $<
+	${PDFLATEX} '\let\install\iffalse\let\endinstall\fi\input{$<}'
 	-makeindex -s gind.ist -o "$@" "$<"
 	-makeindex -s gglo.ist -o "$@" "$<"
-	${PDFLATEX} $<
-	${PDFLATEX} $<
-
+	${PDFLATEX} '\let\install\iffalse\let\endinstall\fi\input{$<}'
+	${PDFLATEX} '\let\install\iffalse\let\endinstall\fi\input{$<}'
 
 .PHONY: test
 
