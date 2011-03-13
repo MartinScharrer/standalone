@@ -33,6 +33,10 @@ unpack: ${PACKEDFILES}
 doc: standalone.pdf
 	@${MAKE} --no-print-directory standalone.pdf
 
+once: standalone.dtx
+	pdflatex $<
+	-readacro standalone.pdf
+
 pdfopt: doc
 	@-pdfopt standalone.pdf .temp.pdf && mv .temp.pdf standalone.pdf
 
