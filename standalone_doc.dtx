@@ -23,7 +23,15 @@
 %\addtolength{\oddsidemargin}{1cm}
 %\addtolength{\textwidth}{-1cm}
 \urlstyle{sf}
-\hypersetup{urlcolor=blue}
+\hypersetup{%
+    colorlinks=true,
+    urlcolor=blue,
+    linkcolor=blue,
+    pagecolor=blue,
+    filecolor=blue,
+    citecolor=blue,
+    anchorcolor=blue,
+}
 
 \usepackage{ifpdf}
 \ifpdf
@@ -59,7 +67,7 @@
 \EnableCrossrefs
 \CodelineIndex
 \RecordChanges
-%\OnlyDescription
+\OnlyDescription
 \begin{document}
   \DocInput{standalone_doc.dtx}
   \DocInput{standalone_sty.dtx}
@@ -336,11 +344,15 @@
 % inside the value of \opt{convert}. Further defined shortkeys are \opt{png72}, \opt{png150} and \opt{png300} which also set the density to the given number.
 %
 % \par\medskip
-% \noindent\textbf{Examples:}\\
+% \noindent\textbf{Examples:}\\[\smallskipamount]
 % PDF/PS is rastered with 600x100dpi and then converted to JPG:\\*
-% |  \documentclass[convert={density=600x100,jpg}]{standalone}|\\
+% |  \documentclass[convert={density=600x100,jpg}]{standalone}|\\[\smallskipamount]
 % Produces BMP with 400x400px\\*
-% |  \documentclass[convert={outext=.bmp,size=400}]{standalone}|
+% |  \documentclass[convert={outext=.bmp,size=400}]{standalone}|\\[\smallskipamount]
+% Short-key to build a PNG:\\*
+% |  \documentclass[png]{standalone}|\\[\smallskipamount]
+% Short-key to build a PNG, with extra settings:\\*
+% |  \documentclass[png={size=200x400,density=600}]{standalone}|\\[\smallskipamount]
 %
 %
 % \subsubsection{DVI Support}
@@ -378,9 +390,10 @@
 % {\footnotesize\Macro\standaloneconfig{'cls/convert/gsdevice/ext'<.extension>'/.initial='{<device>}}}
 % in the configuration file `|standalone.cfg|'.
 %
-% \begin{table}
+% \begin{table}[!p]
+% \vspace*{-2\baselineskip}
 % \belowcaptionskip=\abovecaptionskip
-% \caption[Conversion Options]{Conversion Options (to be used in the value of \texttt{convert} class option)}\label{tab:convopt}
+% \caption[Conversion Options]{Conversion Options (to be used in the value of \opt{convert} class option)}\label{tab:convopt}
 % \hbox to \textwidth{\hss%
 % \begin{tabular}{>{\ttfamily}lp{\dimexpr.7\textwidth\relax}l}
 %  \toprule
@@ -391,7 +404,7 @@
 %     false    &  Conversion disabled.  & (no value) \\
 %  \midrule
 %     density  &  Sets the density in dots-per-inch (dpi). Can be a single numerical value or `\meta{X}|x|\meta{Y}'.  & |300| \\
-%     size     &  Sets the size of the image. If empty the size is determined by the density setting and the size of the PDF. & (empty) \\
+%     size     &  Sets the size of the image. Can be a single numerical value or `\meta{X}|x|\meta{Y}'. If empty the size is determined by the density setting and the size of the PDF. & (empty) \\
 %     inext    &  Input file extension including the leading dot. & |\ifpdf.pdf\else.ps\fi| \\
 %     inname   &  Name base of input file (i.e.\ file name without extension). & |\jobname| \\
 %     infile   &  Input file name. & |\inname\inext| \\
@@ -407,43 +420,27 @@
 % \bigskip
 % \caption{Advanced Conversion Options}\label{tab:advconvopt}
 % \hbox to \textwidth{\hss%
-% \begin{tabular}{>{\ttfamily}lp{\dimexpr.7\textwidth\relax}l}
+% \begin{tabular}{>{\ttfamily}lp{\dimexpr.6\textwidth\relax}l}
 %  \toprule
 %  \multicolumn{1}{l}{Sub-Option}  &  Description & Default value \\
 %  \midrule
 %     command  &  Command line used for conversion. & (see |imagemagick|) \\
-%     imagemagick & Sets the convert command to use Image Magick: \newline\smallskip
-%                   \hspace*{1em}\hbox{\vtop{\hbox{\strut|command={\convertexe\space -density \density\space |\vrule height 1.25\ht\strutbox width 0pt{}\egroup
+%     imagemagick & Sets the convert command to use Image Magick: \newline\bigskip
+%                   \hspace*{1em}\hbox{\vtop{\hbox{\strut|command={\convertexe\space -density \density\space |\vrule height 2\ht\strutbox width 0pt{}\egroup
 %                                      \hbox\bgroup\strut|         \infile\space \ifx\size\empty\else |\egroup
 %                                      \hbox\bgroup\strut|         -resize \size\fi\space -quality 90 \outfile}|}}\hss} \\
 %     convertexe  & Name of the executable of Image Magick. & (see section~\ref{sec:convprogs})  \\
-%     ghostscript & Sets the convert command to use Ghostscript: \newline\smallskip
-%                   \hspace*{1em}\hbox{\vtop{\hbox{\strut|command={gs -dSAFER -dBATCH -dNOPAUSE -sDEVICE=\gsdevice\space|\vrule height 1.25\ht\strutbox width 0pt{}\egroup
+%     ghostscript & Sets the convert command to use Ghostscript: \newline\bigskip
+%                   \hspace*{1em}\hbox{\vtop{\hbox{\strut|command={gs -dSAFER -dBATCH -dNOPAUSE -sDEVICE=\gsdevice\space|\vrule height 2\ht\strutbox width 0pt{}\egroup
 %                                      \hbox\bgroup\strut|         -r\density\space -sOutputFile=\outfile\space \infile}|}}\hss} \\
 %     gs          & Alias for |ghostscript| \\
-%     precommand  & Command to be executed before the actual conversion command.  & \hbox{\vtop{\hbox{\strut|\ifpdf\else|}\hbox{\strut{| dvips \jobname \fi|}}}} \\
-%     \iffalse
-%     gsdevice    & The output device to be used for ghostscript. Already set up for PNG and JPG output. & value of |gsdevice/ext\outext| \\
-%     \fi
-%   onfailure & Sets if an type of `message' which should be triggered on conversion failure:  |error| (default), |warning|, |info| or |ignore|. & |error| \\
+%     precommand  & Command to be executed before the actual conversion command.  & \hbox{\vtop{\hbox{\strut|\ifpdf\else|}\hbox{\strut{|  dvips \jobname \fi|}}}} \\
+%     gsdevice    & The output device to be used for ghostscript. Already set up for PNG and JPG output. & \hbox{\vtop{\hbox{value of `|gsdevice/ext\outext|'\strut}{\hbox{\strut if defined, |\outext| otherwise}}}} \\
+%       onfailure & Sets if an type of `message' which should be triggered on conversion failure:  |error| (default), |warning|, |info| or |ignore|. & |error| \\
 %  \bottomrule
 % \end{tabular}
 % \hss}
 % \end{table}
-%
-% \iffalse
-%                   This program is normally called `|convert|' but might be called `|imgconvert|' under
-%                   MS Windows to distinguish it from the Windows FAT to NTFS conversion program with the same name. 
-%                   For savet
-%                 
-  png/.style={/standalone/cls/convert/.cd,true,outext={.png},#1},
-  png72/.style={/standalone/cls/convert/.cd,true,outext={.png},density=72,#1},
-  png150/.style={/standalone/cls/convert/.cd,true,outext={.png},density=150,#1},
-  png300/.style={/standalone/cls/convert/.cd,true,outext={.png},density=300,#1},
-  jpg/.style={/standalone/cls/convert/.cd,true,outext={.jpg},#1},
-  gif/.style={/standalone/cls/convert/.cd,true,outext={.gif},#1},
-%
-% \fi
 % \clearpage
 % ^^A\newpage
 % \subsection{Usage Examples}
@@ -594,7 +591,12 @@
 % \end{lstlisting}
 % \end{minipage}
 %
-% \subsection{\texttt{standalone.tex}}
+% \subsection{Simple TeX File}
+% \noindent
+% The simple |standalone.tex| file will set the \cs{ifstandalone} switch to true when compiled standalone but to false
+% when loaded after any |\documentclass| macro, as long the switch isn't defined yet.
+% It must be used if the switch is required is intended to be used before the |\documentclass| of a standalone file.
+%
 % \noindent
 % \begin{minipage}{\textwidth}\noindent\small
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Usage of 'standalone.tex'.}]
