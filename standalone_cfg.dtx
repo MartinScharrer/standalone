@@ -17,10 +17,6 @@
 %    \begin{macrocode}
 \PassOptionsToPackage{active,tightpage}{preview}%
 
-\IfFileExists{/usr/bin/convert}{%
-    \standaloneconfig{cls/convert/convertexe={convert}}%
-}{}
-
 \AtEndOfClass{%
 \ifstandalonebeamer
   \setbeamertemplate{navigation symbols}{}%

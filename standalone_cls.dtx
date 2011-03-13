@@ -85,6 +85,12 @@
 }
 %    \end{macrocode}
 %
+% \begin{macro}{\standaloneconfig}
+%    \begin{macrocode}
+\newcommand*{\standaloneconfig}{\pgfqkeys{/standalone}}
+%    \end{macrocode}
+% \end{macro}
+%
 %    \begin{macrocode}
 \newif\ifsa@convert
 \pgfkeys{/standalone/cls/.cd,
@@ -121,7 +127,8 @@
   convertexe/.initial={imgconvert},
   density/.initial={300},
   size/.initial={},
-  inext/.initial={.pdf},
+  inext/.initial={\ifpdf.pdf\else.ps\fi},
+  precommand/.initial={\ifpdf\else dvips \jobname \fi},
   inname/.initial={\jobname},
   infile/.initial={\inname\inext},
   outext/.initial={.png},
@@ -137,13 +144,14 @@
   onfailure=error,
 }
 \let\sa@convert@notfoundmsg\ClassWarning
+\IfFileExists{/usr/bin/convert}{%
+    \standaloneconfig{cls/convert/convertexe={convert}}%
+}{%
+\IfFileExists{/usr/local/bin/convert}{%
+    \standaloneconfig{cls/convert/convertexe={convert}}%
+}{}%
+}
 %    \end{macrocode}
-%
-% \begin{macro}{\standaloneconfig}
-%    \begin{macrocode}
-\newcommand*{\standaloneconfig}{\pgfqkeys{/standalone}}
-%    \end{macrocode}
-% \end{macro}
 %
 % \begin{environment}{standalone}
 % The \env{standalone} environment is defined by default to be without effect.
@@ -248,7 +256,11 @@
         outname/.get=\outname,%
         outfile/.get=\outfile,%
         command/.get=\sa@convertcommand,%
+        precommand/.eget=\sa@preconvertcommand,
   }%
+  \ifx\sa@preconvertcommand\empty\else
+    \immediate\write18{\sa@preconvertcommand}%
+  \fi
   \IfFileExists{\infile}{%
     \ifcase0%
         \expandafter\ifx\csname pdfshellescape\endcsname\relax
