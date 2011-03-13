@@ -41,6 +41,7 @@ standalone.cfg.
   %\file{standalone.ins}{\from{standalone.dtx}{install}}%
 }}
 
+\begingroup
 \expandafter\obeyspaces
 \csname AtEndDocument\endcsname{%
 \ifx\Msg\undefined\let\Msg\typeout\fi
@@ -61,10 +62,12 @@ standalone.cfg.
 \Msg{*                                                           *}%
 \Msg{*************************************************************}%
 }%
+\endgroup
 
 %<install>\endbatchfile
 %</install>
 %<*dtx>
+\csname installonly\endcsname
 \endgroup
 %</dtx>
 %% vim: ft=tex

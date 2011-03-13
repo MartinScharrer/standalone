@@ -27,7 +27,8 @@ class: unpack
 ${PACKEDFILES}: standalone.dtx
 	yes | pdflatex standalone.dtx
 
-unpack: ${PACKEDFILES}
+unpack: standalone.dtx
+	pdflatex '\def\installonly{\endgroup\enddocument}\input{standalone.dtx}'
 
 # 'doc' and 'standalone.pdf' call itself until everything is stable
 doc: standalone.pdf
