@@ -2,7 +2,7 @@
 %<*driver>
 \NeedsTeXFormat{LaTeX2e}
 \RequirePackage{svn-prov}[2010/08/24]
-\ProvidesFileSVN[standalone.dtx]{$Id$}[v0.4][DTX File for 'standalone' cls/sty/tex/cfg files]
+\ProvidesFileSVN[standalone.dtx]{$Id$}[v1.0beta][DTX File for 'standalone' cls/sty/tex/cfg files]
 \documentclass[a4paper,11pt]{article}%{scrartcl}
 \usepackage{ydoc}
 \usepackage[T1]{fontenc}
@@ -13,7 +13,7 @@
 \IfFileExists{libertine.sty}{%
 \usepackage{libertine}
 \let\/\,
-\let\@@italiccorr\,
+%\let\@@italiccorr\,
 }{}
 \makeatother
 \IfFileExists{lmodern.sty}{%
@@ -58,6 +58,8 @@
 \def\origopt#1{\textsf{\textcolor{opt}{#1}}}
 \def\pkg#1{\texttt{\textcolor{pkg}{#1}}}
 \let\cls\pkg
+\let\lib\pkg
+\newcommand*\file{\texttt}
 \makeatletter
 \def\opt{\@ifstar\staropt\origopt}
 \makeatother
@@ -132,7 +134,7 @@
 % \null
 % \vspace*{-2em}
 % \begin{center}
-%   {\LARGE\textsf{The \emph{standalone} Class and Package\\[\bigskipamount]}}
+%   {\LARGE\textsf{The \textbf{standalone} Class and Package\\[\bigskipamount]}}
 %   {\large Martin Scharrer \\[\smallskipamount]\normalsize
 %   \url{martin@scharrer-online.de}\\[\medskipamount]
 %   \url{http://www.ctan.org/pkg/standalone/}\\[\bigskipamount]}
@@ -164,50 +166,64 @@
 % the directories with a lot of extra files. A second method is to place the `main' components, i.e. a preamble, directly into the
 % picture files and make the main document ignore this code sections.
 %
-% The package |standalone| can be used in the main document to skip all extra preambles in included files. The main file must load all packages
+% The package \cls{standalone} can be used in the main document to skip all extra preambles in included files. The main file must load all packages
 % and settings required by the sub-files. Several package options are provided to collect the preambles of the sub-files automatically and execute them from the main file.
 %
-% A |standalone| class is also provided to minimise the extra preamble code needed in this files.
+% A \cls{standalone} class is also provided to minimise the extra preamble code needed in this files.
 % It's usage is optional, but simplifies and standardises how picture files are compiled standalone.
-% The class uses by default the |preview| package to create an output file which only contains the picture with no extra
-% margins, page numbers or anything else. A configuration file |standalone.cfg| read by the class allows the user to adjust settings and macros easily
+% The class uses by default the \pkg{preview} package to create an output file which only contains the picture with no extra
+% margins, page numbers or anything else. A configuration file \file{standalone.cfg} read by the class allows the user to adjust settings and macros easily
 % on a per directory base.
 %
-% \subsection*{Similar Packages}
-% The |docmute| package by T.M.\ Trzeciak is written for the same basic task as the |standalone| package. However, no sub-preamble processing other than the removal is support. It also
+% \subsection{Similar Packages}
+% The \pkg{docmute} package by T.M.\ Trzeciak is written for the same basic task as the \cls{standalone} package. However, no sub-preamble processing other than the removal is support. It also
 % doesn't provide a special class or configuration file.
 %
-% The |external| library of |tikz| allows to externalize |tikzpictures| from an main document. Its build feature is similar to the one provided by |standalone|.
-% However, both work form different directions: |standalone| allows to include external |tikzpictures| to be included in a main file while ignoring the preamble while
-% |external| writes them from the main file to temporary external files. The user must decide which workflow is better suited for him/her.
-% Also |standalone| is working independently of |tikz| and supports other picture environments like |pstricks| or any other \TeX\ material.
+% The \lib{external} library of \pkg{tikz} allows to externalize \env{tikzpictures} from an main document. Its build feature is similar to the one provided by \cls{standalone}.
+% However, both work form different directions: \cls{standalone} allows to include external \env{tikzpictures} to be included in a main file while ignoring the preamble while
+% \lib{external} writes them from the main file to temporary external files. The user must decide which workflow is better suited for him/her.
+% Also \cls{standalone} is working independently of \pkg{tikz} and supports other picture environments like \pkg{pstricks} or any other \TeX\ material.
+%
+% \subsection{Dependencies}
+% The \cls{standalone} class and package require the \pkg{pgfkeys} package (PGF/TikZ bundle) as well as the \pkg{svn-prov} package.
+% The \pkg{preview} package is required by the \opt{preview} option.
+% The \pkg{beamer} option of course requires the \pkg{beamer} bundle to be installed.
+%
+% The \pkg{standalone} package requires the \pkg{currfile} package (which in turn uses \pkg{filehook}) to track the correct file names of
+% sub-files included using |\input|.
+% For the compilation support for included standalone files the \pkg{gincltex} and \pkg{filemod} packages are also required.
+%
+% To compile the documentation of \cls{standalone} the \cls{ydoc} bundle is required.
+%
+% All of these packages are included in recent versions of the TeXLive or MikTeX distributions and are freely available on CTAN (\url{http://www.ctan.org/}).
+%
 %
 % \section{Usage}
 % \subsection{Quick instructions}
-% Load the |standalone| \emph{package} very early in the main document. Also all packages needed by all the sub-files must be loaded by the main document.
+% Load the \cls{standalone} \emph{package} very early in the main document. Also all packages needed by all the sub-files must be loaded by the main document.
 % Include your picture or other sub-files using |\input| or a similar macro as normal.
-% In the sub-files use the |standalone| \emph{class} with a normal \cs{documentclass} and load all packages needed for the particular
+% In the sub-files use the \cls{standalone} \emph{class} with a normal \cs{documentclass} and load all packages needed for the particular
 % file. Finally wrap the actual content of the sub-file in a |document| environment.
 %
 % When the sub-file is compiled on its own the |\documentclass| and |document| environment will be active as normal. The main file, however,
 % will skip everything from the |\documentclass| till the |\begin{document}|. The (now fake) |document| environment is redefined to be a simple
 % TeX-group. Any code after the |\end{document}| will be ignored. The real |document| environment of the main file will be unaffected and will work as normal.
 %
-% Instead of transferring the packages required by each sub-file manually to the main document preamble, this task can be automatised using
-% the options listed in section~\ref{sec:pkgoptions}
+% The packages required by each sub-file can be transfered automatically to the main document preamble using the options
+% listed in section~\ref{sec:pkgoptions}.
 %
 % \subsection{Class Options}
-% The |standalone| class will load a real document class.\optpar{class} By default this is |article|. The document class normally has not much
+% The \cls{standalone} class will load a real document class.\optpar{class} By default this is |article|. The document class normally has not much
 % influence on sub-files like pictures, especially when the \pkg{preview} package is active. However, the used class can be adjusted by the user
 % with the \opt{class}|=|\meta{class name} option.
 %
 % The boolean \opt*{preview} option can be used to disable the use of the \pkg{review} package. The default is |preview=true|. The package is not loaded if |preview=false| is set.
 % The preview border can be set using the \opt*{border} option. This border will be added to the file content.
 % It can be used in one of the three following ways:
-% \begin{quote}
-% \MacroArgs!\opt{\texttt{border}}!'='<all sides> \\
-% \MacroArgs!\opt{\texttt{border}}!'='{<left>~<lower>~<right>~<upper>} \\
-% \MacroArgs!\opt{\texttt{border}}!'='{<left/right>~<lower/upper>}
+% \begin{quote}%
+%  \MacroArgs!\opt{\texttt{border}}!'='<all sides> \\
+%  \MacroArgs!\opt{\texttt{border}}!'='{<left>~<lower>~<right>~<upper>} \\
+%  \MacroArgs!\opt{\texttt{border}}!'='{<left/right>~<lower/upper>}
 % \end{quote}
 % The default unit is |bp| (big points) which is the unit used by the PostScript and PDF formats. If |preview=false| is set this option will be ignored.
 %
@@ -218,9 +234,9 @@
 % All other used options are passed to the loaded class.
 %
 % \subsection{Package Options}\label{sec:pkgoptions}
-% The |standalone| package removes all sub-file preambles (``sub-preambles'') by default when loaded.
+% The \cls{standalone} package removes all sub-file preambles (``sub-preambles'') by default when loaded.
 % However, if the package is loaded with the \opt*{subpreambles} options, all sub-preambles are stored in an auxiliary file with the name `\meta{main tex file name}|.sta|' (for \emph{sta}ndalone).
-% This file is then loaded or processed at the beginning of the next \LaTeX\ run (i.e.\ at the place in the preamble where the |standalone| package is loaded).
+% This file is then loaded or processed at the beginning of the next \LaTeX\ run (i.e.\ at the place in the preamble where the \cls{standalone} package is loaded).
 % The way how the \opt{subpreambles} option works can be controlled by the options \opt{sort}, \opt{print} and \opt{comments}/\opt{nocomments}.
 % Please note that the \opt{sort} and \opt{print} options require of course the \opt{subpreambles} option and will enable it if not already done so.
 %
@@ -247,8 +263,8 @@
 % If specific package date was requested in a sub-file it is also added. If multiple dates are requested for one package, the most recent (i.e.\ the ``highest one'', not the last processed) is used.
 % After this list(s) the rest of the sub-preamble code is printed with the above macros removed. This mode frees the user from the need to remove duplicates and collect package options manually.
 %
-% Please note that all |\usepackage| and similar macros inside braces |{}| will not be seen by |standalone|s sort macro and therefore are not extracted or handled in any special form mentioned above.
-% This can be exploited to load certain packages only in |standalone| mode but not in the main document.
+% Please note that all |\usepackage| and similar macros inside braces |{}| will not be seen by \cls{standalone}s sort macro and therefore are not extracted or handled in any special form mentioned above.
+% This can be exploited to load certain packages only in \cls{standalone} mode but not in the main document.
 % Unfortunately, macros inside |\ifstandalone|\ldots|\fi| are seen and extracted while not wanted inside the main file.
 % The macro \cs{onlyifstandalone}\marg{code} (see below) was created because of this two reasons. Its argument braces hide the content from the scanner.
 % It is then also completely removed from the printed sub-preamble code.
@@ -261,54 +277,19 @@
 % between `active' macros and macros which are commented out. All above mentioned macro inside comments will then be processed as when there where `active'.
 % The user might favour the information provided by the comments over this small risk and enable them using the \opt{comments} option.
 %
-% \subsection{Dependencies}
-% The \cls{standalone} class and package require the \pkg{pgfkeys} package (PGF/TikZ bundle) as well as the \pkg{svn-prov} package.
-% The \pkg{preview} package is required by the \opt{preview} option.
-% The \pkg{beamer} option of course requires the \pkg{beamer} bundle to be installed.
+% \subsection{Macros and Environments}
+% No macros or environments need to be used to make \cls{standalone} work. Simply loading the class or package is enough for the basic usage.
+% However the following macros and environments can be useful for changing the behaviour of \cls{standalone}.
 %
-% The \pkg{standalone} package requires the \pkg{currfile} package (which in turn uses \pkg{filehook}) to track the correct file names of
-% sub-files included using |\input|.
-% For the compilation support for included standalone files the \pkg{gincltex} and \pkg{filemod} packages are also required.
-%
-% To compile the documentation of \cls{standalone} the \cls{ydoc} bundle is required.
-%
-% All of these packages are included in recent versions of the TeXLive or MikTeX distributions and are freely available on CTAN (\url{http://www.ctan.org/}).
-%
-% \subsection{Environments and Macros}
-%
-% \DescribeEnv[<sub-file content>]{standalone}
-% The \env{standalone} environment is automatically wrapped around the content of each sub-file when compiled standalone.
-% By default it only contains a \env{preview} environment as long the class is not called with the |preview=false| option.
-% It can be redefined in the configuration file if required.
-% When compiled as part of a main document the \env{standalone} environment does nothing (apart of being a \TeX\ group).
-%
-% \begin{DescribeEnv}{standaloneframe}
-%   !\begingroup\oargstyle!<< <overlay specification> >>!\endgroup!
-%   ['<'<default overlay spec>'>']!\\\hspace*{7em}!
-%   [<options>]{<optional frame title>}{<optional frame subtitle>}
-%   \relax\MacroArgs<code with beamer overlays>
-% \end{DescribeEnv}
-% The \env{standaloneframe} environment must be used in sub-file holding beamer overlay code.
-% It is only defined when the class is called with the |beamer| option and acts as a replacement
-% of the \env{frame} environment of beamer when compiled standalone.
-% All optional arguments of \env{frame} are supported but most might not be useful for normal sub-files.
-% When compiled as part of a main document it does nothing except of gobbling its arguments.
-%
-% \bigskip
 % \DescribeMacro{\ifstandalone}
 % Both the class and the package provide the if-switch \cs{ifstandalone}, which can be used to only include code if the file is
 % compiled standalone. The switch is set to \cs{iftrue} by the class and to \cs{iffalse} by the package.
 %
-% The additional file |standalone.tex| also defines this switch by checking if \cs{documentclass} was already used. It can be included
-% with |\input{standalone}| and is intended for specialised files which do not use the |standalone| class.
-%
-% \DescribeMacro{\ifstandalonebeamer}
-% Both the class and the package provide the if-switch \cs{ifstandalonebeamer}, which can be used to only include code if the file is
-% compiled standalone with the |beamer| class option set.
-% The switch is set to \cs{iftrue} by the class when loaded with the |beamer| option and always to \cs{iffalse} by the package.
+% The additional file \file{standalone.tex} also defines this switch by checking if \cs{documentclass} was already used. It can be included
+% with |\input{standalone}| and is intended for specialised files which do not use the \cls{standalone} class.
 %
 % \DescribeMacro{\onlyifstandalone}{<code>}
-% This is the macro version of the |\ifstandalone| if-switch. It executes \meta{code} only in |standalone| mode. As mentioned in section~\ref{sec:pkgoptions}
+% This is the macro version of the |\ifstandalone| if-switch. It executes \meta{code} only in \cls{standalone} mode. As mentioned in section~\ref{sec:pkgoptions}
 % it can also be used to hide |\usepackage| and similar macros from the extraction scanner of the |sort| option. The macro and its argument is not printed into the |.stp| file.
 %
 % \DescribeMacro{\standaloneignore}
@@ -316,132 +297,39 @@
 % Because the main document will only skip code between |\documentclass| and |\begin{document}| this code will be executed by it.
 % In order to avoid this the macro \cs{standaloneignore} can be used at the very beginning of a sub-file to skip over this code.
 % However it must be written as |\csname standaloneignore\endcsname| to avoid a `Undefined control sequence' error when compiled standalone.
-% After all the class is not loaded at this point, therefore no |standalone| macros are yet defined.
-% The |\csname|\ldots|\endcsname| construct will simple make it equal to |\relax| in this case.
+% After all the class is not loaded at this point, therefore no \cls{standalone} macros are yet defined.
+% The |\csname|\,\ldots|\endcsname| construct will simple make it equal to |\relax| in this case.
 %
 % Please note that all code before |\documentclass| is not processed by any of the \opt{subpreamble} options but always simply removed.
 % This macro was inspired by the similar macro |\docmute| of the |docmute| package.
 %
+% \DescribeEnv[<sub-file content>]{standalone}
+% The \env{standalone} environment is automatically wrapped around the content of each sub-file when compiled standalone.
+% By default it only contains a \env{preview} environment as long the class is not called with the |preview=false| option.
+% It can be redefined in the configuration file if required.
+% When compiled as part of a main document the \env{standalone} environment does nothing (apart of being a \TeX\ group).
 %
-% \subsection{Convert to Image}
-% \textbf{This feature is new and not fully tested on every platform yet. Please do not hesitate to contact the author by e-mail about issues or suggestions.}
+% The beamer specific macros and environments are described in section~\ref{sec:beamer}.
 %
-% \par\medskip\noindent
-% The compiled output PDF (DVI/PS support pending) can be converted to an image (recommended is PNG, but JPG or other are also supported) with
-% the help of an external application. The resulting image is useful for web-publishing or importing the standalone TeX picture into a
-% software with can't handle PDF/(E)PS.
+% \subsection{Configuration}\label{sec:cfg}
+% The \cls{standalone} class loads the configuration file \file{standalone.cfg} after the if-switches and options are defined, but before the options are proccessed.
+% The default options which should be passed to \pkg{preview} or \cls{beamer} can be set here using:\\[\smallskipamount]
+% \hspace*{2\parindent}\Macro\PassOptionsToPackage{<options>}{preview}\\
+% \hspace*{2\parindent}\Macro\PassOptionsToClass{<options>}{beamer}\\[\medskipamount]
+% The if-switches can be used, but \Macro{ifbeamerstandalone} will always be false because the \opt{beamer}
+% option is not yet processed. Such code should be places inside \Macro\AtEndOfClass{\ldots}. 
+% Please note that this was handled differently before v1.0, so in old configuration files edited by the user the \Macro\AtEndOfClass must now be added.
 %
-% \subsubsection{Conversion Options}
-% The \opt*{convert} option controls the conversion feature of \cls{standalone}. It takes an optional value which can be used to specify
-% sub-options. Without a value the conversion defaults (PNG, density 300dpi) are used. The conversion is disabled by default.
-% Using the \opt{convert} option with any value other than |false| will enabled it.
-% Table~\ref{tab:convopt} lists the normal conversion options for the conversation settings.
-% Table~\ref{tab:advconvopt} lists the more advanced options which can be used to modify the conversation command or to add support for other
-% output formats. The \opt{border} option might be used in addition to adjust the border which will affect the resulting image.
+% \DescribeMacro\standaloneconfig{<key=value, key=value, \ldots>}
+% This macro is defined by the class and also provided by the package and allows the configuration of both.
+% All package and class options can be used here as well, but are only valid in the current group (i.e.\ global when used in the preamble or config file).
+% However, the class options must be prefixed with `|cls/|'. The key=value engine of the \pkg{pgfkeys} package (\pkg{pgf} bundle) is used which is
+% described in detail in the |pgfmanual|, part V, section 55 "Key Management".
 %
-% For the common output formats PNG (recommended for rastered vector graphics), JPG and GIF the class options \opt*{png}, \opt*{jpg} and \opt*{gif}
-% are also defined. They simply call \opt{convert} with the correct settings of \opt{outext} and pass an optional value to it. They can also be used
-% inside the value of \opt{convert}. Further defined shortkeys are \opt{png72}, \opt{png150} and \opt{png300} which also set the density to the given number.
+% This macro also allows the definitions of custom class options, e.g.\ to support different image types for conversion.
+% For example to define the short-key `|bmp|' to convert to the BMP format use:\\
+% \hbox to \linewidth{\hss|\standaloneconfig{cls/bmp/.style={convert={outext={.bmp}}}}|\hss}
 %
-% \par\medskip
-% \noindent\textbf{Examples:}\\[\smallskipamount]
-% PDF/PS is rastered with 600x100dpi and then converted to JPG:\\*
-% |  \documentclass[convert={density=600x100,jpg}]{standalone}|\\[\smallskipamount]
-% Produces BMP with 400x400px\\*
-% |  \documentclass[convert={outext=.bmp,size=400}]{standalone}|\\[\smallskipamount]
-% Short-key to build a PNG:\\*
-% |  \documentclass[png]{standalone}|\\[\smallskipamount]
-% Short-key to build a PNG, with extra settings:\\*
-% |  \documentclass[png={size=200x400,density=600}]{standalone}|\\[\smallskipamount]
-%
-%
-% \subsubsection{DVI Support}
-% The conversion option is mainly developed with PDF output in mind. To the knowledge of the author
-% DVI output requires the conversion to PostScript (PS) before it can be converted to an image.
-% This is done by and pre-command which is executed before the actual conversion command. It defaults to `|dvips \jobname|' or is empty if PDF output is detected.
-%
-% \subsubsection{Conversion Programs}
-% The actual conversion is done using an external program. This program is called by the \cls{standalone} class direct after the class options are processed.
-% Then the output file (PDF or DVI) created by the last run is not yet opened and therefore still in its old condition, so that it can be converted.
-% By default the execution of external program is restricted for \LaTeX\ to a very limited set of programs. This is for security reasons to prevent
-% documents a user might have received from another person to cause harm. In order to run the image conversation program the `{\bfseries|-shell-escape|}'
-% command line argument of the \LaTeX{} compiler must be used (for TeXLive; MikTeX uses officially `|--enable-write18|' but also understand the other one).
-% Another possibility is to add the used conversation executable to list of allowed commands.
-% For TeXLive this is done by adding it to the |shell_escape_commands| variable in the |texmf.cnf| file.
-%
-% By default the conversion program of Image Magick (\url{http://www.imagemagick.org/}) is used, which is freely available for Unix/Linux, Mac and MS Windows.
-% Under Ubuntu Linux it can be installed using `|sudo apt-get install imagemagick|'.
-% The conversion executable is simply called `|convert|'. However, there is another program with the same name provided by MS Windows itself which
-% converts old FAT filesystems to NTFS! It has been suggested to rename the Image Magick executable to `|imgconvert|' instead.
-% By default \cls{standalone} uses `|imgconvert|' as executable and only uses `|convert|' if it is found at `|/usr/bin/convert|' or `|/usr/local/bin/convert|'
-% which indicates a Unix/Linux OS where the `|convert|' name is save to use.
-% The executable name can be change manually using the `|convertexe|' conversion option or by using\\
-% \centerline{\Macro\standaloneconfig{'cls/convert/convertexe='{convert}}}
-% in the configuration file `|standalone.cfg|'.
-%
-% Another conversion program is Ghostscript (\url{http://pages.cs.wisc.edu/~ghost/}) which is a very common PostScript interpreter which also supports PDF.
-% Under Ubuntu Linux it is most likely already installed but otherwise can be installed using `|sudo apt-get install ghostscript|' or
-% `|sudo apt-get install gs|'.
-% It can convert both to various output formats and is freely available for Unix/Linux, Max OS X and MS Windows.
-% It requires to set the correct output device which is not always fully identical to the output format (e.g.\ `|png16m|' for a PNG (with 16 million colors)).
-% The devices for PNG and JPG are already configured.
-% Other devices can be directly set using the \opt{gsdevice} conversion option or by defining it using:
-% ^^A\centerline
-% {\footnotesize\Macro\standaloneconfig{'cls/convert/gsdevice/ext'<.extension>'/.initial='{<device>}}}
-% in the configuration file `|standalone.cfg|'.
-%
-% \begin{table}[!p]
-% \vspace*{-2\baselineskip}
-% \belowcaptionskip=\abovecaptionskip
-% \caption[Conversion Options]{Conversion Options (to be used in the value of \opt{convert} class option)}\label{tab:convopt}
-% \hbox to \textwidth{\hss%
-% \begin{tabular}{>{\ttfamily}lp{\dimexpr.7\textwidth\relax}l}
-%  \toprule
-%  \multicolumn{1}{l}{Sub-Option}  &  Description & Default value \\
-%  \midrule
-%   (no value) &  Conversion enabled with default settings.  & ./. \\
-%     true     &  Conversion enabled (with default settings if no other options are given). & (no value) \\
-%     false    &  Conversion disabled.  & (no value) \\
-%  \midrule
-%     density  &  Sets the density in dots-per-inch (dpi). Can be a single numerical value or `\meta{X}|x|\meta{Y}'.  & |300| \\
-%     size     &  Sets the size of the image. Can be a single numerical value or `\meta{X}|x|\meta{Y}'. If empty the size is determined by the density setting and the size of the PDF. & (empty) \\
-%     inext    &  Input file extension including the leading dot. & |\ifpdf.pdf\else.ps\fi| \\
-%     inname   &  Name base of input file (i.e.\ file name without extension). & |\jobname| \\
-%     infile   &  Input file name. & |\inname\inext| \\
-%     outext   &  Output file extension including the leading dot. & |.pdf| \\
-%     outname  &  Name base of output file (i.e.\ file name without extension). & |\inname| \\
-%     outfile  &  Output file name. & |\outname\outext| \\
-%  \bottomrule\noalign{\smallskip}
-%  \multicolumn{3}{l}{%
-%   \strut Note: the settings (except 'true' and 'false') can also be used as macros in other settings.
-%   }%
-% \end{tabular}
-% \hss}
-% \bigskip
-% \caption{Advanced Conversion Options}\label{tab:advconvopt}
-% \hbox to \textwidth{\hss%
-% \begin{tabular}{>{\ttfamily}lp{\dimexpr.6\textwidth\relax}l}
-%  \toprule
-%  \multicolumn{1}{l}{Sub-Option}  &  Description & Default value \\
-%  \midrule
-%     command  &  Command line used for conversion. & (see |imagemagick|) \\
-%     imagemagick & Sets the convert command to use Image Magick: \newline\bigskip
-%                   \hspace*{1em}\hbox{\vtop{\hbox{\strut|command={\convertexe\space -density \density\space |\vrule height 2\ht\strutbox width 0pt{}\egroup
-%                                      \hbox\bgroup\strut|         \infile\space \ifx\size\empty\else |\egroup
-%                                      \hbox\bgroup\strut|         -resize \size\fi\space -quality 90 \outfile}|}}\hss} \\
-%     convertexe  & Name of the executable of Image Magick. & (see section~\ref{sec:convprogs})  \\
-%     ghostscript & Sets the convert command to use Ghostscript: \newline\bigskip
-%                   \hspace*{1em}\hbox{\vtop{\hbox{\strut|command={gs -dSAFER -dBATCH -dNOPAUSE -sDEVICE=\gsdevice\space|\vrule height 2\ht\strutbox width 0pt{}\egroup
-%                                      \hbox\bgroup\strut|         -r\density\space -sOutputFile=\outfile\space \infile}|}}\hss} \\
-%     gs          & Alias for |ghostscript| \\
-%     precommand  & Command to be executed before the actual conversion command.  & \hbox{\vtop{\hbox{\strut|\ifpdf\else|}\hbox{\strut{|  dvips \jobname \fi|}}}} \\
-%     gsdevice    & The output device to be used for ghostscript. Already set up for PNG and JPG output. & \hbox{\vtop{\hbox{value of `|gsdevice/ext\outext|'\strut}{\hbox{\strut if defined, |\outext| otherwise}}}} \\
-%       onfailure & Sets if an type of `message' which should be triggered on conversion failure:  |error| (default), |warning|, |info| or |ignore|. & |error| \\
-%  \bottomrule
-% \end{tabular}
-% \hss}
-% \end{table}
-% \clearpage
 % ^^A\newpage
 % \subsection{Usage Examples}
 %
@@ -531,18 +419,35 @@
 %
 %
 % \subsection{Support for Beamer Presentations}\label{sec:beamer}
-% Presentation can be written in \LaTeX\ using the |beamer| class. Each presentation frame is wrapped in a |frame| environment. Overlay effects
+% Presentation can be written in \LaTeX\ using the |beamer| class. Each presentation frame is wrapped in a \env{frame} environment. Overlay effects
 % can be added using special macros. This effects result in multiple pages per frame. Pictures with such overlay effects can not be
-% compiled standalone using the normal settings. Instead the |standalone| class must load the |beamer| class and wrap the content also in
-% a |frame| environment while skipping the |preview| environment. To activate this settings load the |standalone| class with the |beamer| option.
-% Because the |frame| environment is quite special (it normally collects all it's content and calls the \cs{frame}) and must also support
-% verbatim content it is not easily possible to redefined the |document| environment to include |frame|. Also |frame| accepts options which |document| doesn't.
-% Therefore a second environment called |standaloneframe| is used in the beamer picture files. It will be equal to |frame| in standalone mode, but
+% compiled standalone using the normal settings. Instead the \cls{standalone} class must load the |beamer| class and wrap the content also in
+% a \env{frame} environment while skipping the \env{preview} environment. To activate this settings load the \cls{standalone} class with the |beamer| option.
+% Because the \env{frame} environment is quite special (it normally collects all it's content and calls the \cs{frame}) and must also support
+% verbatim content it is not easily possible to redefined the |document| environment to include \env{frame}. Also \env{frame} accepts options which |document| doesn't.
+% Therefore a second environment called |standaloneframe| is used in the beamer picture files. It will be equal to \env{frame} in standalone mode, but
 % without effect otherwise.
 %
 % \DescribeMacro{\ifstandalonebeamer}
-% This if switch is only true if the class is compiled with the |beamer| option. The package sets it to false.
+% Both the class and the package provide the if-switch \cs{ifstandalonebeamer}, which can be used to only include code if the file is
+% compiled standalone with the |beamer| class option set.
+% The switch is set to \cs{iftrue} by the class when loaded with the |beamer| option and always to \cs{iffalse} by the package.
 % It can be used to place beamer specific options in the configuration files, which should be skipped for non-beamer standalone files.
+% Starting from v1.0 of \cls{standalone} this switch must be placed inside \Macro\AtEndOfClass{\ldots} when used inside the config file.
+%
+% \begin{DescribeEnv}{standaloneframe}
+%   !\begingroup\oargstyle!<< <overlay specification> >>!\endgroup!
+%   ['<'<default overlay spec>'>']!\\\hspace*{7em}!
+%   [<options>]{<optional frame title>}{<optional frame subtitle>}
+%   \relax\MacroArgs<code with beamer overlays>
+% \end{DescribeEnv}
+% The \env{standaloneframe} environment must be used in sub-file holding beamer overlay code.
+% It is only defined when the class is called with the |beamer| option and acts as a replacement
+% of the \env{frame} environment of beamer when compiled standalone.
+% All optional arguments of \env{frame} are supported but most might not be useful for normal sub-files.
+% When compiled as part of a main document it does nothing except of gobbling its arguments.
+%
+%
 %
 % \par\bigskip\noindent
 % \begin{minipage}{\textwidth}\noindent\small
@@ -613,9 +518,127 @@
 % The \texttt{svn-multi} package must be loaded by the sub-file preamble to avoid compile errors in standalone mode.
 % Alternative, if the keywords are not required in this mode, they can be surrounded by |\ifstandalone\else|\dots|\fi|.
 %
-% \StopEventually{}
-% \clearpage
+% \subsection{Convert to Image}
+% \textbf{This feature is new and not fully tested on every platform yet. Please do not hesitate to contact the author by e-mail about issues or suggestions.}
 %
+% \par\medskip\noindent
+% The compiled output PDF (DVI/PS support pending) can be converted to an image (recommended is PNG, but JPG or other are also supported) with
+% the help of an external application. The resulting image is useful for web-publishing or importing the standalone TeX picture into a
+% software with can't handle PDF/(E)PS.
+%
+% \subsubsection{Conversion Options}
+% The \opt*{convert} option controls the conversion feature of \cls{standalone}. It takes an optional value which can be used to specify
+% sub-options. Without a value the conversion defaults (PNG, density 300dpi) are used. The conversion is disabled by default.
+% Using the \opt{convert} option with any value other than |false| will enabled it.
+% Table~\ref{tab:convopt} lists the normal conversion options for the conversation settings.
+% Table~\ref{tab:advconvopt} lists the more advanced options which can be used to modify the conversation command or to add support for other
+% output formats. The \opt{border} option might be used in addition to adjust the border which will affect the resulting image.
+%
+% For the common output formats PNG (recommended for rastered vector graphics), JPG and GIF the class options \opt*{png}, \opt*{jpg} and \opt*{gif}
+% are also defined. They simply call \opt{convert} with the correct settings of \opt{outext} and pass an optional value to it. They can also be used
+% inside the value of \opt{convert}. Further defined shortkeys are \opt{png72}, \opt{png150} and \opt{png300} which also set the density to the given number.
+%
+% \par\medskip
+% \noindent\textbf{Examples:}\\[\smallskipamount]
+% PDF/PS is rastered with 600x100dpi and then converted to JPG:\\*
+% |  \documentclass[convert={density=600x100,jpg}]{standalone}|\\[\smallskipamount]
+% Produces BMP with 400x400px\\*
+% |  \documentclass[convert={outext=.bmp,size=400}]{standalone}|\\[\smallskipamount]
+% Short-key to build a PNG:\\*
+% |  \documentclass[png]{standalone}|\\[\smallskipamount]
+% Short-key to build a PNG, with extra settings:\\*
+% |  \documentclass[png={size=200x400,density=600}]{standalone}|\\[\smallskipamount]
+%
+%
+% \subsubsection{DVI Support}
+% The conversion option is mainly developed with PDF output in mind. To the knowledge of the author
+% DVI output requires the conversion to PostScript (PS) before it can be converted to an image.
+% This is done by and pre-command which is executed before the actual conversion command. It defaults to `|dvips \jobname|' or is empty if PDF output is detected.
+%
+% \subsubsection{Conversion Programs}\label{sec:convprogs}
+% The actual conversion is done using an external program. This program is called by the \cls{standalone} class direct after the class options are processed.
+% Then the output file (PDF or DVI) created by the last run is not yet opened and therefore still in its old condition, so that it can be converted.
+% By default the execution of external program is restricted for \LaTeX\ to a very limited set of programs. This is for security reasons to prevent
+% documents a user might have received from another person to cause harm. In order to run the image conversation program the `{\bfseries|-shell-escape|}'
+% command line argument of the \LaTeX{} compiler must be used (for TeXLive; MikTeX uses officially `|--enable-write18|' but also understand the other one).
+% Another possibility is to add the used conversation executable to list of allowed commands.
+% For TeXLive this is done by adding it to the |shell_escape_commands| variable in the |texmf.cnf| file.
+%
+% By default the conversion program of Image Magick (\url{http://www.imagemagick.org/}) is used, which is freely available for Unix/Linux, Mac and MS Windows.
+% Under Ubuntu Linux it can be installed using `|sudo apt-get install imagemagick|'.
+% The conversion executable is simply called `|convert|'. However, there is another program with the same name provided by MS Windows itself which
+% converts old FAT filesystems to NTFS! It has been suggested to rename the Image Magick executable to `|imgconvert|' instead.
+% By default \cls{standalone} uses `|imgconvert|' as executable and only uses `|convert|' if it is found at `|/usr/bin/convert|' or `|/usr/local/bin/convert|'
+% which indicates a Unix/Linux OS where the `|convert|' name is save to use.
+% The executable name can be change manually using the `|convertexe|' conversion option or by using\\
+% \centerline{\Macro\standaloneconfig{'cls/convert/convertexe='{convert}}}
+% in the configuration file `|standalone.cfg|'.
+%
+% Another conversion program is Ghostscript (\url{http://pages.cs.wisc.edu/~ghost/}) which is a very common PostScript interpreter which also supports PDF.
+% Under Ubuntu Linux it is most likely already installed but otherwise can be installed using `|sudo apt-get install ghostscript|' or
+% `|sudo apt-get install gs|'.
+% It can convert both to various output formats and is freely available for Unix/Linux, Max OS X and MS Windows.
+% It requires to set the correct output device which is not always fully identical to the output format (e.g.\ `|png16m|' for a PNG (with 16 million colors)).
+% The devices for PNG and JPG are already configured.
+% Other devices can be directly set using the \opt{gsdevice} conversion option or by defining it using:
+% ^^A\centerline
+% {\footnotesize\Macro\standaloneconfig{'cls/convert/gsdevice/ext'<.extension>'/.initial='{<device>}}}
+% in the configuration file `|standalone.cfg|'.
+%
+% \begin{table}
+% \belowcaptionskip=\abovecaptionskip
+% \caption[Conversion Options]{Conversion Options (to be used in the value of \opt{convert} class option)}\label{tab:convopt}
+% \hbox to \textwidth{\hss%
+% \begin{tabular}{>{\ttfamily}lp{\dimexpr.7\textwidth\relax}l}
+%  \toprule
+%  \multicolumn{1}{l}{Sub-Option}  &  Description & Default value \\
+%  \midrule
+%   (no value) &  Conversion enabled with default settings.  & ./. \\
+%     true     &  Conversion enabled (with default settings if no other options are given). & (no value) \\
+%     false    &  Conversion disabled.  & (no value) \\
+%  \midrule
+%     density  &  Sets the density in dots-per-inch (dpi). Can be a single numerical value or `\meta{X}|x|\meta{Y}'.  & |300| \\
+%     size     &  Sets the size of the image. Can be a single numerical value or `\meta{X}|x|\meta{Y}'. If empty the size is determined by the density setting and the size of the PDF. & (empty) \\
+%     inext    &  Input file extension including the leading dot. & |\ifpdf.pdf\else.ps\fi| \\
+%     inname   &  Name base of input file (i.e.\ file name without extension). & |\jobname| \\
+%     infile   &  Input file name. & |\inname\inext| \\
+%     outext   &  Output file extension including the leading dot. & |.pdf| \\
+%     outname  &  Name base of output file (i.e.\ file name without extension). & |\inname| \\
+%     outfile  &  Output file name. & |\outname\outext| \\
+%  \bottomrule\noalign{\smallskip}
+%  \multicolumn{3}{l}{%
+%   \strut Note: the settings (except 'true' and 'false') can also be used as macros in other settings.
+%   }%
+% \end{tabular}
+% \hss}
+% \end{table}
+% \begin{table}
+% \belowcaptionskip=\abovecaptionskip
+% \caption{Advanced Conversion Options}\label{tab:advconvopt}
+% \hbox to \textwidth{\hss%
+% \begin{tabular}{>{\ttfamily}lp{\dimexpr.6\textwidth\relax}l}
+%  \toprule
+%  \multicolumn{1}{l}{Sub-Option}  &  Description & Default value \\
+%  \midrule
+%     command  &  Command line used for conversion. & (see |imagemagick|) \\
+%     imagemagick & Sets the convert command to use Image Magick: \newline\bigskip
+%                   \hspace*{1em}\hbox{\vtop{\hbox{\strut|command={\convertexe\space -density \density\space |\vrule height 2\ht\strutbox width 0pt{}\egroup
+%                                      \hbox\bgroup\strut|         \infile\space \ifx\size\empty\else |\egroup
+%                                      \hbox\bgroup\strut|         -resize \size\fi\space -quality 90 \outfile}|}}\hss} \\
+%     convertexe  & Name of the executable of Image Magick. & (see section~\ref{sec:convprogs})  \\
+%     ghostscript & Sets the convert command to use Ghostscript: \newline\bigskip
+%                   \hspace*{1em}\hbox{\vtop{\hbox{\strut|command={gs -dSAFER -dBATCH -dNOPAUSE -sDEVICE=\gsdevice\space|\vrule height 2\ht\strutbox width 0pt{}\egroup
+%                                      \hbox\bgroup\strut|         -r\density\space -sOutputFile=\outfile\space \infile}|}}\hss} \\
+%     gs          & Alias for |ghostscript| \\
+%     precommand  & Command to be executed before the actual conversion command.  & \hbox{\vtop{\hbox{\strut|\ifpdf\else|}\hbox{\strut{|  dvips \jobname \fi|}}}} \\
+%     gsdevice    & The output device to be used for ghostscript. Already set up for PNG and JPG output. & \hbox{\vtop{\hbox{value of `|gsdevice/ext\outext|'\strut}{\hbox{\strut if defined, otherwise |\outext|}\hbox{\strut without the dot}}}} \\
+%       onfailure & Sets if an type of `message' which should be triggered on conversion failure:  |error| (default), |warning|, |info| or |ignore|. & |error| \\
+%  \bottomrule
+% \end{tabular}
+% \hss}
+% \end{table}
+%
+% \StopEventually{}
 % \section{Implementation}
 % \addtocontents{toc}{\setcounter{tocdepth}{0}}
 %
