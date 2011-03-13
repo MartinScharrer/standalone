@@ -145,9 +145,7 @@
 %
 % \begin{macro}{\standaloneconfig}
 %    \begin{macrocode}
-\@ifclassloaded{standalone}{}{%
-\newcommand*{\standaloneconfig}{\pgfqkeys{/standalone}}
-}
+\providecommand*{\standaloneconfig}{\pgfqkeys{/standalone}}
 %    \end{macrocode}
 % \end{macro}
 %

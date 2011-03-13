@@ -38,6 +38,11 @@ once: standalone.dtx
 	pdflatex $<
 	-readacro standalone.pdf
 
+twice: standalone.dtx
+	${PDFLATEX} $<
+	${PDFLATEX} '\let\install\iffalse\let\endinstall\fi\input{$<}'
+	-readacro standalone.pdf
+
 pdfopt: doc
 	@-pdfopt standalone.pdf .temp.pdf && mv .temp.pdf standalone.pdf
 
