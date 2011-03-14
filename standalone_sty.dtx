@@ -890,7 +890,7 @@
 % This hook simply ignores the last skip (normally the spaces) before |\end{document}| in the sub files.
 %    \begin{macrocode}
 \def\sa@atenddocument{%
-  \unskip
+  \ifhmode\unskip\fi
 }%
 %    \end{macrocode}
 % \end{macro}

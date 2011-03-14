@@ -362,7 +362,7 @@
 % to add the possibility to fine tune this later, e.g.\ in the configuration file.
 %    \begin{macrocode}
 \def\sa@cls@afterbegindocument{\expandafter\standalone\ignorespaces}
-\def\sa@cls@beforeenddocument{\unskip\endstandalone}
+\def\sa@cls@beforeenddocument{\ifhmode\unskip\fi\endstandalone}
 %    \end{macrocode}
 % \end{macro}
 % \end{macro}
