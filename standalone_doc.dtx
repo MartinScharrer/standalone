@@ -3,68 +3,9 @@
 \NeedsTeXFormat{LaTeX2e}
 \RequirePackage{svn-prov}[2010/08/24]
 \ProvidesFileSVN[standalone.dtx]{$Id$}[v1.0beta][DTX File for 'standalone' cls/sty/tex/cfg files]
-\documentclass[a4paper,11pt]{article}%{scrartcl}
-\usepackage{ydoc}
-\usepackage[T1]{fontenc}
-%\RequirePackage{helvet}
-%\RequirePackage{charter}
-%\usepackage{courier}
-\makeatletter
-\IfFileExists{libertine.sty}{%
-\usepackage{libertine}
-\let\/\,
-%\let\@@italiccorr\,
-}{}
-\makeatother
-\IfFileExists{lmodern.sty}{%
-%\usepackage{lmodern}
-\renewcommand{\ttdefault}{lmtt}
-}{}
+\documentclass[a4paper,11pt]{ydoc}
 %\addtolength{\oddsidemargin}{1cm}
 %\addtolength{\textwidth}{-1cm}
-\urlstyle{sf}
-\hypersetup{%
-    colorlinks=true,
-    urlcolor=blue,
-    linkcolor=blue,
-    pagecolor=blue,
-    filecolor=blue,
-    citecolor=blue,
-    anchorcolor=blue,
-}
-
-\usepackage{ifpdf}
-\ifpdf
-\usepackage{microtype}
-\fi
-\usepackage{array}
-\usepackage{booktabs}
-\usepackage{multicol}
-
-\lstset{basicstyle=\ttfamily,commentstyle=\color{black!60}}
-
-\definecolor{macrodesc}{rgb}{0,0.2,0.6}
-\definecolor{macroimpl}{rgb}{0,0.1,0.3}
-\definecolor{meta}{rgb}{0,0.25,0.75}
-\def\oargstyle{\blendcolors*{!60!white}\color{black!75}}
-\definecolor{opt}{rgb}{0.5,0.16666,0}
-\definecolor{pkg}{rgb}{0.3666,0.1333,0}
-
-\usepackage{ifpdf}
-\usepackage{listings}
-\usepackage{hyperref}
-\reversemarginpar
-\let\origopt\opt
-\def\origopt#1{\textsf{\textcolor{opt}{#1}}}
-\def\pkg#1{\texttt{\textcolor{pkg}{#1}}}
-\let\cls\pkg
-\let\lib\pkg
-\newcommand*\file{\texttt}
-\makeatletter
-\def\opt{\@ifstar\staropt\origopt}
-\makeatother
-\def\staropt#1{\origopt{#1}\optpar{#1}}
-\def\optpar#1{\marginpar{\hbox to \marginparwidth{\hss\opt{#1}}}}
 
 \EnableCrossrefs
 \CodelineIndex

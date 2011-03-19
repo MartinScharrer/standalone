@@ -24,11 +24,11 @@ all: unpack doc
 package: unpack
 class: unpack
 
-${PACKEDFILES}: standalone.dtx
-	yes | pdflatex standalone.dtx
+unpack: ${PACKEDFILES}
 
-unpack: standalone.dtx
-	${PDFLATEX} -interaction=nonstopmode '\def\endinstall{\endgroup\enddocument}\input{standalone.dtx}'
+${PACKEDFILES}: standalone.dtx
+	${PDFLATEX} -draftmode -interaction=nonstopmode '\def\endinstall{\endgroup\csname @enddocumenthook\endcsname\csname @@end\endcsname}\input{standalone.ins}' || (${RM} standalone.aux; false)
+
 
 # 'doc' and 'standalone.pdf' call itself until everything is stable
 doc: standalone.pdf
