@@ -127,7 +127,7 @@
   external/ext={\ifpdf .pdf\else .eps\fi},
 %
   external/cmd/.store in=\sa@compilecmd,
-  external/cmd={\ifpdf pdf\fi latex --interaction=batchmode \image},
+  external/cmd={\ifpdf pdf\fi latex --interaction=batchmode '\string\PassOptionsToClass{border=0pt}{standalone}\string\input{\image}'},
 }
 \ProcessPgfOptions{/standalone}
 %    \end{macrocode}
@@ -914,8 +914,12 @@
 %    \end{macrocode}
 % \end{macro}
 %
+%    \begin{macrocode}
+\RequirePackage{filemod-expmin}
+\newif\ifsa@buildsuccess
+%    \end{macrocode}
 %
-% \begin{macro}{\includestandalone@}
+% \begin{macro}{\includestandalone@}[3]{<filename>.<graphic ext>}{<filename>}{<options>}
 %% 0 = PDF if exists, TEX otherwise
 %% 1 = force TEX
 %% 2 = force PDF
@@ -936,84 +940,36 @@
         \IfFileExists{#1}%
             {\includegraphics[#3]{#1}}%
             {\sa@buildgraphic{#2}%
-             \IfFileExists{#1}%
-                {\includegraphics[#3]{#1}}%
-                {\PackageWarning{standalone}%
+             \ifsa@buildsuccess
+                \includegraphics[#3]{#1}%
+             \else
+                \PackageWarning{standalone}%
                  {Graphic '#1' could not be build.^^J%
                   Shell escape activated?}%
                  \includegraphics[#3]{#2.tex}%
-                }%
+             \fi
             }%
-    \else% 4
-        \IfFileExists{#1}%
-            {\sa@comparegranpic{#2}}%
+    \or% 4
+        \filemodCmp{#2.tex}{#1}%
             {\sa@buildgraphic{#2}%
-             \IfFileExists{#1}%
-                {\includegraphics[#3]{#1}}%
-                {\PackageWarning{standalone}%
-                    {Graphic '#1' could not be build.^^J%
-                    Shell escape activated?}%
-                    \includegraphics[#3]{#2.tex}%
-                }%
+             \ifsa@buildsuccess
+                \includegraphics[#3]{#1}%
+             \else
+                \PackageWarning{standalone}%
+                 {Graphic '#1' could not be build.^^J%
+                  Shell escape activated?}%
+                 \includegraphics[#3]{#2.tex}%
+             \fi
+            }%
+            {%
+                \PackageInfo{standalone}%
+                    {#2.tex file newer then #1}%
+                \includegraphics[#3]{#1}%
             }%
     \fi
 }
 %    \end{macrocode}
 % \end{macro}
-%
-%
-% \begin{macro}{\sa@comparegranpic}[1]{file base name}
-% Compares if the |.tex| file newer than the corresponding graphic file and
-% rebuilds the graphic if so.
-%    \begin{macrocode}
-\def\sa@comparegranpic#1{%
-    \begingroup
-    \let\next\empty
-    \expandafter\sa@comparegranpic@\pdffilemoddate{#1\sa@graphicext}\relax
-    \let\sa@picdate\sa@date
-    \let\sa@pictime\sa@time
-    \expandafter\sa@comparegranpic@\pdffilemoddate{#1.tex}\relax
-    \ifnum\sa@date>\sa@picdate\relax
-        \def\next{\sa@buildgraphic{#1}}%
-    \else
-        \ifnum\sa@date=\sa@picdate\relax
-            \ifnum\sa@time>\sa@pictime\relax
-                \def\next{\sa@buildgraphic{#1}}%
-            \fi
-        \fi
-    \fi
-    \expandafter
-    \endgroup
-    \next
-}
-%    \end{macrocode}
-% \end{macro}
-%
-%
-% \begin{macro}{\sa@comparegranpic@}
-% Used to parse the file modification date. 1st stage.
-%    \begin{macrocode}
-\begingroup
-\@makeother\D
-\@makeother:
-\global\@namedef{sa@comparegranpic@}D:#1#2#3#4#5#6#7#8#9\relax{%
-    \def\sa@date{#1#2#3#4#5#6#7#8}%
-    \sa@comparegranpic@@#9\relax
-}
-\endgroup
-%    \end{macrocode}
-% \end{macro}
-%
-% \begin{macro}{\sa@comparegranpic@@}
-% Used to parse the file modification date. 2nd stage.
-%    \begin{macrocode}
-\def\sa@comparegranpic@@#1#2#3#4#5#6#7\relax{%
-    \def\sa@time{#1#2#3#4#5#6}%
-    \def\sa@tz{#7}%
-}
-%    \end{macrocode}
-% \end{macro}
-%
 %
 %
 % \begin{macro}{\sa@buildgraphic}
@@ -1026,7 +982,23 @@
     \else
         \begingroup
         \edef\image{#1}%
+        \edef\outfile{\image\sa@graphicext}%
+        \edef\filemodbefore{\csname pdffilemoddate\endcsname{\outfile}}%
         \immediate\write18{\sa@compilecmd}%
+        \IfFileExists{\outfile}{%
+            \edef\filemodafter{\csname pdffilemoddate\endcsname{\outfile}}%
+            \ifx\filemodbefore\filemodafter
+                \expandafter\ifx\csname pdffilemoddate\endcsname\relax
+                    \global\sa@buildsuccesstrue
+                \else
+                    \global\sa@buildsuccessfalse
+                \fi
+            \else
+                \global\sa@buildsuccesstrue
+            \fi
+        }{%
+            \global\sa@buildsuccessfalse
+        }
         \endgroup
     \fi
 }
