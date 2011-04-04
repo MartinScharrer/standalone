@@ -118,6 +118,10 @@
   false/.code={\sa@convertfalse},
   false,
 %
+  newer/.code={\def\sa@convert@newer{\filemodCmp{\outfile}{\jobname}}},%
+  force/.code={\let\sa@convert@newer\@secondoftwo},
+  newer,
+%
   command/.initial={},
   imagemagick/.style={/standalone/cls/convert/command={\convertexe\space -density \density\space \infile\space \ifx\size\empty\else -resize \size\fi\space -quality 90 \outfile}},
   ghostscript/.style={/standalone/cls/convert/command={gs -dSAFER -dBATCH -dNOPAUSE -sDEVICE=\gsdevice\space -r\density\space -sOutputFile=\outfile\space \infile}},
@@ -230,6 +234,7 @@
 % \subsubsection{Converting}
 %    \begin{macrocode}
 \ifsa@convert
+  \RequirePackage{filemod-expmin}
   \begingroup
   \def\sa@convert#1{%
       \edef\filemodbefore{\csname pdffilemoddate\endcsname{\outfile}}%
@@ -240,6 +245,8 @@
               \expandafter\ifx\csname pdffilemoddate\endcsname\relax\else
                   \sa@convert@failuremsg{standalone}{#1}{}%
               \fi
+          \else
+              \message{^^Jstandalone: Conversion successfull.^^J}%
           \fi
       }{%
           \sa@convert@failuremsg{standalone}{#1}{}%
@@ -264,9 +271,13 @@
     \immediate\write18{\sa@preconvertcommand}%
   \fi
   \IfFileExists{\infile}{%
+    \sa@convert@newer
+    {%
+        \message{^^Jstandalone: Skipped conversion: outfile newer than main file.^^J}%
+    }{%
     \ifcase0%
         \expandafter\ifx\csname pdfshellescape\endcsname\relax
-        \ifeof18\else 3\fi
+        \ifeof18 \else 3\fi
         \else\the\pdfshellescape\fi
     \relax% 0
         \sa@convert@failuremsg
@@ -276,6 +287,7 @@
     \else% 2 or 3
         \sa@convert{Conversion failed! Please ensure that shell escape is enabled (e.g. use '-shell-escape').}%
     \fi
+    }%
   }{%
     \sa@convert@notfoundmsg
         {standalone}{Cannot convert missing input file '\infile'.}%
