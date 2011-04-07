@@ -27,10 +27,10 @@
 % \iffalse
 %<cls|sty|cfg|tex>% $Id$
 %<cls|sty>\NeedsTeXFormat{LaTeX2e}
-%<cls>\ProvidesClass{standalone}   [2010/02/28 v0.4 Class to compile TeX sub-files standalone]
-%<sty>\ProvidesPackage{standalone} [2010/02/28 v0.4 Package to include TeX sub-files with preambles]
-%<tex>\ProvidesFile{standalone.tex}[2010/02/28 v0.4 Provides if-switch to show if file is compiled standalone]%
-%<cfg>\ProvidesFile{standalone.cfg}[2010/02/28 v0.4 Default configuration file for 'standalone' class]%
+%<cls>\ProvidesClass{standalone}   [2011/02/28 v0.4 Class to compile TeX sub-files standalone]
+%<sty>\ProvidesPackage{standalone} [2011/02/28 v0.4 Package to include TeX sub-files with preambles]
+%<tex>\ProvidesFile{standalone.tex}[2011/02/28 v0.4 Provides if-switch to show if file is compiled standalone]%
+%<cfg>\ProvidesFile{standalone.cfg}[2011/02/28 v0.4 Default configuration file for 'standalone' class]%
 %<*driver>
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesFile{standalone.dtx}[2011/02/28 v0.4 DTX File for 'standalone' cls/sty/tex/cfg files]
@@ -77,6 +77,7 @@
 % \changes{v0.3}{2010/03/26}{Added package options to automatically copy sub-preamble code to the main preamble.}
 % \changes{v0.3a}{2010/03/27}{Fixed bug related to line endings in \texttt{.sta} file. Listed sub-files now have \texttt{.tex} as default extension.}
 % \changes{v0.4}{2011/02/28}{Added option 'border' for easy adjustments of the preview border.}
+% \changes{v0.4a}{2011/04/07}{Bug fix for \string`missing \cs{fi}'}
 %
 % \GetFileInfo{\jobname.dtx}
 %
@@ -1572,127 +1573,6 @@
 %</tex>
 % \fi
 %
-% \iffalse
-%<*sty>
-% \fi
-%    \begin{macrocode}
-\expandafter\ifx\csname sa@mode\endcsname\relax\else
-%    \end{macrocode}
-% \begin{macro}{\includestandalone}
-%    \begin{macrocode}
-\RequirePackage{gincltex}
-\RequirePackage{ifpdf}
-\ifpdf
-    \def\sa@graphicext{.pdf}
-\else
-    \def\sa@graphicext{.eps}
-\fi
-
-\def\sa@comparegranpic#1{%
-    \begingroup
-    \let\next\empty
-    \expandafter\sa@comparegranpic@\pdffilemoddate{#1\sa@graphicext}\relax
-    \let\sa@picdate\sa@date
-    \let\sa@pictime\sa@time
-    \expandafter\sa@comparegranpic@\pdffilemoddate{#1.tex}\relax
-    \ifnum\sa@date>\sa@picdate\relax
-        \def\next{\sa@buildgraphic{#1}}%
-    \else
-        \ifnum\sa@date=\sa@picdate\relax
-            \ifnum\sa@time>\sa@pictime\relax
-                \def\next{\sa@buildgraphic{#1}}%
-            \fi
-        \fi
-    \fi
-    \expandafter
-    \endgroup
-    \next
-}
-
-\begingroup
-\@makeother\D
-\@makeother:
-\global\@namedef{sa@comparegranpic@}D:#1#2#3#4#5#6#7#8#9\relax{%
-    \def\sa@date{#1#2#3#4#5#6#7#8}%
-    \sa@comparegranpic@@#9\relax
-}
-\endgroup
-
-\def\sa@comparegranpic@@#1#2#3#4#5#6#7\relax{%
-    \def\sa@time{#1#2#3#4#5#6}%
-    \def\sa@tz{#7}%
-}
-
-\def\sa@compilecmd{\ifpdf pdf\fi latex --interaction=batchmode \image}%
-
-\def\sa@buildgraphic#1{%
-    \ifeof18
-        \PackageError{standalone}{Shell escape needed to create graphic!}{}%
-    \else
-        \begingroup
-        \def\image{#1}%
-        \immediate\write18{\sa@compilecmd}%
-        \endgroup
-    \fi
-}
-
-\newcommand*\includestandalone[2][]{%
-    \begingroup
-    \edef\@tempa{{#2\sa@graphicext}}%
-    \expandafter\includestandalone@\@tempa{#2}{#1}%
-    \endgroup
-}
-
-%% 0 = PDF if exists, TEX otherwise
-%% 1 = force TEX
-%% 2 = force PDF
-%% 3 = build PDF if not exists
-%% 4 = build PDF if older than TEX
-\def\includestandalone@#1#2#3{%
-    \ifcase\sa@mode
-    \relax% 0
-        \IfFileExists{#1}%
-            {\includegraphics[#3]{#1}}%
-            {\includegraphics[#3]{#2.tex}}%
-    \or% 1
-        \includegraphics[#3]{#2.tex}%
-    \or% 2
-        \includegraphics[#3]{#1}%
-    \or% 3
-        \IfFileExists{#1}%
-            {\includegraphics[#3]{#1}}%
-            {\sa@buildgraphic{#2}%
-             \IfFileExists{#1}%
-                {\includegraphics[#3]{#1}}%
-                {\PackageWarning{standalone}%
-                 {Graphic '#1' could not be build.^^J%
-                  Shell escape activated?}%
-                 \includegraphics[#3]{#2.tex}%
-                }%
-            }%
-    \else% 4
-        \IfFileExists{#1}%
-            {\sa@comparegranpic{#2}}%
-            {\sa@buildgraphic{#2}%
-             \IfFileExists{#1}%
-                {\includegraphics[#3]{#1}}%
-                {\PackageWarning{standalone}%
-                    {Graphic '#1' could not be build.^^J%
-                    Shell escape activated?}%
-                    \includegraphics[#3]{#2.tex}%
-                }%
-            }%
-    \fi
-}
-%    \end{macrocode}
-%
-% \end{macro}
-%    \begin{macrocode}
-\fi
-%    \end{macrocode}
-% \iffalse
-%</sty>
-% \fi
 %
 % \subsection{Config File}
 % Default content of the configuration file. Users can override this by placing an own
