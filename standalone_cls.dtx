@@ -146,7 +146,7 @@
   onfailure/warning/.code={\let\sa@convert@failuremsg\ClassWarning},
   onfailure/info/.code={\let\sa@convert@failuremsg\ClassInfo},
   onfailure/ignore/.code={\def\sa@convert@failuremsg{\expandafter\@gobbletwo\@gobble}\let\sa@convert@notfoundmsg\@gobbletwo},
-  onfailure=error,
+  onfailure=warning,
 }
 \let\sa@convert@notfoundmsg\ClassWarning
 \IfFileExists{/usr/bin/convert}{%
