@@ -835,11 +835,14 @@
 % This can not be done using \cs{AtBeginDocument} because the original redefines
 % \cs{documentclass} itself after executing the hook.
 %    \begin{macrocode}
-\def\document{%
-  \sa@orig@document
-  \let\documentclass\sa@documentclass
-  \ignorespaces
+\begingroup
+\toks@\expandafter{%
+    \document
+    \let\documentclass\sa@documentclass
+    \ignorespaces
 }
+\xdef\document{\the\toks@}%
+\endgroup
 %    \end{macrocode}
 % \end{macro}
 %
@@ -860,7 +863,7 @@
 %    \begin{macrocode}
 \def\sa@enddocument{%
   \sa@atenddocument
-  \aftergroup\sa@@enddocument
+  \aftergroup\endinput
 }
 %    \end{macrocode}
 % \end{macro}
@@ -869,11 +872,11 @@
 % This is a `after end document' handler for the sub-files. It restores macros and
 % ends the input of the file.
 %    \begin{macrocode}
-\def\sa@@enddocument{%
-  %\let\document\sa@orig@document
-  \let\enddocument\sa@orig@enddocument
-  \endinput
-}
+%\def\sa@@enddocument{%
+%  %\let\document\sa@orig@document
+%  \let\enddocument\sa@orig@enddocument
+%  \endinput
+%}
 %    \end{macrocode}
 % \end{macro}
 %

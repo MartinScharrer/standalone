@@ -342,30 +342,29 @@
 %
 % \subsubsection{Document Environment in Sub-Files}
 %
-% \begin{macro}{\sa@cls@orig@document}
-% \begin{macro}{\sa@cls@orig@enddocument}
-% Store original |document| environment.
-%    \begin{macrocode}
-\let\sa@cls@orig@document\document
-\let\sa@cls@orig@enddocument\enddocument
-%    \end{macrocode}
-% \end{macro}
-% \end{macro}
 %
 % \begin{environment}{document}
 % Adds own `after begin document' and `before end document` hooks.
 %    \begin{macrocode}
-\def\document{%
-  \sa@cls@orig@document
-  \let\documentclass\sa@documentclass  % TODO: really required?
-  \sa@cls@afterbegindocument
+\begingroup
+
+\toks@\expandafter{%
+    \document
+    \let\documentclass\sa@documentclass  % TODO: really required?
+    \sa@cls@afterbegindocument
 }
-\def\enddocument{%
-  \sa@cls@beforeenddocument
-  \sa@cls@orig@enddocument
+\xdef\document{\the\toks@}%
+
+\toks@\expandafter{%
+    \expandafter
+    \sa@cls@beforeenddocument
+    \enddocument
 }
+\xdef\enddocument{\the\toks@}%
+\endgroup
 %    \end{macrocode}
 % \end{environment}
+%
 %
 % \begin{macro}{\sa@cls@afterbegindocument}
 % \begin{macro}{\sa@cls@beforeenddocument}
