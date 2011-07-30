@@ -860,9 +860,12 @@
 % \begin{macro}{\sa@enddocument}
 % This is the |\end{document}| of the sub files. It does nothing except of
 % calling our own |atenddocument| hook and then the `after end document' handler.
+% Also spaces after the environment are ignored. Otherwise a following line break
+% will cause a space even if |\endinput| follows directly.
 %    \begin{macrocode}
 \def\sa@enddocument{%
   \sa@atenddocument
+  \@ignoretrue
   \aftergroup\endinput
 }
 %    \end{macrocode}
