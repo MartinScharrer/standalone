@@ -1,109 +1,191 @@
-TEXMF=${HOME}/texmf
-INSTALLDIR=${TEXMF}/tex/latex/standalone
-DOCINSTALLDIR=${TEXMF}/doc/latex/standalone
-CP=cp
-RMDIR=rm -rf
-PDFLATEX=pdflatex -interaction=batchmode
-LATEXMK=latexmk -pdf -silent
-
-PACKEDFILES=standalone.cls standalone.sty standalone.cfg standalone.tex
-DOCFILES=standalone.pdf
-SRCFILES=standalone.dtx README Makefile
+CONTRIBUTION  = $(shell basename ${PWD})
+NAME          = Martin Scharrer
+EMAIL         = martin@scharrer.me
+DIRECTORY     = /macros/latex/contrib/${CONTRIBUTION}
+LICENSE       = free
+FREEVERSION   = lppl
+CTAN_FILE     = ${CONTRIBUTION}.zip
+export CONTRIBUTION VERSION NAME EMAIL SUMMARY DIRECTORY DONOTANNOUNCE ANNOUNCE NOTES LICENSE FREEVERSION CTAN_FILE
 
 
-RED   = \033[01;31m
-GREEN = \033[01;32m
-BOLD  = \033[01m
-NORMAL = \033[00m
+MAINDTX       = ${CONTRIBUTION}.dtx
+DTXFILES      = ${MAINDTX}
+INSFILES      = ${CONTRIBUTION}.ins
+LTXFILES      = ${CONTRIBUTION}.sty ${CONTRIBUTION}.cfg
+LTXDOCFILES   = ${CONTRIBUTION}.pdf README
+LTXSRCFILES   = ${DTXFILES} ${INSFILES}
+PLAINFILES    = ${CONTRIBUTION}.tex
+PLAINDOCFILES = #${CONTRIBUTION}.?
+PLAINSRCFILES = #${CONTRIBUTION}.?
+GENERICFILES  = #${CONTRIBUTION}.tex
+GENDOCFILES   = #${CONTRIBUTION}.?
+GENSRCFILES   = #${CONTRIBUTION}.?
+SCRIPTFILES   = #${CONTRIBTUION}.pl
+SCRDOCFILES   = #${CONTRIBUTION}.?
+ALLFILES      = ${DTXFILES} ${INSFILES} ${LTXFILES} ${LTXDOCFILES} ${LTXSRCFILES} \
+				${PLAINFILES} ${PLAINDOCFILES} ${PLAINSRCFILES} \
+				${GENERICFILES} ${GENDOCFILES} ${GENSRCFILES} \
+				${SCRIPTFILES} ${SCRDOCFILES}
+MAINFILES     = ${DTXFILES} ${INSFILES} ${LTXFILES}
+CTANFILES     = ${DTXFILES} ${INSFILES} ${LTXDOCFILES} ${PLAINDOCFILES} ${GENDOCFILES} ${SCRDOCFILES}
 
-OK = ${GREEN}OK${NORMAL}
-FAIL = ${RED}FAILURE${NORMAL}
+TDSZIP      = ${CONTRIBUTION}.tds.zip
 
-all: unpack doc
+TEXMF       = ${HOME}/texmf
+LTXDIR      = ${TEXMF}/tex/latex/${CONTRIBUTION}/
+LTXDOCDIR   = ${TEXMF}/doc/latex/${CONTRIBUTION}/
+LTXSRCDIR   = ${TEXMF}/source/latex/${CONTRIBUTION}/
+GENERICDIR  = ${TEXMF}/tex/generic/${CONTRIBUTION}/
+GENDOCDIR   = ${TEXMF}/doc/generic/${CONTRIBUTION}/
+GENSRCDIR   = ${TEXMF}/source/generic/${CONTRIBUTION}/
+PLAINDIR    = ${TEXMF}/tex/plain/${CONTRIBUTION}/
+PLAINDOCDIR = ${TEXMF}/doc/plain/${CONTRIBUTION}/
+PLAINSRCDIR = ${TEXMF}/source/plain/${CONTRIBUTION}/
+SCRIPTDIR   = ${TEXMF}/scripts/${CONTRIBUTION}/
+SCRDOCDIR   = ${TEXMF}/doc/support/${CONTRIBUTION}/
 
-package: unpack
-class: unpack
+TDSDIR   = tds
+TDSFILES = ${LTXFILES} ${LTXDOCFILES} ${LTXSRCFILES} \
+		   ${PLAINFILES} ${PLAINDOCFILES} ${PLAINSRCFILES} \
+		   ${GENERICFILES} ${GENDOCFILES} ${GENSRCFILES} \
+		   ${SCRIPTFILES} ${SCRDOCFILES}
 
-unpack: ${PACKEDFILES}
+BUILDDIR = build
 
-${PACKEDFILES}: standalone.dtx
-	${PDFLATEX} -draftmode -interaction=nonstopmode '\def\endinstall{\endgroup\csname @enddocumenthook\endcsname\csname @@end\endcsname}\input{standalone.ins}' || (${RM} standalone.aux; false)
+LATEXMK  = latexmk -pdf -quiet
+ZIP      = zip -r
+WEBBROWSER = firefox
+GETVERSION = $(strip $(shell grep '=\*VERSION' -A1 ${MAINDTX} | tail -n1))
 
+AUXEXTS  = .aux .bbl .blg .cod .exa .fdb_latexmk .glo .gls .lof .log .lot .out .pdf .que .run.xml .sta .stp .svn .svt .toc
+CLEANFILES = $(addprefix ${CONTRIBUTION}, ${AUXEXTS})
 
-# 'doc' and 'standalone.pdf' call itself until everything is stable
-doc: standalone.pdf
-	@${MAKE} --no-print-directory standalone.pdf
+.PHONY: all doc clean distclean
 
-once: standalone.dtx
-	pdflatex $<
-	-readacro standalone.pdf
+all: doc
 
-twice: standalone.dtx
-	${PDFLATEX} $<
-	${PDFLATEX} '\let\install\iffalse\let\endinstall\fi\input{$<}'
-	-readacro standalone.pdf
+doc: ${CONTRIBUTION}.pdf
 
-pdfopt: doc
-	@-pdfopt standalone.pdf .temp.pdf && mv .temp.pdf standalone.pdf
+${CONTRIBUTION}.pdf: ${DTXFILES} README ${INSFILES} ${LTXFILES}
+	${MAKE} --no-print-directory build
+	cp "${BUILDDIR}/$@" "$@"
 
-standalone.pdf: standalone.dtx
-	${PDFLATEX} $<
-	${PDFLATEX} '\let\install\iffalse\let\endinstall\fi\input{$<}'
-	-makeindex -s gind.ist -o "$@" "$<"
-	-makeindex -s gglo.ist -o "$@" "$<"
-	${PDFLATEX} '\let\install\iffalse\let\endinstall\fi\input{$<}'
-	${PDFLATEX} '\let\install\iffalse\let\endinstall\fi\input{$<}'
+ifneq (${BUILDDIR},build)
+build: ${BUILDDIR}
+endif
 
-.PHONY: test
+${BUILDDIR}: ${MAINFILES}
+	-mkdir ${BUILDDIR} 2>/dev/null || true
+	cp ${MAINFILES} README ${BUILDDIR}/
+	$(foreach DTX,${DTXFILES}, tex '\input ydocincl\relax\includefiles{${DTX}}{${BUILDDIR}/${DTX}}' && rm -f ydocincl.log;)
+	cd ${BUILDDIR}; $(foreach INS, ${INSFILES}, tex ${INS};)
+	cd ${BUILDDIR}; $(foreach DTX, ${MAINDTX}, ${LATEXMK} ${DTX};)
+	touch ${BUILDDIR}
 
-test: unpack
-	@cd test; for T in test*.tex; do echo "-------------------------------------------------------------"; echo "${BOLD}$$T${NORMAL}"; pdflatex -interaction=batchmode $$T && echo "${OK}" || echo "${FAIL}"; done
+$(addprefix ${BUILDDIR}/,$(sort ${TDSFILES} ${CTANFILES})): ${MAINFILES}
+	${MAKE} --no-print-directory build
 
 clean:
-	-latexmk -C standalone.dtx
-	${RM} ${PACKEDFILES} *.zip *.log *.aux *.toc *.vrb *.nav *.pdf *.snm *.out *.fdb_latexmk *.glo *.gls *.hd *.sta *.stp *.cod
-	${RMDIR} tds
+	latexmk -C ${CONTRIBUTION}.dtx
+	${RM} ${CLEANFILES}
+	${RM} -r ${BUILDDIR} ${TDSDIR} ${TDSZIP} ${CTAN_FILE}
 
-install: unpack doc ${INSTALLDIR} ${DOCINSTALLDIR}
-	${CP} ${PACKEDFILES} ${INSTALLDIR}
-	${CP} ${DOCFILES} ${DOCINSTALLDIR}
-	texhash ${TEXMF}
 
-${INSTALLDIR}:
-	mkdir -p $@
+distclean:
+	latexmk -c ${CONTRIBUTION}.dtx
+	${RM} ${CLEANFILES}
+	${RM} -r ${BUILDDIR} ${TDSDIR}
 
-${DOCINSTALLDIR}:
-	mkdir -p $@
 
-ctanify: ${SRCFILES} ${DOCFILES} standalone.tds.zip
-	${RM} standalone.zip
-	zip standalone.zip $^ 
-	unzip -t standalone.zip
-	unzip -t standalone.tds.zip
+install: $(addprefix ${BUILDDIR}/,${TDSFILES})
+ifneq ($(strip $(LTXFILES)),)
+	test -d "${LTXDIR}" || mkdir -p "${LTXDIR}"
+	cd ${BUILDDIR} && cp ${LTXFILES} "$(abspath ${LTXDIR})"
+endif
+ifneq ($(strip $(LTXSRCFILES)),)
+	test -d "${LTXSRCDIR}" || mkdir -p "${LTXSRCDIR}"
+	cd ${BUILDDIR} && cp ${LTXSRCFILES} "$(abspath ${LTXSRCDIR})"
+endif
+ifneq ($(strip $(LTXDOCFILES)),)
+	test -d "${LTXDOCDIR}" || mkdir -p "${LTXDOCDIR}"
+	cd ${BUILDDIR} && cp ${LTXDOCFILES} "$(abspath ${LTXDOCDIR})"
+endif
+ifneq ($(strip $(GENERICFILES)),)
+	test -d "${GENERICDIR}" || mkdir -p "${GENERICDIR}"
+	cd ${BUILDDIR} && cp ${GENERICFILES} "$(abspath ${GENERICDIR})"
+endif
+ifneq ($(strip $(GENSRCFILES)),)
+	test -d "${GENSRCDIR}" || mkdir -p "${GENSRCDIR}"
+	cd ${BUILDDIR} && cp ${GENSRCFILES} "$(abspath ${GENSRCDIR})"
+endif
+ifneq ($(strip $(GENDOCFILES)),)
+	test -d "${GENDOCDIR}" || mkdir -p "${GENDOCDIR}"
+	cd ${BUILDDIR} && cp ${GENDOCFILES} "$(abspath ${GENDOCDIR})"
+endif
+ifneq ($(strip $(PLAINFILES)),)
+	test -d "${PLAINDIR}" || mkdir -p "${PLAINDIR}"
+	cd ${BUILDDIR} && cp ${PLAINFILES} "$(abspath ${PLAINDIR})"
+endif
+ifneq ($(strip $(PLAINSRCFILES)),)
+	test -d "${PLAINSRCDIR}" || mkdir -p "${PLAINSRCDIR}"
+	cd ${BUILDDIR} && cp ${PLAINSRCFILES} "$(abspath ${PLAINSRCDIR})"
+endif
+ifneq ($(strip $(PLAINDOCFILES)),)
+	test -d "${PLAINDOCDIR}" || mkdir -p "${PLAINDOCDIR}"
+	cd ${BUILDDIR} && cp ${PLAINDOCFILES} "$(abspath ${PLAINDOCDIR})"
+endif
+ifneq ($(strip $(SCRIPTFILES)),)
+	test -d "${SCRIPTDIR}" || mkdir -p "${SCRIPTDIR}"
+	cd ${BUILDDIR} && cp ${SCRIPTFILES} "$(abspath ${SCRIPTDIR})"
+endif
+ifneq ($(strip $(SCRDOCFILES)),)
+	test -d "${SCRDOCDIR}" || mkdir -p "${SCRDOCDIR}"
+	cd ${BUILDDIR} && cp ${SCRDOCFILES} "$(abspath ${SCRDOCDIR})"
+endif
+	touch ${TEXMF}
+	-test -f ${TEXMF}/ls-R && texhash ${TEXMF} || true
 
-zip: standalone.zip
 
-tdszip: standalone.tds.zip
+installsymlinks:
+	test -d "${LTXDIR}" || mkdir -p "${LTXDIR}"
+	-cd ${LTXDIR} && ${RM} ${LTXFILES}
+	ln -s $(abspath ${LTXFILES}) ${LTXDIR}
+	-test -f ${TEXMF}/ls-R && texhash ${TEXMF} || true
 
-standalone.zip: ${SRCFILES} ${DOCFILES} | pdfopt
-	${RM} $@
-	zip $@ $^ 
 
-standalone.tds.zip: ${SRCFILES} ${PACKEDFILES} ${DOCFILES} | pdfopt
-	${RMDIR} tds
-	mkdir -p tds/tex/latex/standalone
-	mkdir -p tds/doc/latex/standalone
-	mkdir -p tds/source/latex/standalone
-	${CP} ${DOCFILES}    tds/doc/latex/standalone
-	${CP} ${PACKEDFILES} tds/tex/latex/standalone
-	${CP} ${SRCFILES}    tds/source/latex/standalone
-	cd tds; zip -r ../$@ .
+uninstall:
+	${RM} ${LTXDIR} ${LTXDOCDIR} ${LTXSRCDIR} \
+		${GENERICDIR} ${GENDOCDIR} ${GENSRCDIR} \
+		${PLAINDIR} ${PLAINDOCDIR} ${PLAINSRCDIR} \
+		${SCRIPTDIR} ${SCRDOCDIR}
+	-test -f ${TEXMF}/ls-R && texhash ${TEXMF} || true
 
-dtx: standalone.dtx
 
-standalone.dtx: standalone.ins standalone_doc.dtx standalone_sty.dtx standalone_cls.dtx standalone_tex.dtx standalone_cfg.dtx
-	@echo Creating $@
-	@cat $^ | perl -ne 'if (/^(\s*\\DocInput)/) { if (!$$n++) { print "$${1}{standalone.dtx}\n"; } } else { print }' > $@
-	@echo '% \Finale' >> $@
-	@echo '% \endinput' >> $@
+ifneq (${TDSDIR},tdsdir)
+tdsdir: ${TDSDIR}
+endif
+${TDSDIR}: $(addprefix ${BUILDDIR}/,${TDSFILES})
+	${MAKE} --no-print-directory install TEXMF=${TDSDIR}
+
+tdszip: ${TDSZIP}
+
+${TDSZIP}: ${TDSDIR}
+	-${RM} $@
+	cd ${TDSDIR} && ${ZIP} $(abspath $@) *
+
+zip: ${CTAN_FILE}
+
+${CTAN_FILE}: $(addprefix ${BUILDDIR}/,${CTANFILES}) ${TDSZIP}
+	-${RM} $@
+	${ZIP} -j $@ $^
+
+upload: VERSION = ${GETVERSION}
+
+upload: ${CTAN_FILE}
+	ctanupload -p
+
+webupload: VERSION = ${GETVERSION}
+webupload: ${CTAN_FILE}
+	${WEBBROWSER} 'http://dante.ctan.org/upload.html?contribution=${CONTRIBUTION}&version=${VERSION}&name=${NAME}&email=${EMAIL}&summary=${SUMMARY}&directory=${DIRECTORY}&DoNotAnnounce=${DONOTANNOUNCE}&announce=${ANNOUNCEMENT}&notes=${NOTES}&license=${LICENSE}&freeversion=${FREEVERSION}' &
+
 

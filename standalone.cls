@@ -1,12 +1,21 @@
 %
 % \iffalse
 %<*cls>
+%<!COPYRIGHT>
 % \fi
+%
 % \subsection{The Class File}
 %    \begin{macrocode}
 \NeedsTeXFormat{LaTeX2e}
-\RequirePackage{svn-prov}[2010/04/24]
-\ProvidesClassSVN[standalone]{$Id$}[v0.4][Class to compile TeX sub-files standalone]
+\ProvidesClass{standalone}[%
+%<!DATE>
+%<!VERSION>
+%<*DRIVER>
+    2099/01/01 develop
+%</DRIVER>
+    Class to compile TeX sub-files standalone]
+%    \end{macrocode}
+%
 %    \end{macrocode}
 %
 % \subsubsection{If-Switches}
