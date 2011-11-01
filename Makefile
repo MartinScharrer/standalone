@@ -57,7 +57,7 @@ standalone.pdf: standalone.dtx
 .PHONY: test
 
 test: unpack
-	@for T in test*.tex; do echo "-------------------------------------------------------------"; echo "${BOLD}$$T${NORMAL}"; pdflatex -interaction=batchmode $$T && echo "${OK}" || echo "${FAIL}"; done
+	@cd test; for T in test*.tex; do echo "-------------------------------------------------------------"; echo "${BOLD}$$T${NORMAL}"; pdflatex -interaction=batchmode $$T && echo "${OK}" || echo "${FAIL}"; done
 
 clean:
 	-latexmk -C standalone.dtx
