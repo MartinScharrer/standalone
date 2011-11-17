@@ -16,8 +16,6 @@
     Class to compile TeX sub-files standalone]
 %    \end{macrocode}
 %
-%    \end{macrocode}
-%
 % \subsubsection{If-Switches}
 %
 % \begin{macro}{\ifstandalone}
@@ -45,6 +43,13 @@
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{macro}{\notifstandalone}
+% Negated form of |\notifstandalone|.
+%    \begin{macrocode}
+\let\notifstandalone\@gobble
+%    \end{macrocode}
+% \end{macro}
+%
 %
 % \subsubsection{Options}
 %
@@ -62,6 +67,26 @@
    preview/.is if=sa@preview,
    preview/.default=true,
    preview=true,
+}
+%    \end{macrocode}
+%
+%
+%    \begin{macrocode}
+\newif\ifsa@box
+\pgfkeys{/standalone/cls/.cd,
+   box/.is if=sa@box,
+   box/.default=true,
+   box=true,
+}
+%    \end{macrocode}
+%
+%
+%    \begin{macrocode}
+\newif\ifsa@varwidth
+\pgfkeys{/standalone/cls/.cd,
+   varwidth/.is if=sa@varwidth,
+   varwidth/.default=true,
+   varwidth=true,
 }
 %    \end{macrocode}
 %
@@ -211,11 +236,20 @@
 %    \begin{macrocode}
 \ifsa@preview
   \@ifundefined{endstandalone}{%
+    \ifsa@varwidth
+    \renewenvironment{standalone}
+      {\preview\varwidth{\linewidth}}
+      {\endvarwidth\endpreview}
+    \else
     \renewenvironment{standalone}
       {\preview   }
       {\endpreview}
+    \fi
   }{}%
   \RequirePackage{preview}
+  \ifsa@varwidth
+    \RequirePackage{varwidth}
+  \fi
 %    \end{macrocode}
 % Read the preview border values. The default unit is |bp| (PostScript points).
 % Allowed are one, two or four values.
@@ -239,6 +273,72 @@
   \fi
 \fi
 %    \end{macrocode}
+%
+%
+% \subsubsection{Preview Code}
+% The \env{standalone} environment is redefined to use the |preview| environment as
+% long it was not redefined in the configuration file.
+%    \begin{macrocode}
+\ifsa@box
+  \newbox\sa@box
+  \pagestyle{empty}
+  \hoffset=-72.27pt
+  \voffset=-72.27pt
+  \topmargin=0pt
+  \headheight=0pt
+  \headsep=0pt
+  \marginparsep=0pt
+  \marginparwidth=0pt
+  \footskip=0pt
+  \marginparpush=0pt
+  \oddsidemargin=0pt
+  \evensidemargin=0pt
+  \@ifundefined{endstandalone}{%
+    \ifsa@varwidth
+    \renewenvironment{standalone}
+      {\setbox\sa@box\hbox\bgroup\color@setgroup\varwidth{\linewidth}}
+      {\endvarwidth\color@endgroup\egroup\sa@handlebox}
+    \else
+    \renewenvironment{standalone}
+      {\setbox\sa@box\hbox\bgroup\color@setgroup}
+      {\color@endgroup\egroup\sa@handlebox}
+    \fi
+  }{}%
+  \ifsa@varwidth
+    \RequirePackage{varwidth}
+  \fi
+%    \end{macrocode}
+% Read the preview border values. The default unit is |bp| (PostScript points).
+% Allowed are one, two or four values.
+%    \begin{macrocode}
+  \ifx\sa@border\relax\else
+    \begingroup
+    \def\rem@bp#1bp\relax#2\@nnil{#1}%
+    \def\default@bp#1{\expandafter\rem@bp\the\dimexpr#1 bp\relax bp\relax\@nnil}%
+    \def\sa@readborder#1 #2 #3 #4 {%
+       \ifx\\#2#3#4\\%
+         \@defaultunits\global\PreviewBorder=\dimexpr#1 bp\relax\@nnil%
+       \else
+       \ifx\\#4\\%
+        \xdef\PreviewBbAdjust{-\default@bp{#1} -\default@bp{#2} \default@bp{#1} \default@bp{#2}}%
+       \else
+        \xdef\PreviewBbAdjust{-\default@bp{#1} -\default@bp{#2} \default@bp{#3} \default@bp{#4}}%
+       \fi\fi
+    }%
+    \@firstofone{\expandafter\sa@readborder\sa@border} {} {} {} {} \relax
+    \endgroup
+  \fi
+
+\def\sa@handlebox{%
+    \sbox\sa@box{\raise\dp\sa@box\box\sa@box}%
+    \pdfpageheight=\ht\sa@box
+    \pdfpagewidth=\wd\sa@box
+    \noindent\usebox\sa@box
+}
+
+\fi
+%    \end{macrocode}
+%
 %
 % \subsubsection{Converting}
 %    \begin{macrocode}
