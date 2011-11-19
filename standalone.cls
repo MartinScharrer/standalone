@@ -328,19 +328,45 @@
   \marginparpush=0pt
   \oddsidemargin=0pt
   \evensidemargin=0pt
-  \@ifundefined{endstandalone}{%
+  \def\sa@boxit{\setbox\sa@box\hbox\bgroup\color@setgroup}%
+  \def\endsa@boxit{\color@endgroup\egroup}%
+  \ifsa@tikz
+    \renewenvironment{standalone}
+        {\sa@boxit}
+        {\endsa@boxit}
+    \RequirePackage{tikz}
+    \let\sa@tikzpicture\tikzpicture
+    \let\sa@endtikzpicture\endtikzpicture
+    \def\tikzpicture{%
+        \edef\@tempa{\endgroup
+            \noexpand\endsa@boxit
+            \begingroup
+            \def\noexpand\@currenvir{\@currenvir}%
+            \def\noexpand\@currenvline{\@currenvline}%
+        }%
+        \@tempa
+        \sa@boxit
+        \sa@tikzpicture
+    }
+    \def\endtikzpicture{%
+        \sa@endtikzpicture
+        \endsa@boxit
+        \sa@handlebox
+        \aftergroup\sa@boxit
+    }
+  \else
     \ifsa@varwidth
-    \renewenvironment{standalone}
-      {\setbox\sa@box\hbox\bgroup\color@setgroup\varwidth{\linewidth}}
-      {\endvarwidth\color@endgroup\egroup\sa@handlebox}
+        \renewenvironment{standalone}
+            {\setbox\sa@box\hbox\bgroup\color@setgroup\varwidth{\linewidth}}
+            {\endvarwidth\color@endgroup\egroup\sa@handlebox}
     \else
-    \renewenvironment{standalone}
-      {\setbox\sa@box\hbox\bgroup\color@setgroup}
-      {\color@endgroup\egroup\sa@handlebox}
+        \renewenvironment{standalone}
+            {\setbox\sa@box\hbox\bgroup\color@setgroup}
+            {\color@endgroup\egroup\sa@handlebox}
     \fi
-  }{}%
-  \ifsa@varwidth
-    \RequirePackage{varwidth}
+    \ifsa@varwidth
+        \RequirePackage{varwidth}
+    \fi
   \fi
 
 \def\sa@handlebox{%
@@ -365,18 +391,57 @@
         \typeout{PDF}%
         \pdfpageheight=\ht\sa@box
         \pdfpagewidth=\wd\sa@box
+        \noindent\usebox\sa@box\newpage
     \else
     \ifxetex
         \typeout{XeTeX}%
         \pdfpageheight=\ht\sa@box
         \pdfpagewidth=\wd\sa@box
+        \noindent\usebox\sa@box\newpage
     \else
         \paperheight=\ht\sa@box
         \paperwidth=\wd\sa@box
-        \special{papersize=\the\paperwidth,\the\paperheight}%
+        \sa@papersize
+        \begingroup
+        \@tempdima0.99626\paperwidth
+        \@tempdimb0.99626\paperheight
+        \edef\@tempc{\strip@pt\@tempdima}%
+        \edef\@tempd{\strip@pt\@tempdimb}%
+        \advance\@tempdima by .998pt
+        \advance\@tempdimb by .998pt
+        \def\strip@float##1.##2\relax{##1}%
+        \edef\@tempa{\expandafter\strip@float\the\@tempdima\relax}%
+        \edef\@tempb{\expandafter\strip@float\the\@tempdimb\relax}%
+        \special{ps::%
+            \@percentchar\@percentchar PageBoundingBox: 0 0 \@tempa\space\@tempb^^J%
+            \@percentchar\@percentchar HiResPageBoundingBox: 0 0 \@tempc\space\@tempd^^J%
+            \@percentchar\@percentchar BeginPageSetup^^J%
+            << /PageSize [\@tempc\space\@tempd]
+            >> setpagedevice^^J%<<
+            0 0 bop^^J%
+            \@percentchar\@percentchar EndPageSetup}%
+        \endgroup
+        \noindent\sa@ps@content\newpage
     \fi\fi
-    \noindent\usebox\sa@box
 }
+\def\sa@ps@content{%
+    \usebox\sa@box
+    \global\def\sa@sa@content{%
+        \@tempdima-\ht\sa@box
+        \advance\@tempdima+\sa@yoffset
+        \@tempdima\sa@yoffset
+        \advance\@tempdima-\f@size pt
+        \dp\sa@box\z@
+        \ht\sa@box\z@
+        \lower\@tempdima\box\sa@box
+    }%
+}
+\def\sa@papersize{%
+    \global\let\sa@papersize\relax
+    \special{papersize=\the\paperwidth,\the\paperheight}%
+    \global\sa@yoffset=\paperheight
+}
+\newlength\sa@yoffset
 
 \fi
 %    \end{macrocode}
