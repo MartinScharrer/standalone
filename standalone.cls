@@ -73,6 +73,16 @@
 %
 %
 %    \begin{macrocode}
+\newif\ifsa@tikz
+\pgfkeys{/standalone/cls/.cd,
+   tikz/.is if=sa@tikz,
+   tikz/.default=true,
+   tikz=false,
+}
+%    \end{macrocode}
+%
+%
+%    \begin{macrocode}
 \newif\ifsa@box
 \pgfkeys{/standalone/cls/.cd,
    box/.is if=sa@box,
@@ -275,6 +285,11 @@
 % long it was not redefined in the configuration file.
 %    \begin{macrocode}
 \ifsa@preview
+  \RequirePackage{preview}
+  \ifsa@tikz
+    \RequirePackage{tikz}
+    \PreviewEnvironment{tikzpicture}
+  \else
   \@ifundefined{endstandalone}{%
     \ifsa@varwidth
     \renewenvironment{standalone}
@@ -286,7 +301,7 @@
       {\endpreview}
     \fi
   }{}%
-  \RequirePackage{preview}
+  \fi
   \ifsa@varwidth
     \RequirePackage{varwidth}
   \fi
