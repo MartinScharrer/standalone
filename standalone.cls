@@ -93,10 +93,43 @@
 % To set the preview border:
 %    \begin{macrocode}
 \pgfkeys{/standalone/cls/.cd,
-   border/.store in=\sa@border,
-   border/.value required,
+    border/.code={\sa@readborder#1 {} {} {} {} \relax},%
+    border/.value required,
 }
-\let\sa@border\relax
+\def\sa@border@left{0.50001bp}
+\let\sa@border@right\sa@border@left
+\let\sa@border@top\sa@border@left
+\let\sa@border@bottom\sa@border@left
+
+\def\rem@bp#1bp\relax#2\@nnil{#1}%
+\def\default@bp#1#2{%
+    \begingroup
+    \afterassignment\remove@to@nnil
+    \dimen@ #2bp\relax\@nnil
+    \expandafter
+    \endgroup
+    \expandafter
+    \def\expandafter#1\expandafter{\the\dimen@}%
+}
+\def\sa@readborder#1 #2 #3 #4 {%
+    \ifx\\#2#3#4\\%
+        \default@bp\sa@border@left{#1}%
+        \let\sa@border@right\sa@border@left
+        \let\sa@border@top\sa@border@left
+        \let\sa@border@bottom\sa@border@left
+    \else
+    \ifx\\#4\\%
+        \default@bp\sa@border@left{#1}%
+        \let\sa@border@right\sa@border@left
+        \default@bp\sa@border@top{#2}%
+        \let\sa@border@bottom\sa@border@top
+    \else
+        \default@bp\sa@border@left{#1}%
+        \default@bp\sa@border@bottom{#2}%
+        \default@bp\sa@border@right{#3}%
+        \default@bp\sa@border@top{#4}%
+    \fi\fi
+}%
 %    \end{macrocode}
 %
 % Enable beamer support.
@@ -254,23 +287,7 @@
 % Read the preview border values. The default unit is |bp| (PostScript points).
 % Allowed are one, two or four values.
 %    \begin{macrocode}
-  \ifx\sa@border\relax\else
-    \begingroup
-    \def\rem@bp#1bp\relax#2\@nnil{#1}%
-    \def\default@bp#1{\expandafter\rem@bp\the\dimexpr#1 bp\relax bp\relax\@nnil}%
-    \def\sa@readborder#1 #2 #3 #4 {%
-       \ifx\\#2#3#4\\%
-         \@defaultunits\global\PreviewBorder=\dimexpr#1 bp\relax\@nnil%
-       \else
-       \ifx\\#4\\%
-        \xdef\PreviewBbAdjust{-\default@bp{#1} -\default@bp{#2} \default@bp{#1} \default@bp{#2}}%
-       \else
-        \xdef\PreviewBbAdjust{-\default@bp{#1} -\default@bp{#2} \default@bp{#3} \default@bp{#4}}%
-       \fi\fi
-    }%
-    \@firstofone{\expandafter\sa@readborder\sa@border} {} {} {} {} \relax
-    \endgroup
-  \fi
+  \xdef\PreviewBbAdjust{-\sa@border@left -\sa@border@bottom \sa@border@right \sa@border@top}%
 \fi
 %    \end{macrocode}
 %
@@ -307,30 +324,25 @@
   \ifsa@varwidth
     \RequirePackage{varwidth}
   \fi
-%    \end{macrocode}
-% Read the preview border values. The default unit is |bp| (PostScript points).
-% Allowed are one, two or four values.
-%    \begin{macrocode}
-  \ifx\sa@border\relax\else
-    \begingroup
-    \def\rem@bp#1bp\relax#2\@nnil{#1}%
-    \def\default@bp#1{\expandafter\rem@bp\the\dimexpr#1 bp\relax bp\relax\@nnil}%
-    \def\sa@readborder#1 #2 #3 #4 {%
-       \ifx\\#2#3#4\\%
-         \@defaultunits\global\PreviewBorder=\dimexpr#1 bp\relax\@nnil%
-       \else
-       \ifx\\#4\\%
-        \xdef\PreviewBbAdjust{-\default@bp{#1} -\default@bp{#2} \default@bp{#1} \default@bp{#2}}%
-       \else
-        \xdef\PreviewBbAdjust{-\default@bp{#1} -\default@bp{#2} \default@bp{#3} \default@bp{#4}}%
-       \fi\fi
-    }%
-    \@firstofone{\expandafter\sa@readborder\sa@border} {} {} {} {} \relax
-    \endgroup
-  \fi
 
 \def\sa@handlebox{%
-    \sbox\sa@box{\raise\dp\sa@box\box\sa@box}%
+    \sbox\sa@box{%
+        % add left border
+        \hskip\sa@border@left
+        % add top border
+        \@tempdima=\ht\sa@box
+        \advance\@tempdima\sa@border@top\relax
+        \ht\sa@box=\@tempdima
+        % add bottom border
+        \@tempdima=\dp\sa@box
+        \advance\@tempdima\sa@border@bottom\relax
+        \dp\sa@box=\@tempdima
+        % Remove all depth, so that height=totalheight
+        \raise\dp\sa@box
+            \box\sa@box
+        % add right border
+        \hskip\sa@border@right
+    }%
     \pdfpageheight=\ht\sa@box
     \pdfpagewidth=\wd\sa@box
     \noindent\usebox\sa@box
