@@ -55,6 +55,7 @@
 %
 %    \begin{macrocode}
 \RequirePackage{ifpdf}
+\RequirePackage{ifxetex}
 \RequirePackage{pgfopts}
 \pgfkeys{/standalone/cls/.is family}
 %    \end{macrocode}
@@ -76,7 +77,7 @@
 \pgfkeys{/standalone/cls/.cd,
    box/.is if=sa@box,
    box/.default=true,
-   box=true,
+   box=false,
 }
 %    \end{macrocode}
 %
@@ -86,7 +87,10 @@
 \pgfkeys{/standalone/cls/.cd,
    varwidth/.is if=sa@varwidth,
    varwidth/.default=true,
-   varwidth=true,
+}
+\IfFileExists{varwidth.sty}{%
+    \sa@varwidthtrue
+}{%
 }
 %    \end{macrocode}
 %
@@ -260,7 +264,10 @@
 \xdef\@tempa{[\sa@classoptionslist]{\sa@class}}
 \expandafter
 \endgroup
-\expandafter\LoadClass\@tempa
+\expandafter\LoadClass\@tempa\relax
+\pagestyle{empty}
+%    \end{macrocode}
+%
 %    \end{macrocode}
 %
 % \subsubsection{Preview Code}
@@ -283,11 +290,7 @@
   \ifsa@varwidth
     \RequirePackage{varwidth}
   \fi
-%    \end{macrocode}
-% Read the preview border values. The default unit is |bp| (PostScript points).
-% Allowed are one, two or four values.
-%    \begin{macrocode}
-  \xdef\PreviewBbAdjust{-\sa@border@left -\sa@border@bottom \sa@border@right \sa@border@top}%
+  \xdef\PreviewBbAdjust{-\sa@border@left\space -\sa@border@bottom\space \sa@border@right\space \sa@border@top}%
 \fi
 %    \end{macrocode}
 %
@@ -343,8 +346,20 @@
         % add right border
         \hskip\sa@border@right
     }%
-    \pdfpageheight=\ht\sa@box
-    \pdfpagewidth=\wd\sa@box
+    \ifpdf
+        \typeout{PDF}%
+        \pdfpageheight=\ht\sa@box
+        \pdfpagewidth=\wd\sa@box
+    \else
+    \ifxetex
+        \typeout{XeTeX}%
+        \pdfpageheight=\ht\sa@box
+        \pdfpagewidth=\wd\sa@box
+    \else
+        \paperheight=\ht\sa@box
+        \paperwidth=\wd\sa@box
+        \special{papersize=\the\paperwidth,\the\paperheight}%
+    \fi\fi
     \noindent\usebox\sa@box
 }
 
