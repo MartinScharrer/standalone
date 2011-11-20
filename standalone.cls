@@ -1,11 +1,7 @@
 %
-% \iffalse
-%<*cls>
-%<!COPYRIGHT>
-% \fi
-%
 % \subsection{The Class File}
 %    \begin{macrocode}
+%<!COPYRIGHT>
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{standalone}[%
 %<!DATE>
@@ -43,89 +39,42 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\notifstandalone}
-% Negated form of |\notifstandalone|.
+% \begin{macro}{\IfStandalone}[2]{true clause}{false clause}
+% Macro version of |\ifstandalone .. \else .. \fi|. The |{ }| around the argument protects the content from the package etc. scanners.
 %    \begin{macrocode}
-\let\notifstandalone\@gobble
+\let\IfStandalone\@firstoftwo
 %    \end{macrocode}
 % \end{macro}
 %
 %
-% \subsubsection{Options}
+% \subsubsection{Code for border values}
+% The following macros are used to parse the \opt{border} option.
 %
+% \begin{macro}{\sa@border@left}
+% \begin{macro}{\sa@border@right}
+% \begin{macro}{\sa@border@top}
+% \begin{macro}{\sa@border@margin}
 %    \begin{macrocode}
-\RequirePackage{ifpdf}
-\RequirePackage{ifxetex}
-\RequirePackage{pgfopts}
-\pgfkeys{/standalone/cls/.is family}
-%    \end{macrocode}
-%
-% Use of |preview| package is optional but enabled by default.
-% This defines the |\ifsa@preview| switch.
-%    \begin{macrocode}
-\newif\ifsa@preview
-\pgfkeys{/standalone/cls/.cd,
-   preview/.is if=sa@preview,
-   preview/.default=true,
-   preview=true,
-}
-%    \end{macrocode}
-%
-%
-%    \begin{macrocode}
-\newif\ifsa@tikz
-\pgfkeys{/standalone/cls/.cd,
-   tikz/.is if=sa@tikz,
-   tikz/.default=true,
-   tikz=false,
-}
-%    \end{macrocode}
-%
-%
-%    \begin{macrocode}
-\newif\ifsa@box
-\pgfkeys{/standalone/cls/.cd,
-   box/.is if=sa@box,
-   box/.default=true,
-   box=false,
-}
-%    \end{macrocode}
-%
-%
-%    \begin{macrocode}
-\newif\ifsa@ignore
-\pgfkeys{/standalone/cls/.cd,
-   ignore/.is if=sa@ignore,
-   ignore/.default=true,
-   ignore=false,
-}
-%    \end{macrocode}
-%
-%
-%    \begin{macrocode}
-\newif\ifsa@varwidth
-\pgfkeys{/standalone/cls/.cd,
-   varwidth/.is if=sa@varwidth,
-   varwidth/.default=true,
-}
-\IfFileExists{varwidth.sty}{%
-    \sa@varwidthtrue
-}{%
-}
-%    \end{macrocode}
-%
-% To set the preview border:
-%    \begin{macrocode}
-\pgfkeys{/standalone/cls/.cd,
-    border/.code={\sa@readborder#1 {} {} {} {} \relax},%
-    border/.value required,
-}
 \def\sa@border@left{0.50001bp}
 \let\sa@border@right\sa@border@left
 \let\sa@border@top\sa@border@left
 \let\sa@border@bottom\sa@border@left
-
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+%
+%
+% \begin{macro}{\rem@bp}
+%    \begin{macrocode}
 \def\rem@bp#1bp\relax#2\@nnil{#1}%
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \begin{macro}{\default@bp}
+%    \begin{macrocode}
 \def\default@bp#1#2{%
     \begingroup
     \afterassignment\remove@to@nnil
@@ -135,7 +84,13 @@
     \expandafter
     \def\expandafter#1\expandafter{\the\dimen@}%
 }
-\def\sa@readborder#1 #2 #3 #4 {%
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \begin{macro}{\sa@readborder}
+%    \begin{macrocode}
+\def\sa@readborder#1 #2 #3 #4 #5\@nnil{%
     \ifx\\#2#3#4\\%
         \default@bp\sa@border@left{#1}%
         \let\sa@border@right\sa@border@left
@@ -155,99 +110,148 @@
     \fi\fi
 }%
 %    \end{macrocode}
+% \end{macro}
 %
-% Enable beamer support.
+%
+% \subsubsection{Options}
+%
 %    \begin{macrocode}
-\pgfkeys{/standalone/cls/.cd,
-  beamer/.code={%
-    \def\sa@class{beamer}%
-    \sa@previewfalse
-    \standalonebeamertrue
-  },
-  beamer/.value forbidden,
-}
+\let\sa@classoptionslist\@classoptionslist
+\RequirePackage{xkeyval}
+\newif\ifsa@preview
+\newif\ifsa@box
+\newif\ifsa@varwidth
+\newif\ifsa@ignore
+\newif\ifsa@tikz
 %    \end{macrocode}
 %
-% Option to set underlying class. Default is |article|.
+% The \cs{ifstandalonebeamer} switch is in the user-level.
+% Wire the setter macros to the internal naming scheme, so that \Macro\sa@boolean can be used with it.
 %    \begin{macrocode}
-\pgfkeys{/standalone/cls/.cd,
-   class/.store in=\sa@class,
-   class/.value required,
-   class=article,
-}
+\let\sa@beamertrue\standalonebeamertrue
+\let\sa@beamerfalse\standalonebeamerfalse
 %    \end{macrocode}
 %
-% \begin{macro}{\standaloneconfig}
+% \begin{macro}{\sa@option}
+% Wrapper macro to define options.
 %    \begin{macrocode}
-\newcommand*{\standaloneconfig}{\pgfqkeys{/standalone}}
+\def\sa@option{%
+    \define@key{standalone.cls}%
+}
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{key}{standalone.cls}{border}
+% Sets the border around the content.
 %    \begin{macrocode}
-\newif\ifsa@convert
-\pgfkeys{/standalone/cls/.cd,
-  convert/.style={/standalone/cls/convert/.cd,true,#1},
-  convert/.unknown/.style={/errors/unknown choice value=\pgfkeyscurrentkey\pgfkeyscurrentvalue},
-  convert/.default=true,
-%
-  png/.@cmd/.link=/standalone/cls/convert/png/.@cmd,
-  png72/.@cmd/.link=/standalone/cls/convert/png72/.@cmd,
-  png150/.@cmd/.link=/standalone/cls/convert/png150/.@cmd,
-  png300/.@cmd/.link=/standalone/cls/convert/png300/.@cmd,
-  jpg/.@cmd/.link=/standalone/cls/convert/jpg/.@cmd,
-  gif/.@cmd/.link=/standalone/cls/convert/gif/.@cmd,
-%
-  convert/.cd,
-  png/.style={/standalone/cls/convert/.cd,true,outext={.png},#1},
-  png72/.style={/standalone/cls/convert/.cd,true,outext={.png},density=72,#1},
-  png150/.style={/standalone/cls/convert/.cd,true,outext={.png},density=150,#1},
-  png300/.style={/standalone/cls/convert/.cd,true,outext={.png},density=300,#1},
-  jpg/.style={/standalone/cls/convert/.cd,true,outext={.jpg},#1},
-  gif/.style={/standalone/cls/convert/.cd,true,outext={.gif},#1},
-%
-  true/.code={\sa@converttrue},
-  false/.code={\sa@convertfalse},
-  false,
-%
-  newer/.code={\def\sa@convert@newer{\filemodCmp{\outfile}{\jobname}}},%
-  force/.code={\let\sa@convert@newer\@secondoftwo},
-  newer,
-%
-  command/.initial={},
-  imagemagick/.style={/standalone/cls/convert/command={\convertexe\space -density \density\space \infile\space \ifx\size\empty\else -resize \size\fi\space -quality 90 \outfile}},
-  ghostscript/.style={/standalone/cls/convert/command={gs -dSAFER -dBATCH -dNOPAUSE -sDEVICE=\gsdevice\space -r\density\space -sOutputFile=\outfile\space \infile}},
-  gs/.@cmd/.link=/standalone/cls/convert/ghostscript/.@cmd,
-  gsdevice/ext.jpg/.initial={jpg},
-  gsdevice/ext.png/.initial={png16m},
-  gsdevice/.initial={\pgfkeysifdefined{/standalone/cls/convert/gsdevice/ext\outext}{\pgfkeysvalueof{/standalone/cls/convert/gsdevice/ext\outext}}{\expandafter\@gobble\outext}},
-  convertexe/.initial={imgconvert},
-  density/.initial={300},
-  size/.initial={},
-  inext/.initial={\ifpdf.pdf\else.ps\fi},
-  precommand/.initial={\ifpdf\else dvips \jobname \fi},
-  inname/.initial={\jobname},
-  infile/.initial={\inname\inext},
-  outext/.initial={.png},
-  outname/.initial={\inname},
-  outfile/.initial={\outname\outext},
-  imagemagick,
-%
-  onfailure/.is choice,
-  onfailure/error/.code={\let\sa@convert@failuremsg\ClassError},
-  onfailure/warning/.code={\let\sa@convert@failuremsg\ClassWarning},
-  onfailure/info/.code={\let\sa@convert@failuremsg\ClassInfo},
-  onfailure/ignore/.code={\def\sa@convert@failuremsg{\expandafter\@gobbletwo\@gobble}\let\sa@convert@notfoundmsg\@gobbletwo},
-  onfailure=warning,
-}
-\let\sa@convert@notfoundmsg\ClassWarning
-\IfFileExists{/usr/bin/convert}{%
-    \standaloneconfig{cls/convert/convertexe={convert}}%
-}{%
-\IfFileExists{/usr/local/bin/convert}{%
-    \standaloneconfig{cls/convert/convertexe={convert}}%
-}{}%
+\sa@option{border}{%
+    \sa@readborder#1 {} {} {} {} \@nnil
 }
 %    \end{macrocode}
+% \end{key}
+%
+%
+% \begin{macro}{\sa@boolean}[2]{name of if-switch}{`true' or `false'}
+% Sets if-switches.
+%    \begin{macrocode}
+\def\sa@boolean#1#2{%
+    \begingroup
+    \edef\@tempa{#2}%
+    \def\@tempb{true}%
+    \ifx\@tempa\@tempb
+        \endgroup
+        \csname sa@#1true\endcsname
+    \else
+        \endgroup
+        \csname sa@#1false\endcsname
+    \fi
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%
+%
+%
+% \begin{key}{standalone.cls}{preview}
+% Boolean to control if \pkg{preview} package should be used.
+%    \begin{macrocode}
+\sa@option{preview}[true]{%
+    \sa@boolean{preview}{#1}%
+    \ifsa@preview
+        \sa@boxfalse
+    \fi
+}
+\sa@previewtrue
+%    \end{macrocode}
+% \end{key}
+%
+%
+% \begin{key}{standalone.cls}{box}
+% Boolean to control if own code should be used.
+% That code boxes the content and resizes the page to match the box dimensions.
+%    \begin{macrocode}
+\sa@option{box}[true]{%
+    \sa@boolean{box}{#1}%
+    \ifsa@box
+        \sa@previewfalse
+    \fi
+}
+%    \end{macrocode}
+% \end{key}
+%
+%
+% \begin{key}{standalone.cls}{varwidth}
+% Boolean to control if \pkg{varwidth} package should be used.
+% If so the content will be placed in a \env{varwidth} environment to avoid extending it to the full line width if a
+% paragraph break is inserted.
+%
+% The option is by default set to true if the \pkg{varwidth} package is available.
+%    \begin{macrocode}
+\sa@option{varwidth}[true]{%
+    \sa@boolean{varwidth}{#1}%
+    \ifsa@varwidth
+        \def\sa@varwidth{\varwidth{\linewidth}}%
+        \def\sa@endvarwidth{\endvarwidth}%
+    \else
+        \let\sa@varwidth\@empty
+        \let\sa@endvarwidth\@empty
+    \fi
+}
+\IfFileExists{varwidth.sty}{%
+    \setkeys{standalone.cls}{varwidth=true}%
+}{}%
+%    \end{macrocode}
+% \end{key}
+%
+%
+% \begin{key}{standalone.cls}{tikz}
+%    \begin{macrocode}
+\sa@option{tikz}[true]{%
+    \sa@boolean{tikz}{#1}%
+}
+%    \end{macrocode}
+% \end{key}
+%
+%
+% \begin{key}{standalone.cls}{beamer}
+% Boolean to control if the \cls{beamer} class is used.
+% paragraph break is inserted.
+%    \begin{macrocode}
+\sa@option{beamer}[true]{%
+    \sa@boolean{beamer}{#1}%
+}
+%    \end{macrocode}
+% \end{key}
+%
+% \begin{key}{standalone.cls}{class}
+%    \begin{macrocode}
+\sa@option{class}{%
+    \def\sa@class{#1}%
+}
+\def\sa@class{article}
+%    \end{macrocode}
+% \end{key}
+%
 %
 % \begin{environment}{standalone}
 % The \env{standalone} environment is defined by default to be without effect.
@@ -261,375 +265,100 @@
 %
 % Load configuration file.
 %    \begin{macrocode}
-\input{standalone.cfg}
+\InputIfFileExists{standalone.cfg}{}{}
 %    \end{macrocode}
 %
-%
-% The rest of the options are accumulated and set as the official class options
-% for the real class loaded afterwards. This avoids the passing of any |standalone| class options
-% to the underlying class in any way. The |beamer| class for example has an option called
-% `|class|' in a similar way the |standalone| class does, which would cause problems if not filtered out.
+% Process options as normal keys. Only unknown keys are set as global options.
 %    \begin{macrocode}
-\def\sa@classoptionslist{}
-\pgfkeys{/standalone/cls/.unknown/.code={%
-  \xdef\sa@classoptionslist{\sa@classoptionslist,\pgfkeyscurrentname}%
-}}
-\ProcessPgfOptions{/standalone/cls}
-\let\@classoptionslist\sa@classoptionslist
+\begingroup
+\def\@tempa{\endgroup\setkeys*{standalone.cls}}
+\expandafter\@tempa\expandafter{\sa@classoptionslist}
+\let\@classoptionslist\XKV@rm
 %    \end{macrocode}
 %
 % Loads the class given by the |class| option with the rest of the options.
 %    \begin{macrocode}
-\begingroup
-\xdef\@tempa{[\sa@classoptionslist]{\sa@class}}
-\expandafter
-\endgroup
-\expandafter\LoadClass\@tempa\relax
-\pagestyle{empty}
+\expandafter\expandafter\expandafter\LoadClass
+\expandafter\expandafter\expandafter[%
+\expandafter\@classoptionslist
+\expandafter]\expandafter{\sa@class}
 %    \end{macrocode}
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsubsection{Varwidth Option}
+%
+%    \begin{macrocode}
+\ifsa@varwidth
+    \RequirePackage{varwidth}
+\fi
 %    \end{macrocode}
 %
-% \subsubsection{Preview Code}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsubsection{Preview Option}
+%
 % The \env{standalone} environment is redefined to use the |preview| environment as
 % long it was not redefined in the configuration file.
 %    \begin{macrocode}
 \ifsa@preview
-  \sa@boxfalse
-  \RequirePackage{preview}
-  \ifsa@tikz
-    \RequirePackage{tikz}
-    \PreviewEnvironment{tikzpicture}
-  \else
-  \@ifundefined{endstandalone}{%
-    \ifsa@varwidth
-    \renewenvironment{standalone}
-      {\preview\varwidth{\linewidth}}
-      {\endvarwidth\endpreview}
+    \RequirePackage[active,tightpage]{preview}
+    \ifsa@tikz
+        \RequirePackage{tikz}
+        \PreviewEnvironment{tikzpicture}
     \else
-    \renewenvironment{standalone}
-      {\preview   }
-      {\endpreview}
+        \@ifundefined{endstandalone}{%
+            \ifsa@varwidth
+                \renewenvironment{standalone}
+                {\preview\sa@varwidth}
+                {\sa@endvarwidth\endpreview}
+            \else
+                \renewenvironment{standalone}
+                {\preview   }
+                {\endpreview}
+            \fi
+        }{}% TODO: Add info message?
     \fi
-  }{}%
-  \fi
-  \ifsa@varwidth
-    \RequirePackage{varwidth}
-  \fi
-  \xdef\PreviewBbAdjust{-\sa@border@left\space -\sa@border@bottom\space \sa@border@right\space \sa@border@top}%
-  \ifsa@varwidth
-      \def\@standaloneenv#1{%
-          \expandafter\let\csname sa@orig@#1\expandafter\endcsname\csname #1\endcsname
-          \expandafter\let\csname sa@orig@end#1\expandafter\endcsname\csname end#1\endcsname
-          \expandafter\def\csname #1\endcsname{%
-              \preview
-              \sa@varwidth
-              \csname sa@orig@#1\endcsname
-          }%
-          \expandafter\def\csname end#1\endcsname{%
-              \csname sa@orig@end#1\endcsname
-              \sa@endvarwidth
-              \endpreview
-          }%
-      }%
-  \else
-    \let\@standaloneenv\PreviewEnvironment
-  \fi
-\fi
 %    \end{macrocode}
-%
-%
-% \subsubsection{Box Code}
+% Set Border
 %    \begin{macrocode}
-\ifsa@varwidth
-    \RequirePackage{varwidth}
-    \def\sa@varwidth{\varwidth{\linewidth}}
-    \def\sa@endvarwidth{\endvarwidth}
-\else
-    \let\sa@varwidth\relax
-    \let\sa@endvarwidth\relax
-\fi
-
-\newcommand*\standaloneenv[1]{%
-    \begingroup
-    \edef\@tempa{\endgroup\noexpand\@for\noexpand\@tempa:=\zap@space#1 \@empty}%
-    \@tempa\do{\expandafter\@standaloneenv\expandafter{\@tempa}}%
-}
-
-\ifsa@box
-    \newbox\sa@box
-    \pagestyle{empty}
-    \hoffset=-72.27pt
-    \voffset=-72.27pt
-    \topmargin=0pt
-    \headheight=0pt
-    \headsep=0pt
-    \marginparsep=0pt
-    \marginparwidth=0pt
-    \footskip=0pt
-    \marginparpush=0pt
-    \oddsidemargin=0pt
-    \evensidemargin=0pt
-    \def\sa@boxit{\setbox\sa@box\hbox\bgroup\color@setgroup\sa@varwidth}%
-    \def\endsa@boxit{\sa@endvarwidth\color@endgroup\egroup}%
-    \ifsa@ignore
-        \renewenvironment{standalone}
-            {\sa@boxit}
-            {\endsa@boxit}
-        \newcommand*\@standaloneenv[1]{%
-            \expandafter\let\csname sa@orig@#1\expandafter\endcsname\csname #1\endcsname
-            \expandafter\let\csname sa@orig@end#1\expandafter\endcsname\csname end#1\endcsname
-            \expandafter\def\csname #1\endcsname{%
-                \edef\@tempa{\endgroup
-                    \noexpand\endsa@boxit
-                    \begingroup
-                    \def\noexpand\@currenvir{\@currenvir}%
-                    \def\noexpand\@currenvline{\@currenvline}%
-                }%
-                \@tempa
-                \sa@boxit
-                \csname sa@orig@#1\endcsname
-            }%
-            \expandafter\def\csname end#1\endcsname{%
-                \csname sa@orig@end#1\endcsname
-                \endsa@boxit
-                \sa@handlebox
-                \aftergroup\sa@boxit
-            }%
+    \xdef\PreviewBbAdjust{-\sa@border@left\space -\sa@border@bottom\space \sa@border@right\space \sa@border@top}%
+%    \end{macrocode}
+% Define \Macro\@standaloneenv macro.
+%    \begin{macrocode}
+    \def\@standaloneenv#1{%
+        \expandafter\let\csname sa@orig@#1\expandafter\endcsname\csname #1\endcsname
+        \expandafter\let\csname sa@orig@end#1\expandafter\endcsname\csname end#1\endcsname
+        \expandafter\def\csname #1\endcsname{%
+            \preview
+            \sa@varwidth
+            \csname sa@orig@#1\endcsname
         }%
-    \else
-        \newcommand*\@standaloneenv[1]{%
-            \expandafter\let\csname sa@orig@#1\expandafter\endcsname\csname #1\endcsname
-            \expandafter\let\csname sa@orig@end#1\expandafter\endcsname\csname end#1\endcsname
-            \expandafter\def\csname #1\endcsname{%
-                \sa@boxit
-                \csname sa@orig@#1\endcsname
-            }%
-            \expandafter\def\csname end#1\endcsname{%
-                \csname sa@orig@end#1\endcsname
-                \endsa@boxit
-                \sa@handlebox
-            }%
+        \expandafter\def\csname end#1\endcsname{%
+            \csname sa@orig@end#1\endcsname
+            \sa@endvarwidth
+            \endpreview
         }%
-    \fi
-  \ifsa@tikz
-    \RequirePackage{tikz}
-    \standaloneenv{tikzpicture}
-  \else
-    \ifsa@varwidth
-        \RequirePackage{varwidth}
-        \renewenvironment{standalone}
-            {\setbox\sa@box\hbox\bgroup\color@setgroup\varwidth{\linewidth}}
-            {\endvarwidth\color@endgroup\egroup\sa@handlebox}
-    \else
-        \renewenvironment{standalone}
-            {\setbox\sa@box\hbox\bgroup\color@setgroup}
-            {\color@endgroup\egroup\sa@handlebox}
-    \fi
-  \fi
-
-\def\sa@handlebox{%
-    \sbox\sa@box{%
-        % add left border
-        \hskip\sa@border@left
-        % add top border
-        \@tempdima=\ht\sa@box
-        \advance\@tempdima\sa@border@top\relax
-        \ht\sa@box=\@tempdima
-        % add bottom border
-        \@tempdima=\dp\sa@box
-        \advance\@tempdima\sa@border@bottom\relax
-        \dp\sa@box=\@tempdima
-        % Remove all depth, so that height=totalheight
-        \raise\dp\sa@box
-            \box\sa@box
-        % add right border
-        \hskip\sa@border@right
     }%
-    \ifpdf
-        \typeout{PDF}%
-        \pdfpageheight=\ht\sa@box
-        \pdfpagewidth=\wd\sa@box
-        \noindent\usebox\sa@box\newpage
-    \else
-    \ifxetex
-        \typeout{XeTeX}%
-        \pdfpageheight=\ht\sa@box
-        \pdfpagewidth=\wd\sa@box
-        \noindent\usebox\sa@box\newpage
-    \else
-        \paperheight=\ht\sa@box
-        \paperwidth=\wd\sa@box
-        \sa@papersize
-        \begingroup
-        \@tempdima0.99626\paperwidth
-        \@tempdimb0.99626\paperheight
-        \edef\@tempc{\strip@pt\@tempdima}%
-        \edef\@tempd{\strip@pt\@tempdimb}%
-        \advance\@tempdima by .998pt
-        \advance\@tempdimb by .998pt
-        \def\strip@float##1.##2\relax{##1}%
-        \edef\@tempa{\expandafter\strip@float\the\@tempdima\relax}%
-        \edef\@tempb{\expandafter\strip@float\the\@tempdimb\relax}%
-        \special{ps::%
-            \@percentchar\@percentchar PageBoundingBox: 0 0 \@tempa\space\@tempb^^J%
-            \@percentchar\@percentchar HiResPageBoundingBox: 0 0 \@tempc\space\@tempd^^J%
-            \@percentchar\@percentchar BeginPageSetup^^J%
-            << /PageSize [\@tempc\space\@tempd]
-            >> setpagedevice^^J%<<
-            0 0 bop^^J%
-            \@percentchar\@percentchar EndPageSetup}%
-        \endgroup
-        \noindent\sa@ps@content\newpage
-    \fi\fi
-}
-\def\sa@ps@content{%
-    \usebox\sa@box
-    \global\def\sa@sa@content{%
-        \@tempdima-\ht\sa@box
-        \advance\@tempdima+\sa@yoffset
-        \@tempdima\sa@yoffset
-        \advance\@tempdima-\f@size pt
-        \dp\sa@box\z@
-        \ht\sa@box\z@
-        \lower\@tempdima\box\sa@box
-    }%
-}
-\def\sa@papersize{%
-    \global\let\sa@papersize\relax
-    \special{papersize=\the\paperwidth,\the\paperheight}%
-    \global\sa@yoffset=\paperheight
-}
-\newlength\sa@yoffset
-
+%    \end{macrocode}
+%    \begin{macrocode}
 \fi
 %    \end{macrocode}
 %
 %
-% \subsubsection{Converting}
-%    \begin{macrocode}
-\ifsa@convert
-  \RequirePackage{filemod-expmin}
-  \begingroup
-  \def\sa@convert#1{%
-      \edef\filemodbefore{\csname pdffilemoddate\endcsname{\outfile}}%
-      \immediate\write18{\sa@convertcommand}%
-      \IfFileExists{\outfile}{%
-          \edef\filemodafter{\csname pdffilemoddate\endcsname{\outfile}}%
-          \ifx\filemodbefore\filemodafter
-              \expandafter\ifx\csname pdffilemoddate\endcsname\relax\else
-                  \sa@convert@failuremsg{standalone}{#1}{}%
-              \fi
-          \else
-              \message{^^Jstandalone: Conversion successfull.^^J}%
-          \fi
-      }{%
-          \sa@convert@failuremsg{standalone}{#1}{}%
-      }%
-  }
-  \pgfkeys{/standalone/cls/convert/.cd,
-        infile/.get=\infile,
-        inext/.get=\inext,
-        inname/.get=\inname,%
-        gsdevice/.get=\gsdevice,%
-        convertexe/.get=\convertexe,%
-        density/.get=\density,%
-        size/.get=\size,%
-        outext/.get=\outext,%
-        outname/.get=\outname,%
-        outfile/.get=\outfile,%
-        command/.get=\sa@convertcommand,%
-        precommand/.get=\sa@preconvertcommand,
-  }%
-  \edef\sa@preconvertcommand{\sa@preconvertcommand}%
-  \ifx\sa@preconvertcommand\empty\else
-    \immediate\write18{\sa@preconvertcommand}%
-  \fi
-  \IfFileExists{\infile}{%
-    \sa@convert@newer
-    {%
-        \message{^^Jstandalone: Skipped conversion: outfile newer than main file.^^J}%
-    }{%
-    \ifcase0%
-        \expandafter\ifx\csname pdfshellescape\endcsname\relax
-        \ifeof18 \else 3\fi
-        \else\the\pdfshellescape\fi
-    \relax% 0
-        \sa@convert@failuremsg
-            {standalone}{Shell escape disabled! Cannot convert file '\infile'.}{}%
-    \or% 1  % ok
-        \sa@convert{Conversion unsuccessful!^^JThere might be something wrong with your conversation software or the file^^Jpermissions!}%
-    \else% 2 or 3
-        \sa@convert{Conversion failed! Please ensure that shell escape is enabled (e.g. use '-shell-escape').}%
-    \fi
-    }%
-  }{%
-    \sa@convert@notfoundmsg
-        {standalone}{Cannot convert missing input file '\infile'.}%
-  }%
-  \endgroup
-\fi
-%    \end{macrocode}
-%
-% \subsubsection{Beamer Frame Environment}
-%
-%    \begin{macrocode}
-\ifstandalonebeamer
-%    \end{macrocode}
-% \begin{environment}{standaloneframe}
-% Front-end for the beamer |frame| environment. Parses all arguments
-% the same way and calls it with an added option.
-%    \begin{macrocode}
-\newenvironment{standaloneframe}{%
-  \@ifnextchar<%
-    {\@standaloneframe}%
-    {\@@standaloneframe{}}%
-}{\end{frame}}%
-\def\@standaloneframe<#1>{%
-    \@@standaloneframe{<#1>}%
-}
-\def\@@standaloneframe#1{%
-  \@ifnextchar[%]
-    {\@@@standaloneframe{#1}}%
-    {\@@@standaloneframe{#1}[]}%
-}%
-\def\@@@standaloneframe#1[{%
-  \@ifnextchar<%
-    {\@@@@standaloneframe{#1}[}%
-    {\@@@@@@standaloneframe{#1}[}%
-}%
-\def\@@@@standaloneframe#1[#2]{%
-  \@ifnextchar[%]
-    {\@@@@@standaloneframe{#1}{#2}}%
-    {\begin{frame}#1[#2][environment=standaloneframe]}%
-}%
-\def\@@@@@standaloneframe#1#2[#3]{%
-    \begin{frame}#1[#2][environment=standaloneframe,#3]%
-}%
-\def\@@@@@@standaloneframe#1[#2]{%
-    \begin{frame}#1[environment=standaloneframe,#2]%
-}%
-%    \end{macrocode}
-% \end{environment}
-%    \begin{macrocode}
-\fi
-%    \end{macrocode}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % \subsubsection{Document Environment in Sub-Files}
-%
+% This is done at the very end so that all used packages are already loaded.
+% Just in case these try also to redefine the \env{document} environment.
 %
 % \begin{environment}{document}
 % Adds own `after begin document' and `before end document` hooks.
 %    \begin{macrocode}
 \begingroup
-
 \toks@\expandafter{%
     \document
-    \let\documentclass\sa@documentclass  % TODO: really required?
     \sa@cls@afterbegindocument
 }
 \xdef\document{\the\toks@}%
-
 \toks@\expandafter{%
     \expandafter
     \sa@cls@beforeenddocument
@@ -647,13 +376,9 @@
 % are removed. This hooks are used (instead of calling the content directly in the above macros)
 % to add the possibility to fine tune this later, e.g.\ in the configuration file.
 %    \begin{macrocode}
-\def\sa@cls@afterbegindocument{\expandafter\standalone\ignorespaces}
+\def\sa@cls@afterbegindocument{\standalone\ignorespaces}
 \def\sa@cls@beforeenddocument{\ifhmode\unskip\fi\endstandalone}
 %    \end{macrocode}
 % \end{macro}
 % \end{macro}
-%
-% \iffalse
-%</cls>
-% \fi
 %
