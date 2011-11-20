@@ -235,10 +235,25 @@
 %
 % \begin{key}{standalone.cls}{beamer}
 % Boolean to control if the \cls{beamer} class is used.
-% paragraph break is inserted.
+%
+% If true sets the class to \cls{beamer} and switches \opt{preview} off.
+% If false the default class is restored if the current class was \cls{beamer}.
 %    \begin{macrocode}
 \sa@option{beamer}[true]{%
     \sa@boolean{beamer}{#1}%
+    \ifstandalonebeamer
+        \def\sa@class{beamer}%
+        \sa@previewfalse
+    \else
+        \begingroup
+        \def\@tempa{beamer}%
+        \ifx\@tempa\sa@class
+            \endgroup
+            \def\sa@class{article}%
+        \else
+            \endgroup
+        \fi
+    \fi
 }
 %    \end{macrocode}
 % \end{key}
@@ -345,7 +360,52 @@
 %
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsubsection{Beamer code}
 %
+%    \begin{macrocode}
+\ifstandalonebeamer
+%    \end{macrocode}
+% \begin{environment}{standaloneframe}
+% Front-end for the beamer |frame| environment. Parses all arguments
+% the same way and calls it with an added option.
+%    \begin{macrocode}
+\newenvironment{standaloneframe}{%
+  \@ifnextchar<%
+    {\@standaloneframe}%
+    {\@@standaloneframe{}}%
+}{\end{frame}}%
+\def\@standaloneframe<#1>{%
+    \@@standaloneframe{<#1>}%
+}
+\def\@@standaloneframe#1{%
+  \@ifnextchar[%]
+    {\@@@standaloneframe{#1}}%
+    {\@@@standaloneframe{#1}[]}%
+}%
+\def\@@@standaloneframe#1[{%
+  \@ifnextchar<%
+    {\@@@@standaloneframe{#1}[}%
+    {\@@@@@@standaloneframe{#1}[}%
+}%
+\def\@@@@standaloneframe#1[#2]{%
+  \@ifnextchar[%]
+    {\@@@@@standaloneframe{#1}{#2}}%
+    {\begin{frame}#1[#2][environment=standaloneframe]}%
+}%
+\def\@@@@@standaloneframe#1#2[#3]{%
+    \begin{frame}#1[#2][environment=standaloneframe,#3]%
+}%
+\def\@@@@@@standaloneframe#1[#2]{%
+    \begin{frame}#1[environment=standaloneframe,#2]%
+}%
+%    \end{macrocode}
+% \end{environment}
+%    \begin{macrocode}
+\fi
+%    \end{macrocode}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 % \subsubsection{Document Environment in Sub-Files}
 % This is done at the very end so that all used packages are already loaded.
 % Just in case these try also to redefine the \env{document} environment.
