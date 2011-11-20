@@ -93,6 +93,16 @@
 %
 %
 %    \begin{macrocode}
+\newif\ifsa@ignore
+\pgfkeys{/standalone/cls/.cd,
+   ignore/.is if=sa@ignore,
+   ignore/.default=true,
+   ignore=false,
+}
+%    \end{macrocode}
+%
+%
+%    \begin{macrocode}
 \newif\ifsa@varwidth
 \pgfkeys{/standalone/cls/.cd,
    varwidth/.is if=sa@varwidth,
@@ -285,6 +295,7 @@
 % long it was not redefined in the configuration file.
 %    \begin{macrocode}
 \ifsa@preview
+  \sa@boxfalse
   \RequirePackage{preview}
   \ifsa@tikz
     \RequirePackage{tikz}
@@ -306,56 +317,107 @@
     \RequirePackage{varwidth}
   \fi
   \xdef\PreviewBbAdjust{-\sa@border@left\space -\sa@border@bottom\space \sa@border@right\space \sa@border@top}%
+  \ifsa@varwidth
+      \def\@standaloneenv#1{%
+          \expandafter\let\csname sa@orig@#1\expandafter\endcsname\csname #1\endcsname
+          \expandafter\let\csname sa@orig@end#1\expandafter\endcsname\csname end#1\endcsname
+          \expandafter\def\csname #1\endcsname{%
+              \preview
+              \sa@varwidth
+              \csname sa@orig@#1\endcsname
+          }%
+          \expandafter\def\csname end#1\endcsname{%
+              \csname sa@orig@end#1\endcsname
+              \sa@endvarwidth
+              \endpreview
+          }%
+      }%
+  \else
+    \let\@standaloneenv\PreviewEnvironment
+  \fi
 \fi
 %    \end{macrocode}
 %
 %
-% \subsubsection{Preview Code}
-% The \env{standalone} environment is redefined to use the |preview| environment as
-% long it was not redefined in the configuration file.
+% \subsubsection{Box Code}
 %    \begin{macrocode}
+\ifsa@varwidth
+    \RequirePackage{varwidth}
+    \def\sa@varwidth{\varwidth{\linewidth}}
+    \def\sa@endvarwidth{\endvarwidth}
+\else
+    \let\sa@varwidth\relax
+    \let\sa@endvarwidth\relax
+\fi
+
+\newcommand*\standaloneenv[1]{%
+    \begingroup
+    \edef\@tempa{\endgroup\noexpand\@for\noexpand\@tempa:=\zap@space#1 \@empty}%
+    \@tempa\do{\expandafter\@standaloneenv\expandafter{\@tempa}}%
+}
+
 \ifsa@box
-  \newbox\sa@box
-  \pagestyle{empty}
-  \hoffset=-72.27pt
-  \voffset=-72.27pt
-  \topmargin=0pt
-  \headheight=0pt
-  \headsep=0pt
-  \marginparsep=0pt
-  \marginparwidth=0pt
-  \footskip=0pt
-  \marginparpush=0pt
-  \oddsidemargin=0pt
-  \evensidemargin=0pt
-  \def\sa@boxit{\setbox\sa@box\hbox\bgroup\color@setgroup}%
-  \def\endsa@boxit{\color@endgroup\egroup}%
-  \ifsa@tikz
-    \renewenvironment{standalone}
-        {\sa@boxit}
-        {\endsa@boxit}
-    \RequirePackage{tikz}
-    \let\sa@tikzpicture\tikzpicture
-    \let\sa@endtikzpicture\endtikzpicture
-    \def\tikzpicture{%
-        \edef\@tempa{\endgroup
-            \noexpand\endsa@boxit
-            \begingroup
-            \def\noexpand\@currenvir{\@currenvir}%
-            \def\noexpand\@currenvline{\@currenvline}%
+    \newbox\sa@box
+    \pagestyle{empty}
+    \hoffset=-72.27pt
+    \voffset=-72.27pt
+    \topmargin=0pt
+    \headheight=0pt
+    \headsep=0pt
+    \marginparsep=0pt
+    \marginparwidth=0pt
+    \footskip=0pt
+    \marginparpush=0pt
+    \oddsidemargin=0pt
+    \evensidemargin=0pt
+    \def\sa@boxit{\setbox\sa@box\hbox\bgroup\color@setgroup\sa@varwidth}%
+    \def\endsa@boxit{\sa@endvarwidth\color@endgroup\egroup}%
+    \ifsa@ignore
+        \renewenvironment{standalone}
+            {\sa@boxit}
+            {\endsa@boxit}
+        \newcommand*\@standaloneenv[1]{%
+            \expandafter\let\csname sa@orig@#1\expandafter\endcsname\csname #1\endcsname
+            \expandafter\let\csname sa@orig@end#1\expandafter\endcsname\csname end#1\endcsname
+            \expandafter\def\csname #1\endcsname{%
+                \edef\@tempa{\endgroup
+                    \noexpand\endsa@boxit
+                    \begingroup
+                    \def\noexpand\@currenvir{\@currenvir}%
+                    \def\noexpand\@currenvline{\@currenvline}%
+                }%
+                \@tempa
+                \sa@boxit
+                \csname sa@orig@#1\endcsname
+            }%
+            \expandafter\def\csname end#1\endcsname{%
+                \csname sa@orig@end#1\endcsname
+                \endsa@boxit
+                \sa@handlebox
+                \aftergroup\sa@boxit
+            }%
         }%
-        \@tempa
-        \sa@boxit
-        \sa@tikzpicture
-    }
-    \def\endtikzpicture{%
-        \sa@endtikzpicture
-        \endsa@boxit
-        \sa@handlebox
-        \aftergroup\sa@boxit
-    }
+    \else
+        \newcommand*\@standaloneenv[1]{%
+            \expandafter\let\csname sa@orig@#1\expandafter\endcsname\csname #1\endcsname
+            \expandafter\let\csname sa@orig@end#1\expandafter\endcsname\csname end#1\endcsname
+            \expandafter\def\csname #1\endcsname{%
+                \sa@boxit
+                \csname sa@orig@#1\endcsname
+            }%
+            \expandafter\def\csname end#1\endcsname{%
+                \csname sa@orig@end#1\endcsname
+                \endsa@boxit
+                \sa@handlebox
+            }%
+        }%
+    \fi
+  \ifsa@tikz
+    \RequirePackage{tikz}
+    \standaloneenv{tikzpicture}
   \else
     \ifsa@varwidth
+        \RequirePackage{varwidth}
         \renewenvironment{standalone}
             {\setbox\sa@box\hbox\bgroup\color@setgroup\varwidth{\linewidth}}
             {\endvarwidth\color@endgroup\egroup\sa@handlebox}
@@ -363,9 +425,6 @@
         \renewenvironment{standalone}
             {\setbox\sa@box\hbox\bgroup\color@setgroup}
             {\color@endgroup\egroup\sa@handlebox}
-    \fi
-    \ifsa@varwidth
-        \RequirePackage{varwidth}
     \fi
   \fi
 
