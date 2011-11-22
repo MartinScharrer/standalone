@@ -372,8 +372,9 @@
 \ifsa@preview
 %    \end{macrocode}
 %
+% Note: The used options are in the config file.
 %    \begin{macrocode}
-\RequirePackage[active,tightpage]{preview}
+\RequirePackage{preview}
 \ifsa@tikz\else
     \@ifundefined{endstandalone}{%
         \renewenvironment{standalone}
