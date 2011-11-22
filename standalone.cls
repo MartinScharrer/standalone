@@ -445,6 +445,7 @@
 \marginparpush=0pt
 \oddsidemargin=0pt
 \evensidemargin=0pt
+\topskip=0pt
 %    \end{macrocode}
 %
 % \begin{macro}{\sa@boxit}
@@ -584,8 +585,16 @@
     }
 \else
     \def\sa@placebox{%
-        \paperheight=\ht\sa@box
-        \paperwidth=\wd\sa@box
+        \global\paperwidth=\wd\sa@box
+        \global\paperheight=\ht\sa@box
+        \global\hsize=\wd\sa@box
+        \global\vsize=\ht\sa@box
+        \global\@colht=\ht\sa@box
+        \global\@colroom=\ht\sa@box
+        \global\hsize=\maxdimen
+        \global\vsize=\maxdimen
+        \global\textwidth=\wd\sa@box
+        \global\textheight=\ht\sa@box
         \sa@papersize
         \begingroup
         \@tempdima0.99626\paperwidth
@@ -606,7 +615,11 @@
             0 0 bop^^J%
             \@percentchar\@percentchar EndPageSetup}%
         \endgroup
-        \noindent\sa@ps@content\newpage
+        \topskip=0pt
+        \noindent\sa@ps@content
+        \typeout{DEBUG: \the\vsize, \the\ht\sa@box, \the\@colht, \the\@colroom, \the\outputpenalty}%
+        \newpage
+        \typeout{DEBUG: \the\vsize, \the\ht\sa@box, \the\@colht, \the\@colroom, \the\outputpenalty}%
     }
 %    \end{macrocode}
 % \end{macro}
@@ -619,15 +632,18 @@
 % reference point is still for the size of the first page.
 %    \begin{macrocode}
 \def\sa@ps@content{%
-    \usebox\sa@box
-    \global\def\sa@sa@content{%
+    \noindent\usebox\sa@box
+    \global\def\sa@ps@content{%
         \@tempdima-\ht\sa@box
         \advance\@tempdima+\sa@yoffset
         \@tempdima\sa@yoffset
-        \advance\@tempdima-\f@size pt
+        \advance\@tempdima-\topskip
         \dp\sa@box\z@
         \ht\sa@box\z@
-        \lower\@tempdima\box\sa@box
+        \tracingall
+        \tracingassigns=1
+        \tracingonline=0
+        \noindent\lower\@tempdima\copy\sa@box
     }%
 }
 %    \end{macrocode}
