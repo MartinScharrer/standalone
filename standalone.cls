@@ -407,7 +407,6 @@
 %    \begin{macrocode}
 \sa@convertoption{onfailure}{%
     \begingroup
-    \tracingall
     \edef\@tempa{#1}%
     \def\@tempb{error}%
     \ifx\@tempa\@tempb
@@ -1004,6 +1003,92 @@
 }%
 %    \end{macrocode}
 % \end{environment}
+%    \begin{macrocode}
+\fi
+%    \end{macrocode}
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsubsection{Conversion code}
+%    \begin{macrocode}
+\ifsa@convert
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\RequirePackage{filemod-expmin}
+\begingroup
+\let\on@line\@gobble
+%    \end{macrocode}
+%
+% \begin{macro}{\sa@convert}[1]{error message on failure}
+% Conversion macro.
+%    \begin{macrocode}
+\def\sa@convert#1{%
+    \edef\filemodbefore{\csname pdffilemoddate\endcsname{\outfile}}%
+    \immediate\write18{\sa@convert@command}%
+    \IfFileExists{\outfile}{%
+        \edef\filemodafter{\csname pdffilemoddate\endcsname{\outfile}}%
+        \ifx\filemodbefore\filemodafter
+            \expandafter\ifx\csname pdffilemoddate\endcsname\relax\else
+                \sa@convert@failuremsg{standalone}{#1}{}%
+            \fi
+        \else
+            \ClassInfo{standalone}{Conversion successfull.}%
+        \fi
+    }{%
+        \sa@convert@failuremsg{standalone}{#1}{}%
+    }%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% Provide the internal macros to the user level.
+%    \begin{macrocode}
+\let\infile\sa@convert@infile
+\let\inext\sa@convert@inext
+\let\inname\sa@convert@inname
+\let\gsdevice\sa@convert@gsdevice
+\let\convertexe\sa@convert@convertexe
+\let\density\sa@convert@density
+\let\size\sa@convert@size
+\let\outext\sa@convert@outext
+\let\outname\sa@convert@outname
+\let\outfile\sa@convert@outfile
+%    \end{macrocode}
+%
+% Execute preconvert command if it is set.
+%    \begin{macrocode}
+\edef\sa@convert@precommand{\sa@convert@precommand}%
+\ifx\sa@convert@precommand\@empty\else
+    \immediate\write18{\sa@convert@precommand}%
+\fi
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\IfFileExists{\infile}{%
+    \sa@convert@newer{%
+        \ClassInfo{standalone}{Skipped conversion: outfile newer than main file.}%
+    }{%
+        \ifcase0%
+            \expandafter\ifx\csname pdfshellescape\endcsname\relax
+            \ifeof18 \else 3\fi
+            \else\the\pdfshellescape\fi
+        \relax% 0
+            \sa@convert@failuremsg
+                {standalone}{Shell escape disabled! Cannot convert file '\infile'.}{}%
+        \or% 1
+            \sa@convert{Conversion unsuccessful!\MessageBreak 
+                        There might be something wrong with your\MessageBreak
+                        conversation software or the file permissions!}%
+        \else% 2 or 3
+            \sa@convert{Conversion failed! Please ensure that shell escape\MessageBreak is enabled (e.g. use '-shell-escape').}%
+        \fi
+    }%
+}{%
+    \sa@convert@notfoundmsg{standalone}{Cannot convert missing input file '\infile'.}{}%
+}%
+\endgroup
+%    \end{macrocode}
 %    \begin{macrocode}
 \fi
 %    \end{macrocode}
