@@ -181,7 +181,7 @@
 \sa@option{preview}[true]{%
     \sa@boolean{preview}{#1}%
     \ifsa@preview
-        \sa@boxfalse
+        \sa@cropfalse
     \fi
 }
 \sa@previewtrue
@@ -335,6 +335,14 @@
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{macro}{\@standaloneenv}
+% Default no-op version.
+%    \begin{macrocode}
+\let\@standaloneenv\@gobble
+%    \end{macrocode}
+% \end{macro}
+%
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsubsection{Varwidth Option}
 %
@@ -409,7 +417,10 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsubsection{Crop Option}
+%
 %    \begin{macrocode}
+\RequirePackage{ifpdf}
+\RequirePackage{ifxetex}
 \ifsa@crop
 %    \end{macrocode}
 %
@@ -460,7 +471,7 @@
     \renewenvironment{standalone}
         {\sa@boxit}
         {\endsa@boxit}
-    \newcommand*\@standaloneenv[1]{%
+    \def\@standaloneenv#1{%
         \expandafter\let\csname sa@orig@#1\expandafter\endcsname\csname #1\endcsname
         \expandafter\let\csname sa@orig@end#1\expandafter\endcsname\csname end#1\endcsname
         \expandafter\def\csname #1\endcsname{%
@@ -482,7 +493,7 @@
         }%
     }%
 \else
-    \newcommand*\@standaloneenv[1]{%
+    \def\@standaloneenv#1{%
         \expandafter\let\csname sa@orig@#1\expandafter\endcsname\csname #1\endcsname
         \expandafter\let\csname sa@orig@end#1\expandafter\endcsname\csname end#1\endcsname
         \expandafter\def\csname #1\endcsname{%
@@ -542,20 +553,34 @@
 % Define output dependent macro to place the content box together
 % with the required resizing of the page.
 %    \begin{macrocode}
-\RequirePackage{ifpdf}
-\RequirePackage{ifxetex}
 \ifpdf
     \def\sa@placebox{%
-        \pdfpageheight=\ht\sa@box
-        \pdfpagewidth=\wd\sa@box
-        \noindent\usebox\sa@box\newpage
+        \newpage
+        \global\pdfpagewidth=\wd\sa@box
+        \global\pdfpageheight=\ht\sa@box
+        \global\paperwidth=\wd\sa@box
+        \global\paperheight=\ht\sa@box
+        \global\hsize=\wd\sa@box
+        \global\vsize=\ht\sa@box
+        \global\@colht=\ht\sa@box
+        \global\@colroom=\ht\sa@box
+        \noindent\usebox\sa@box
+        \newpage
     }
 \else
 \ifxetex
     \def\sa@placebox{%
-        \pdfpageheight=\ht\sa@box
-        \pdfpagewidth=\wd\sa@box
-        \noindent\usebox\sa@box\newpage
+        \newpage
+        \global\pdfpagewidth=\wd\sa@box
+        \global\pdfpageheight=\ht\sa@box
+        \global\paperwidth=\wd\sa@box
+        \global\paperheight=\ht\sa@box
+        \global\hsize=\wd\sa@box
+        \global\vsize=\ht\sa@box
+        \global\@colht=\ht\sa@box
+        \global\@colroom=\ht\sa@box
+        \noindent\usebox\sa@box
+        \newpage
     }
 \else
     \def\sa@placebox{%
