@@ -127,6 +127,7 @@
 \newif\ifsa@varwidth
 \newif\ifsa@ignorerest
 \newif\ifsa@tikz
+\newif\ifsa@convert
 %    \end{macrocode}
 %
 % The \cs{ifstandalonebeamer} switch is in the user-level.
@@ -289,6 +290,80 @@
 \def\sa@class{article}
 %    \end{macrocode}
 % \end{key}
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% \begin{key}{standalone.cls}{convert}
+%    \begin{macrocode}
+\sa@option{convert}[true]{%
+    \setkeys{standalone.cls/convert}{#1}%
+}
+%    \end{macrocode}
+% \end{key}
+%
+%
+% \begin{macro}{\sa@convertoption}
+% Wrapper to define \opt{convert} options.
+%    \begin{macrocode}
+\def\sa@convertoption{%
+    \define@key{standalone.cls/convert}%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \begin{key}{standalone.cls/convert}{true}
+%    \begin{macrocode}
+\sa@convertoption{true}{%
+    \sa@convertrue
+}
+%    \end{macrocode}
+% \end{key}
+%
+%
+% \begin{key}{standalone.cls/convert}{false}
+%    \begin{macrocode}
+\sa@convertoption{false}{%
+    \sa@converfalse
+}
+%    \end{macrocode}
+% \end{key}
+%
+%
+% \begin{key}{standalone.cls/convert}{onfailure}
+%
+%    \begin{macrocode}
+\sa@convertoption{onfailure}{%
+    \begingroup
+    \edef\@tempa{#1}%
+    \def\@tempb{error}%
+    \if\@tempa\@tempb
+        \let\sa@convert@failuremsg\ClassError
+    \else
+    \def\@tempb{warning}%
+    \if\@tempa\@tempb
+        \let\sa@convert@failuremsg\ClassWarning
+    \else
+    \def\@tempb{info}%
+    \if\@tempa\@tempb
+        \let\sa@convert@failuremsg\ClassInfo
+    \else
+    \def\@tempb{ignore}%
+    \if\@tempa\@tempb
+        \def\sa@convert@failuremsg##1##2##3{}%
+        \let\sa@convert@notfoundmsg\@gobbletwo
+    \else
+        \begingroup
+        \let\on@line\@empty
+        \ClassError{standalone}{Invalid value for the 'onfailure' option.\MessageBreak
+                                Valid values: 'error', 'warning', 'info', 'ignore'}{}%
+        \endgroup
+    \fi\fi\fi
+}
+%    \end{macrocode}
+% \end{key}
+%
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsubsection{General macros}
