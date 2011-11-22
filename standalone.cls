@@ -12,6 +12,7 @@
     Class to compile TeX sub-files standalone]
 %    \end{macrocode}
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsubsection{If-Switches}
 %
 % \begin{macro}{\ifstandalone}
@@ -47,6 +48,7 @@
 % \end{macro}
 %
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsubsection{Code for border values}
 % The following macros are used to parse the \opt{border} option.
 %
@@ -113,15 +115,16 @@
 % \end{macro}
 %
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsubsection{Options}
 %
 %    \begin{macrocode}
 \let\sa@classoptionslist\@classoptionslist
 \RequirePackage{xkeyval}
 \newif\ifsa@preview
-\newif\ifsa@box
+\newif\ifsa@crop
 \newif\ifsa@varwidth
-\newif\ifsa@ignore
+\newif\ifsa@ignorerest
 \newif\ifsa@tikz
 %    \end{macrocode}
 %
@@ -186,15 +189,26 @@
 % \end{key}
 %
 %
-% \begin{key}{standalone.cls}{box}
+% \begin{key}{standalone.cls}{crop}
 % Boolean to control if own code should be used.
 % That code boxes the content and resizes the page to match the box dimensions.
 %    \begin{macrocode}
-\sa@option{box}[true]{%
-    \sa@boolean{box}{#1}%
-    \ifsa@box
+\sa@option{crop}[true]{%
+    \sa@boolean{crop}{#1}%
+    \ifsa@crop
         \sa@previewfalse
     \fi
+}
+%    \end{macrocode}
+% \end{key}
+%
+%
+% \begin{key}{standalone.cls}{ignorerest}
+% Boolean to control if all other code outside of specified environments should be explicit ignored.
+% That code boxes the outside content and then than discards it.
+%    \begin{macrocode}
+\sa@option{ignorerest}[true]{%
+    \sa@boolean{ignorerest}{#1}%
 }
 %    \end{macrocode}
 % \end{key}
@@ -299,7 +313,29 @@
 \expandafter]\expandafter{\sa@class}
 %    \end{macrocode}
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsubsection{General macros}
+%
+% \begin{macro}{\standaloneenv}[1]{comma separated list if environment names}
+% Loops over all environment names and calls \Macro\@standaloneenv on them.
+%    \begin{macrocode}
+\newcommand*\standaloneenv[1]{%
+    \begingroup
+    \edef\@tempa{\endgroup\noexpand\@for\noexpand\@tempa:=\zap@space#1 \@empty}%
+    \@tempa\do{\expandafter\@standaloneenv\expandafter{\@tempa}}%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\standaloneconfig}
+% User level configuration macro.
+%    \begin{macrocode}
+\newcommand*{\standaloneconfig}{\setkeys{standalone.cls}}
+%    \end{macrocode}
+% \end{macro}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsubsection{Varwidth Option}
 %
 %    \begin{macrocode}
@@ -308,58 +344,302 @@
 \fi
 %    \end{macrocode}
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsubsection{TikZ Option}
+%
+% Loads \pkg{tikz} and makes the \env{tikzpicture} environment and standalone environment.
+%    \begin{macrocode}
+\ifsa@tikz
+    \RequirePackage{tikz}
+    \AtEndOfPackage{\standaloneenv{tikzpicture}}
+\fi
+%    \end{macrocode}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsubsection{Preview Option}
 %
 % The \env{standalone} environment is redefined to use the |preview| environment as
 % long it was not redefined in the configuration file.
 %    \begin{macrocode}
 \ifsa@preview
-    \RequirePackage[active,tightpage]{preview}
-    \ifsa@tikz
-        \RequirePackage{tikz}
-        \PreviewEnvironment{tikzpicture}
-    \else
-        \@ifundefined{endstandalone}{%
-            \ifsa@varwidth
-                \renewenvironment{standalone}
-                {\preview\sa@varwidth}
-                {\sa@endvarwidth\endpreview}
-            \else
-                \renewenvironment{standalone}
-                {\preview   }
-                {\endpreview}
-            \fi
-        }{}% TODO: Add info message?
-    \fi
 %    \end{macrocode}
+%
+%    \begin{macrocode}
+\RequirePackage[active,tightpage]{preview}
+\ifsa@tikz\else
+    \@ifundefined{endstandalone}{%
+        \renewenvironment{standalone}
+            {\preview\sa@varwidth}
+            {\sa@endvarwidth\endpreview}
+    }{}% TODO: Add info message?
+\fi
+%    \end{macrocode}
+%
 % Set Border
 %    \begin{macrocode}
-    \xdef\PreviewBbAdjust{-\sa@border@left\space -\sa@border@bottom\space \sa@border@right\space \sa@border@top}%
+\def\PreviewBbAdjust{-\sa@border@left\space -\sa@border@bottom\space \sa@border@right\space \sa@border@top}%
 %    \end{macrocode}
-% Define \Macro\@standaloneenv macro.
+%
+% \begin{macro}{\@standaloneenv}
+% Preview version. Wrappes a \env{preview} environment around the original environment.
+% Also adds the \env{varwidth} macros, which can be empty.
+% These \env{varwidth} macros are the reason why \Macro\PreviewEnvironment is not used directly.
 %    \begin{macrocode}
-    \def\@standaloneenv#1{%
-        \expandafter\let\csname sa@orig@#1\expandafter\endcsname\csname #1\endcsname
-        \expandafter\let\csname sa@orig@end#1\expandafter\endcsname\csname end#1\endcsname
-        \expandafter\def\csname #1\endcsname{%
-            \preview
-            \sa@varwidth
-            \csname sa@orig@#1\endcsname
-        }%
-        \expandafter\def\csname end#1\endcsname{%
-            \csname sa@orig@end#1\endcsname
-            \sa@endvarwidth
-            \endpreview
-        }%
+\def\@standaloneenv#1{%
+    \expandafter\let\csname sa@orig@#1\expandafter\endcsname\csname #1\endcsname
+    \expandafter\let\csname sa@orig@end#1\expandafter\endcsname\csname end#1\endcsname
+    \expandafter\def\csname #1\endcsname{%
+        \preview
+        \sa@varwidth
+        \csname sa@orig@#1\endcsname
     }%
+    \expandafter\def\csname end#1\endcsname{%
+        \csname sa@orig@end#1\endcsname
+        \sa@endvarwidth
+        \endpreview
+    }%
+}%
 %    \end{macrocode}
+% \end{macro}
+%
 %    \begin{macrocode}
 \fi
 %    \end{macrocode}
 %
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsubsection{Crop Option}
+%    \begin{macrocode}
+\ifsa@crop
+%    \end{macrocode}
+%
+% Box register to save the content.
+% \begin{macro}{\sa@box}
+%    \begin{macrocode}
+\newbox\sa@box
+%    \end{macrocode}
+% \end{macro}
+%
+% Set all normal page margins etc. to zero.
+%    \begin{macrocode}
+\pagestyle{empty}
+\hoffset=-72.27pt
+\voffset=-72.27pt
+\topmargin=0pt
+\headheight=0pt
+\headsep=0pt
+\marginparsep=0pt
+\marginparwidth=0pt
+\footskip=0pt
+\marginparpush=0pt
+\oddsidemargin=0pt
+\evensidemargin=0pt
+%    \end{macrocode}
+%
+% \begin{macro}{\sa@boxit}
+%    \begin{macrocode}
+\def\sa@boxit{%
+    \setbox\sa@box\hbox\bgroup\color@setgroup\sa@varwidth
+}%
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\endsa@boxit}
+%    \begin{macrocode}
+\def\endsa@boxit{%
+    \sa@endvarwidth\color@endgroup\egroup
+}%
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@standaloneenv}
+% If the \opt{ignorerest} option is used all content outside of \Macro\standaloneenv\relax-ironments is
+% boxed and discarded. This requires such environments to close the box first and reopen it afterwards.
+%    \begin{macrocode}
+\ifsa@ignorerest
+    \renewenvironment{standalone}
+        {\sa@boxit}
+        {\endsa@boxit}
+    \newcommand*\@standaloneenv[1]{%
+        \expandafter\let\csname sa@orig@#1\expandafter\endcsname\csname #1\endcsname
+        \expandafter\let\csname sa@orig@end#1\expandafter\endcsname\csname end#1\endcsname
+        \expandafter\def\csname #1\endcsname{%
+            \edef\@tempa{\endgroup
+                \noexpand\endsa@boxit
+                \begingroup
+                \def\noexpand\@currenvir{\@currenvir}%
+                \def\noexpand\@currenvline{\@currenvline}%
+            }%
+            \@tempa
+            \sa@boxit
+            \csname sa@orig@#1\endcsname
+        }%
+        \expandafter\def\csname end#1\endcsname{%
+            \csname sa@orig@end#1\endcsname
+            \endsa@boxit
+            \sa@handlebox
+            \aftergroup\sa@boxit
+        }%
+    }%
+\else
+    \newcommand*\@standaloneenv[1]{%
+        \expandafter\let\csname sa@orig@#1\expandafter\endcsname\csname #1\endcsname
+        \expandafter\let\csname sa@orig@end#1\expandafter\endcsname\csname end#1\endcsname
+        \expandafter\def\csname #1\endcsname{%
+            \sa@boxit
+            \csname sa@orig@#1\endcsname
+        }%
+        \expandafter\def\csname end#1\endcsname{%
+            \csname sa@orig@end#1\endcsname
+            \endsa@boxit
+            \sa@handlebox
+        }%
+    }%
+\fi
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \begin{macro}{\sa@handlebox}
+% Adds the border as part of the box dimensions and places the result
+% using the output format dependent \Macro\sa@placebox macro.
+%    \begin{macrocode}
+\def\sa@handlebox{%
+    \sbox\sa@box{%
+%    \end{macrocode}
+% add left border
+%    \begin{macrocode}
+        \hskip\sa@border@left
+%    \end{macrocode}
+% add top border
+%    \begin{macrocode}
+        \@tempdima=\ht\sa@box
+        \advance\@tempdima\sa@border@top\relax
+        \ht\sa@box=\@tempdima
+%    \end{macrocode}
+% add bottom border
+%    \begin{macrocode}
+        \@tempdima=\dp\sa@box
+        \advance\@tempdima\sa@border@bottom\relax
+        \dp\sa@box=\@tempdima
+%    \end{macrocode}
+% Remove all depth, so that height=totalheight
+%    \begin{macrocode}
+        \raise\dp\sa@box
+            \box\sa@box
+%    \end{macrocode}
+% add right border
+%    \begin{macrocode}
+        \hskip\sa@border@right
+    }%
+    \sa@placebox
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \begin{macro}{\sa@placebox}
+% Define output dependent macro to place the content box together
+% with the required resizing of the page.
+%    \begin{macrocode}
+\RequirePackage{ifpdf}
+\RequirePackage{ifxetex}
+\ifpdf
+    \def\sa@placebox{%
+        \pdfpageheight=\ht\sa@box
+        \pdfpagewidth=\wd\sa@box
+        \noindent\usebox\sa@box\newpage
+    }
+\else
+\ifxetex
+    \def\sa@placebox{%
+        \pdfpageheight=\ht\sa@box
+        \pdfpagewidth=\wd\sa@box
+        \noindent\usebox\sa@box\newpage
+    }
+\else
+    \def\sa@placebox{%
+        \paperheight=\ht\sa@box
+        \paperwidth=\wd\sa@box
+        \sa@papersize
+        \begingroup
+        \@tempdima0.99626\paperwidth
+        \@tempdimb0.99626\paperheight
+        \edef\@tempc{\strip@pt\@tempdima}%
+        \edef\@tempd{\strip@pt\@tempdimb}%
+        \advance\@tempdima by .998pt
+        \advance\@tempdimb by .998pt
+        \def\strip@float##1.##2\relax{##1}%
+        \edef\@tempa{\expandafter\strip@float\the\@tempdima\relax}%
+        \edef\@tempb{\expandafter\strip@float\the\@tempdimb\relax}%
+        \special{ps::%
+            \@percentchar\@percentchar PageBoundingBox: 0 0 \@tempa\space\@tempb^^J%
+            \@percentchar\@percentchar HiResPageBoundingBox: 0 0 \@tempc\space\@tempd^^J%
+            \@percentchar\@percentchar BeginPageSetup^^J%
+            << /PageSize [\@tempc\space\@tempd]
+            >> setpagedevice^^J%<<
+            0 0 bop^^J%
+            \@percentchar\@percentchar EndPageSetup}%
+        \endgroup
+        \noindent\sa@ps@content\newpage
+    }
+%    \end{macrocode}
+% \end{macro}
+%
+% Other macros required for PostScript output.
+% They will redefine themselves to act differently for the very first page than for the remaining ones.
+% \begin{macro}{\sa@ps@content}
+%
+% Simply place the box of the first page. Further pages need to be vertically adjusted because the
+% reference point is still for the size of the first page.
+%    \begin{macrocode}
+\def\sa@ps@content{%
+    \usebox\sa@box
+    \global\def\sa@sa@content{%
+        \@tempdima-\ht\sa@box
+        \advance\@tempdima+\sa@yoffset
+        \@tempdima\sa@yoffset
+        \advance\@tempdima-\f@size pt
+        \dp\sa@box\z@
+        \ht\sa@box\z@
+        \lower\@tempdima\box\sa@box
+    }%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \begin{macro}{\sa@papersize}
+% Declare official papersize as the size of the first page.
+% Store offset and disable this macro for all further pages.
+%    \begin{macrocode}
+\def\sa@papersize{%
+    \global\let\sa@papersize\relax
+    \special{papersize=\the\paperwidth,\the\paperheight}%
+    \global\sa@yoffset=\paperheight
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\sa@yoffset}
+% Offset required to vertical adjust all further pages according to the first page.
+%    \begin{macrocode}
+\newlength\sa@yoffset
+%    \end{macrocode}
+% \end{macro}
+%
+% End of |\ifpdf .. \else\ifxetex .. \else| statement.
+%    \begin{macrocode}
+\fi\fi
+%    \end{macrocode}
+%
+% End of \opt{crop} option code.
+%    \begin{macrocode}
+\fi
+%    \end{macrocode}
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsubsection{Beamer code}
 %
 %    \begin{macrocode}
@@ -404,8 +684,7 @@
 \fi
 %    \end{macrocode}
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsubsection{Document Environment in Sub-Files}
 % This is done at the very end so that all used packages are already loaded.
 % Just in case these try also to redefine the \env{document} environment.
@@ -442,3 +721,4 @@
 % \end{macro}
 % \end{macro}
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
