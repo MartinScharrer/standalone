@@ -317,9 +317,13 @@
 \let\@classoptionslist\XKV@rm
 %    \end{macrocode}
 %
-% Disable keys which are only allowed as class optiosn.
+% Disable keys which are only allowed as class options.
+% The \opt{multi} option is still allowed inside the preamble.
 %    \begin{macrocode}
-\disable@keys{standalone.cls}{crop,preview,multi,class,beamer,ignorerest}
+\disable@keys{standalone.cls}{crop,preview,class,beamer,ignorerest}
+\AtBeginDocument{%
+    \disable@keys{standalone.cls}{multi}%
+}
 %    \end{macrocode}
 %
 % Loads the class given by the |class| option with the rest of the options.
@@ -495,6 +499,35 @@
 %    \end{macrocode}
 % \end{macro}
 %
+%
+% \begin{environment}{standalone}
+% Redefine the \env{standalone} environment to box the content if \opt{multi} is off,
+% in order to use the whole content as single page. If \opt{multi} and \opt{ignorerest} are on
+% the content is also boxed, but later discarded. If only \opt{multi} is on the environment
+% doesn't have to do anything.
+%    \begin{macrocode}
+\renewenvironment{standalone}{%
+    \ifsa@multi
+        \ifsa@ignorerest
+            \sa@boxit
+        \fi
+    \else
+        \sa@boxit
+    \fi
+}{%
+    \ifsa@multi
+        \ifsa@ignorerest
+            \endsa@boxit
+        \fi
+    \else
+        \endsa@boxit
+        \sa@handlebox
+    \fi
+}
+%    \end{macrocode}
+% \end{environment}
+%
+%
 % \begin{macro}{\@standaloneenv}
 % If the \opt{ignorerest} option is used all content outside of \Macro\standaloneenv\relax-ironments is
 % boxed and discarded. This requires such environments to close the box first and reopen it afterwards.
@@ -503,9 +536,6 @@
     \sa@ignorerestfalse
 \fi
 \ifsa@ignorerest
-    \renewenvironment{standalone}
-        {\sa@boxit}
-        {\endsa@boxit}
     \def\@standaloneenv#1{%
         \expandafter\let\csname sa@orig@#1\expandafter\endcsname\csname #1\endcsname
         \expandafter\let\csname sa@orig@end#1\expandafter\endcsname\csname end#1\endcsname
@@ -534,11 +564,6 @@
         }%
     }%
 \else
-    \ifsa@multi\else
-        \renewenvironment{standalone}
-            {\sa@boxit}
-            {\endsa@boxit\sa@handlebox}
-    \fi
     \def\@standaloneenv#1{%
         \expandafter\let\csname sa@orig@#1\expandafter\endcsname\csname #1\endcsname
         \expandafter\let\csname sa@orig@end#1\expandafter\endcsname\csname end#1\endcsname
