@@ -1,1 +1,1 @@
-../standalone_cls.dtx
+../standalone.cls
