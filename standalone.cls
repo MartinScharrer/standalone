@@ -242,9 +242,6 @@
         \let\sa@endvarwidth\@empty
     \fi
 }
-\IfFileExists{varwidth.sty}{%
-    \setkeys{standalone.cls}{varwidth=true}%
-}{}%
 %    \end{macrocode}
 % \end{key}
 %
@@ -293,48 +290,6 @@
 %    \end{macrocode}
 % \end{key}
 %
-%
-% \begin{environment}{standalone}
-% The \env{standalone} environment is defined by default to be without effect.
-% The \cs{endstandalone} macro is set to |\relax|, so a redefinition with
-% \cs{renewenvironment} in the configuration file is possible and also can later be detected.
-%    \begin{macrocode}
-\let\standalone\empty
-\let\endstandalone\relax
-%    \end{macrocode}
-% \end{environment}
-%
-% Load configuration file.
-%    \begin{macrocode}
-\InputIfFileExists{standalone.cfg}{}{}
-%    \end{macrocode}
-%
-% Process options as normal keys. Only unknown keys are set as global options.
-%    \begin{macrocode}
-\begingroup
-\def\@tempa{\endgroup\setkeys*{standalone.cls}}
-\expandafter\@tempa\expandafter{\sa@classoptionslist}
-\let\@classoptionslist\XKV@rm
-%    \end{macrocode}
-%
-% Disable keys which are only allowed as class options.
-% The \opt{multi} option is still allowed inside the preamble.
-%    \begin{macrocode}
-\disable@keys{standalone.cls}{crop,preview,class,beamer,ignorerest}
-\AtBeginDocument{%
-    \disable@keys{standalone.cls}{multi}%
-}
-%    \end{macrocode}
-%
-% Loads the class given by the |class| option with the rest of the options.
-%    \begin{macrocode}
-\expandafter\expandafter\expandafter\LoadClass
-\expandafter\expandafter\expandafter[%
-\expandafter\@classoptionslist
-\expandafter]\expandafter{\sa@class}
-%    \end{macrocode}
-%
-%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsubsection{General macros}
 %
@@ -369,6 +324,51 @@
 %    \begin{macrocode}
 \newcount\sa@internal
 %    \end{macrocode}
+%
+%
+% \begin{environment}{standalone}
+% The \env{standalone} environment is defined by default to be without effect.
+% The \cs{endstandalone} macro is set to |\relax|, so a redefinition with
+% \cs{renewenvironment} in the configuration file is possible and also can later be detected.
+%    \begin{macrocode}
+\let\standalone\empty
+\let\endstandalone\relax
+%    \end{macrocode}
+% \end{environment}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsubsection{Load config file, process options and load class}
+%
+% Load configuration file.
+%    \begin{macrocode}
+\InputIfFileExists{standalone.cfg}{}{}
+%    \end{macrocode}
+%
+% Process options as normal keys. Only unknown keys are set as global options.
+%    \begin{macrocode}
+\begingroup
+\def\@tempa{\endgroup\setkeys*{standalone.cls}}
+\expandafter\@tempa\expandafter{\sa@classoptionslist}
+\let\@classoptionslist\XKV@rm
+%    \end{macrocode}
+%
+% Disable keys which are only allowed as class options.
+% The \opt{multi} option is still allowed inside the preamble.
+%    \begin{macrocode}
+\disable@keys{standalone.cls}{crop,preview,class,beamer,ignorerest}
+\AtBeginDocument{%
+    \disable@keys{standalone.cls}{multi}%
+}
+%    \end{macrocode}
+%
+% Loads the class given by the |class| option with the rest of the options.
+%    \begin{macrocode}
+\expandafter\expandafter\expandafter\LoadClass
+\expandafter\expandafter\expandafter[%
+\expandafter\@classoptionslist
+\expandafter]\expandafter{\sa@class}
+%    \end{macrocode}
+%
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsubsection{Varwidth Option}
