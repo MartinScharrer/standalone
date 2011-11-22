@@ -446,6 +446,7 @@
 \oddsidemargin=0pt
 \evensidemargin=0pt
 \topskip=0pt
+\textheight=\maxdimen
 %    \end{macrocode}
 %
 % \begin{macro}{\sa@boxit}
@@ -587,14 +588,10 @@
     \def\sa@placebox{%
         \global\paperwidth=\wd\sa@box
         \global\paperheight=\ht\sa@box
-        \global\hsize=\wd\sa@box
-        \global\vsize=\ht\sa@box
-        \global\@colht=\ht\sa@box
-        \global\@colroom=\ht\sa@box
+        \global\@colht=\maxdimen
+        \global\@colroom=\maxdimen
         \global\hsize=\maxdimen
         \global\vsize=\maxdimen
-        \global\textwidth=\wd\sa@box
-        \global\textheight=\ht\sa@box
         \sa@papersize
         \begingroup
         \@tempdima0.99626\paperwidth
@@ -617,9 +614,7 @@
         \endgroup
         \topskip=0pt
         \noindent\sa@ps@content
-        \typeout{DEBUG: \the\vsize, \the\ht\sa@box, \the\@colht, \the\@colroom, \the\outputpenalty}%
         \newpage
-        \typeout{DEBUG: \the\vsize, \the\ht\sa@box, \the\@colht, \the\@colroom, \the\outputpenalty}%
     }
 %    \end{macrocode}
 % \end{macro}
@@ -634,15 +629,10 @@
 \def\sa@ps@content{%
     \noindent\usebox\sa@box
     \global\def\sa@ps@content{%
-        \@tempdima-\ht\sa@box
-        \advance\@tempdima+\sa@yoffset
         \@tempdima\sa@yoffset
         \advance\@tempdima-\topskip
         \dp\sa@box\z@
         \ht\sa@box\z@
-        \tracingall
-        \tracingassigns=1
-        \tracingonline=0
         \noindent\lower\@tempdima\copy\sa@box
     }%
 }
