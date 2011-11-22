@@ -115,6 +115,12 @@
 % \end{macro}
 %
 %
+%    \begin{macrocode}
+\RequirePackage{ifpdf}
+\RequirePackage{ifxetex}
+\RequirePackage{ifluatex}
+%    \end{macrocode}
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsubsection{Options}
 %
@@ -488,8 +494,6 @@
 %
 %    \begin{macrocode}
 \sa@convertvar{size}{}
-\sa@convertvar{inext}{\ifpdf.pdf\else.ps\fi}
-\sa@convertvar{precommand}{\ifpdf\else dvips \jobname \fi}
 \sa@convertvar{inname}{\jobname}
 \sa@convertvar{infile}{\inname\inext}
 \sa@convertvar{outext}{.png}
@@ -504,6 +508,25 @@
         \csname sa@gsdevice@\outext\endcsname
     \fi
 }
+\ifpdf
+    \sa@convertvar{latex}{pdflatex}
+    \sa@convertvar{inext}{.pdf}
+    \sa@convertvar{precommand}{}
+\else
+\ifluatex
+    \sa@convertvar{latex}{lualatex}
+    \sa@convertvar{inext}{.pdf}
+    \sa@convertvar{precommand}{}
+\else
+\ifxetex
+    \sa@convertvar{latex}{xelatex}
+    \sa@convertvar{inext}{.pdf}
+    \sa@convertvar{precommand}{}
+\else
+    \sa@convertvar{latex}{latex}
+    \sa@convertvar{inext}{.ps}
+    \sa@convertvar{precommand}{dvips \jobname.dvi}
+\fi\fi\fi
 %    \end{macrocode}
 %
 %
@@ -670,8 +693,6 @@
 % \subsubsection{Crop Option}
 %
 %    \begin{macrocode}
-\RequirePackage{ifpdf}
-\RequirePackage{ifxetex}
 \ifsa@crop
 %    \end{macrocode}
 %
@@ -846,8 +867,13 @@
 % \begin{macro}{\sa@placebox}
 % Define output dependent macro to place the content box together
 % with the required resizing of the page.
+%
+% PDFLaTeX, LuaLaTeX and XeLaTeX can use all the same definition.
+% DVI/PS Output requires a different definition.
 %    \begin{macrocode}
-\ifpdf
+\ifcase0%
+    \ifpdf\else\ifluatex\else\ifxetex\else 1\fi\fi\fi
+  \relax
     \def\sa@placebox{%
         \newpage
         \global\pdfpagewidth=\wd\sa@box
@@ -861,22 +887,7 @@
         \noindent\usebox\sa@box
         \newpage
     }
-\else
-\ifxetex
-    \def\sa@placebox{%
-        \newpage
-        \global\pdfpagewidth=\wd\sa@box
-        \global\pdfpageheight=\ht\sa@box
-        \global\paperwidth=\wd\sa@box
-        \global\paperheight=\ht\sa@box
-        \global\hsize=\wd\sa@box
-        \global\vsize=\ht\sa@box
-        \global\@colht=\ht\sa@box
-        \global\@colroom=\ht\sa@box
-        \noindent\usebox\sa@box
-        \newpage
-    }
-\else
+  \else
     \def\sa@placebox{%
         \global\paperwidth=\wd\sa@box
         \global\paperheight=\ht\sa@box
@@ -950,11 +961,6 @@
 \newlength\sa@yoffset
 %    \end{macrocode}
 % \end{macro}
-%
-% End of |\ifpdf .. \else\ifxetex .. \else| statement.
-%    \begin{macrocode}
-\fi\fi
-%    \end{macrocode}
 %
 % End of \opt{crop} option code.
 %    \begin{macrocode}
