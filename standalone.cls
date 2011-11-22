@@ -123,6 +123,7 @@
 \RequirePackage{xkeyval}
 \newif\ifsa@preview
 \newif\ifsa@crop
+\newif\ifsa@multi
 \newif\ifsa@varwidth
 \newif\ifsa@ignorerest
 \newif\ifsa@tikz
@@ -214,6 +215,16 @@
 % \end{key}
 %
 %
+% \begin{key}{standalone.cls}{multi}
+% Boolean to control if multiple pages are used.
+%    \begin{macrocode}
+\sa@option{multi}[true]{%
+    \sa@boolean{multi}{#1}%
+}
+%    \end{macrocode}
+% \end{key}
+%
+%
 % \begin{key}{standalone.cls}{varwidth}
 % Boolean to control if \pkg{varwidth} package should be used.
 % If so the content will be placed in a \env{varwidth} environment to avoid extending it to the full line width if a
@@ -242,6 +253,7 @@
 %    \begin{macrocode}
 \sa@option{tikz}[true]{%
     \sa@boolean{tikz}{#1}%
+    \setkeys{standalone.cls}{multi}%
 }
 %    \end{macrocode}
 % \end{key}
@@ -305,6 +317,11 @@
 \let\@classoptionslist\XKV@rm
 %    \end{macrocode}
 %
+% Disable keys which are only allowed as class optiosn.
+%    \begin{macrocode}
+\disable@keys{standalone.cls}{crop,preview,multi,class,beamer,ignorerest}
+%    \end{macrocode}
+%
 % Loads the class given by the |class| option with the rest of the options.
 %    \begin{macrocode}
 \expandafter\expandafter\expandafter\LoadClass
@@ -324,7 +341,9 @@
     \begingroup
     \edef\@tempa{\endgroup\noexpand\@for\noexpand\@tempa:=\zap@space#1 \@empty}%
     \@tempa\do{\expandafter\@standaloneenv\expandafter{\@tempa}}%
+    \setkeys{standalone.cls}{multi}%
 }
+\@onlypreamble\standaloneenv
 %    \end{macrocode}
 % \end{macro}
 %
@@ -342,6 +361,10 @@
 %    \end{macrocode}
 % \end{macro}
 %
+% Counter to indicate if currently inside a standaloneenv.
+%    \begin{macrocode}
+\newcount\sa@internal
+%    \end{macrocode}
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsubsection{Varwidth Option}
@@ -398,14 +421,20 @@
     \expandafter\let\csname sa@orig@#1\expandafter\endcsname\csname #1\endcsname
     \expandafter\let\csname sa@orig@end#1\expandafter\endcsname\csname end#1\endcsname
     \expandafter\def\csname #1\endcsname{%
-        \preview
-        \sa@varwidth
+        \ifnum\sa@internal=0
+            \preview
+            \sa@varwidth
+        \fi
+        \advance\sa@internal\@ne
         \csname sa@orig@#1\endcsname
     }%
     \expandafter\def\csname end#1\endcsname{%
         \csname sa@orig@end#1\endcsname
-        \sa@endvarwidth
-        \endpreview
+        \advance\sa@internal\m@ne
+        \ifnum\sa@internal=0
+            \sa@endvarwidth
+            \endpreview
+        \fi
     }%
 }%
 %    \end{macrocode}
@@ -470,6 +499,9 @@
 % If the \opt{ignorerest} option is used all content outside of \Macro\standaloneenv\relax-ironments is
 % boxed and discarded. This requires such environments to close the box first and reopen it afterwards.
 %    \begin{macrocode}
+\ifsa@multi\else
+    \sa@ignorerestfalse
+\fi
 \ifsa@ignorerest
     \renewenvironment{standalone}
         {\sa@boxit}
@@ -478,35 +510,52 @@
         \expandafter\let\csname sa@orig@#1\expandafter\endcsname\csname #1\endcsname
         \expandafter\let\csname sa@orig@end#1\expandafter\endcsname\csname end#1\endcsname
         \expandafter\def\csname #1\endcsname{%
-            \edef\@tempa{\endgroup
-                \noexpand\endsa@boxit
-                \begingroup
-                \def\noexpand\@currenvir{\@currenvir}%
-                \def\noexpand\@currenvline{\@currenvline}%
-            }%
-            \@tempa
-            \sa@boxit
+            \ifnum\sa@internal=0
+                \edef\@tempa{\endgroup
+                    \noexpand\endsa@boxit
+                    \begingroup
+                    \def\noexpand\@currenvir{\@currenvir}%
+                    \def\noexpand\@currenvline{\@currenvline}%
+                }%
+                \@tempa
+                \sa@boxit
+            \fi
+            \advance\sa@internal\@ne
             \csname sa@orig@#1\endcsname
         }%
         \expandafter\def\csname end#1\endcsname{%
             \csname sa@orig@end#1\endcsname
-            \endsa@boxit
-            \sa@handlebox
-            \aftergroup\sa@boxit
+            \advance\sa@internal\m@ne
+            \ifnum\sa@internal=0
+                \endsa@boxit
+                \sa@handlebox
+                \aftergroup\sa@boxit
+            \fi
         }%
     }%
 \else
+    \ifsa@multi\else
+        \renewenvironment{standalone}
+            {\sa@boxit}
+            {\endsa@boxit\sa@handlebox}
+    \fi
     \def\@standaloneenv#1{%
         \expandafter\let\csname sa@orig@#1\expandafter\endcsname\csname #1\endcsname
         \expandafter\let\csname sa@orig@end#1\expandafter\endcsname\csname end#1\endcsname
         \expandafter\def\csname #1\endcsname{%
-            \sa@boxit
+            \ifnum\sa@internal=0
+                \sa@boxit
+            \fi
+            \advance\sa@internal\@ne
             \csname sa@orig@#1\endcsname
         }%
         \expandafter\def\csname end#1\endcsname{%
             \csname sa@orig@end#1\endcsname
-            \endsa@boxit
-            \sa@handlebox
+            \advance\sa@internal\m@ne
+            \ifnum\sa@internal=0
+                \endsa@boxit
+                \sa@handlebox
+            \fi
         }%
     }%
 \fi
