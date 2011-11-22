@@ -146,6 +146,16 @@
 %    \end{macrocode}
 % \end{macro}
 %
+%
+% \begin{macro}{\sa@keyalias}
+%    \begin{macrocode}
+\def\sa@keyalias#1#2#3#4{%
+    \expandafter\let\csname KV@#1@#2\expandafter\endcsname\csname KV@#3@#4\endcsname
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%
 % \begin{key}{standalone.cls}{border}
 % Sets the border around the content.
 %    \begin{macrocode}
@@ -312,11 +322,23 @@
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{macro}{\sa@convertvar}[2]{name}{initial value}
+% Wrapper to define \opt{convert} variables.
+%    \begin{macrocode}
+\def\sa@convertvar#1#2{%
+    \define@key{standalone.cls/convert}{#1}{%
+        \@namedef{sa@convert@#1}{##1}%
+    }%
+    \@namedef{sa@convert@#1}{#2}%
+}
+%    \end{macrocode}
+% \end{macro}
+%
 %
 % \begin{key}{standalone.cls/convert}{true}
 %    \begin{macrocode}
-\sa@convertoption{true}{%
-    \sa@convertrue
+\sa@convertoption{true}[]{%
+    \sa@converttrue
 }
 %    \end{macrocode}
 % \end{key}
@@ -324,45 +346,166 @@
 %
 % \begin{key}{standalone.cls/convert}{false}
 %    \begin{macrocode}
-\sa@convertoption{false}{%
-    \sa@converfalse
+\sa@convertoption{false}[]{%
+    \sa@convertfalse
+}
+%    \end{macrocode}
+% \end{key}
+%
+% \begin{key}{standalone.cls/convert}{png}
+%    \begin{macrocode}
+\sa@convertoption{png}[]{%
+    \setkeys{standalone.cls/convert}{true,outext={.png}}%
+}
+%    \end{macrocode}
+% \end{key}
+%
+% \begin{key}{standalone.cls}{png}
+%    \begin{macrocode}
+\sa@option{png}{%
+    \setkeys{standalone.cls/convert}{png,#1}%
+}
+%    \end{macrocode}
+% \end{key}
+%
+%
+% \begin{key}{standalone.cls/convert}{jpg}
+%    \begin{macrocode}
+\sa@convertoption{jpg}[]{%
+    \setkeys{standalone.cls/convert}{true,outext={.jpg}}%
+}
+%    \end{macrocode}
+% \end{key}
+%
+% \begin{key}{standalone.cls}{jpg}
+%    \begin{macrocode}
+\sa@option{jpg}{%
+    \setkeys{standalone.cls/convert}{jpg,#1}%
+}
+%    \end{macrocode}
+% \end{key}
+%
+%
+% \begin{key}{standalone.cls/convert}{gif}
+%    \begin{macrocode}
+\sa@convertoption{gif}[]{%
+    \setkeys{standalone.cls/convert}{true,outext={.gif}}%
+}
+%    \end{macrocode}
+% \end{key}
+%
+% \begin{key}{standalone.cls}{gif}
+%    \begin{macrocode}
+\sa@option{gif}{%
+    \setkeys{standalone.cls/convert}{gif,#1}%
 }
 %    \end{macrocode}
 % \end{key}
 %
 %
 % \begin{key}{standalone.cls/convert}{onfailure}
-%
 %    \begin{macrocode}
 \sa@convertoption{onfailure}{%
     \begingroup
+    \tracingall
     \edef\@tempa{#1}%
     \def\@tempb{error}%
-    \if\@tempa\@tempb
+    \ifx\@tempa\@tempb
+        \endgroup
         \let\sa@convert@failuremsg\ClassError
     \else
     \def\@tempb{warning}%
-    \if\@tempa\@tempb
+    \ifx\@tempa\@tempb
+        \endgroup
         \let\sa@convert@failuremsg\ClassWarning
     \else
     \def\@tempb{info}%
-    \if\@tempa\@tempb
+    \ifx\@tempa\@tempb
+        \endgroup
         \let\sa@convert@failuremsg\ClassInfo
     \else
     \def\@tempb{ignore}%
-    \if\@tempa\@tempb
+    \ifx\@tempa\@tempb
+        \endgroup
         \def\sa@convert@failuremsg##1##2##3{}%
         \let\sa@convert@notfoundmsg\@gobbletwo
     \else
-        \begingroup
         \let\on@line\@empty
-        \ClassError{standalone}{Invalid value for the 'onfailure' option.\MessageBreak
+        \ClassError{standalone}{Invalid value '\@tempa' for the 'onfailure' option.\MessageBreak
                                 Valid values: 'error', 'warning', 'info', 'ignore'}{}%
         \endgroup
-    \fi\fi\fi
+    \fi\fi\fi\fi
+}
+\let\sa@convert@failuremsg\ClassWarning
+%    \end{macrocode}
+% \end{key}
+%
+%
+% \begin{key}{standalone.cls/convert}{newer}
+%    \begin{macrocode}
+\sa@convertoption{newer}[]{%
+  \def\sa@convert@newer{\filemodCmp{\outfile}{\jobname}}%
 }
 %    \end{macrocode}
 % \end{key}
+%
+% \begin{key}{standalone.cls/convert}{force}
+%    \begin{macrocode}
+\sa@convertoption{force}[]{%
+  \let\sa@convert@newer\@secondoftwo
+}
+%    \end{macrocode}
+% \end{key}
+%
+% \begin{key}{standalone.cls/convert}{gsdevice}
+%    \begin{macrocode}
+\sa@convertoption{defgsdevice}{%
+    \sa@defgsdevice#1\relax\relax
+}
+\def\sa@defgsdevice#1#2{%
+    \@namedef{sa@gsdevice@#1}{#2}%
+}
+\@namedef{sa@gsdevice@.jpg}{jpg}%
+\@namedef{sa@gsdevice@.png}{png16m}%
+%    \end{macrocode}
+% \end{key}
+%
+% \begin{key}{standalone.cls/convert}{imagemagick}
+%    \begin{macrocode}
+\sa@convertoption{imagemagick}[]{%
+    \def\sa@convert@command{\convertexe\space -density \density\space \infile\space \ifx\size\empty\else -resize \size\fi\space -quality 90 \outfile}%
+}
+%    \end{macrocode}
+% \end{key}
+%
+% \begin{key}{standalone.cls/convert}{ghostscript}
+%    \begin{macrocode}
+\sa@convertoption{ghostscript}[]{%
+    \def\sa@convert@command{gs -dSAFER -dBATCH -dNOPAUSE -sDEVICE=\gsdevice\space -r\density\space -sOutputFile=\outfile\space \infile}%
+}
+\sa@keyalias{standalone.cfg/convert}{gs}{standalone.cfg/convert}{ghostscript}
+%    \end{macrocode}
+% \end{key}
+%
+%    \begin{macrocode}
+\sa@convertvar{size}{}
+\sa@convertvar{inext}{\ifpdf.pdf\else.ps\fi}
+\sa@convertvar{precommand}{\ifpdf\else dvips \jobname \fi}
+\sa@convertvar{inname}{\jobname}
+\sa@convertvar{infile}{\inname\inext}
+\sa@convertvar{outext}{.png}
+\sa@convertvar{outname}{\inname}
+\sa@convertvar{outfile}{\outname\outext}
+\sa@convertvar{convertexe}{imgconvert}
+\sa@convertvar{density}{300}
+\sa@convertvar{gsdevice}{%
+    \expandafter\ifx\csname sa@gsdevice@\outext\endcsname\relax
+        \expandafter\@gobble\outext
+    \else
+        \csname sa@gsdevice@\outext\endcsname
+    \fi
+}
+%    \end{macrocode}
 %
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
