@@ -478,8 +478,9 @@
 % \end{key}
 %
 %    \begin{macrocode}
+\sa@convertvar{jobname}{\jobname}
 \sa@convertvar{size}{}
-\sa@convertvar{inname}{\jobname}
+\sa@convertvar{inname}{\sa@convert@jobname}
 \sa@convertvar{infile}{\inname\inext}
 \sa@convertvar{outext}{.png}
 \sa@convertvar{outname}{\inname}
@@ -1064,7 +1065,7 @@
     }{%
         \def\filemodbefore{}%
     }}}}%
-    \immediate\write18{\sa@convert@latex\space '\noexpand\expandafter\def\noexpand\csname sa@internal@run\noexpand\endcsname{1}\noexpand\input{\jobname}'}%
+    \immediate\write18{\sa@convert@latex\space -jobname '\sa@convert@jobname' '\noexpand\expandafter\def\noexpand\csname sa@internal@run\noexpand\endcsname{1}\noexpand\input{\jobname}'}%
     \edef\sa@convert@precommand{\sa@convert@precommand}%
     \ifx\sa@convert@precommand\@empty\else
         \immediate\write18{\sa@convert@precommand}%
