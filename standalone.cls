@@ -153,15 +153,6 @@
 % \end{macro}
 %
 %
-% \begin{macro}{\sa@keyalias}
-%    \begin{macrocode}
-\def\sa@keyalias#1#2#3#4{%
-    \expandafter\let\csname KV@#1@#2\expandafter\endcsname\csname KV@#3@#4\endcsname
-}
-%    \end{macrocode}
-% \end{macro}
-%
-%
 % \begin{key}{standalone.cls}{border}
 % Sets the border around the content.
 %    \begin{macrocode}
@@ -318,6 +309,16 @@
 %    \end{macrocode}
 % \end{key}
 %
+% \begin{key}{standalone.cls}{disable@convert}
+%    \begin{macrocode}
+\sa@option{disable@convert}[]{%
+    \typeout{Disable conversion}
+    \sa@convertfalse
+    \let\sa@converttrue\relax
+}
+%    \end{macrocode}
+% \end{key}
+%
 %
 % \begin{macro}{\sa@convertoption}
 % Wrapper to define \opt{convert} options.
@@ -368,7 +369,7 @@
 %
 % \begin{key}{standalone.cls}{png}
 %    \begin{macrocode}
-\sa@option{png}{%
+\sa@option{png}[]{%
     \setkeys{standalone.cls/convert}{png,#1}%
 }
 %    \end{macrocode}
@@ -385,7 +386,7 @@
 %
 % \begin{key}{standalone.cls}{jpg}
 %    \begin{macrocode}
-\sa@option{jpg}{%
+\sa@option{jpg}[]{%
     \setkeys{standalone.cls/convert}{jpg,#1}%
 }
 %    \end{macrocode}
@@ -402,7 +403,7 @@
 %
 % \begin{key}{standalone.cls}{gif}
 %    \begin{macrocode}
-\sa@option{gif}{%
+\sa@option{gif}[]{%
     \setkeys{standalone.cls/convert}{gif,#1}%
 }
 %    \end{macrocode}
@@ -442,25 +443,10 @@
     \fi\fi\fi\fi
 }
 \let\sa@convert@failuremsg\ClassWarning
+\let\sa@convert@notfoundmsg\ClassWarning
 %    \end{macrocode}
 % \end{key}
 %
-%
-% \begin{key}{standalone.cls/convert}{newer}
-%    \begin{macrocode}
-\sa@convertoption{newer}[]{%
-  \def\sa@convert@newer{\filemodCmp{\outfile}{\jobname}}%
-}
-%    \end{macrocode}
-% \end{key}
-%
-% \begin{key}{standalone.cls/convert}{force}
-%    \begin{macrocode}
-\sa@convertoption{force}[]{%
-  \let\sa@convert@newer\@secondoftwo
-}
-%    \end{macrocode}
-% \end{key}
 %
 % \begin{key}{standalone.cls/convert}{gsdevice}
 %    \begin{macrocode}
@@ -488,7 +474,6 @@
 \sa@convertoption{ghostscript}[]{%
     \def\sa@convert@command{gs -dSAFER -dBATCH -dNOPAUSE -sDEVICE=\gsdevice\space -r\density\space -sOutputFile=\outfile\space \infile}%
 }
-\sa@keyalias{standalone.cfg/convert}{gs}{standalone.cfg/convert}{ghostscript}
 %    \end{macrocode}
 % \end{key}
 %
@@ -498,8 +483,7 @@
 \sa@convertvar{infile}{\inname\inext}
 \sa@convertvar{outext}{.png}
 \sa@convertvar{outname}{\inname}
-\sa@convertvar{outfile}{\outname\outext}
-\sa@convertvar{convertexe}{imgconvert}
+\sa@convertvar{outfile}{\outname\ifsa@multi-\@percentchar d\fi\outext}
 \sa@convertvar{density}{300}
 \sa@convertvar{gsdevice}{%
     \expandafter\ifx\csname sa@gsdevice@\outext\endcsname\relax
@@ -508,25 +492,53 @@
         \csname sa@gsdevice@\outext\endcsname
     \fi
 }
-\ifpdf
-    \sa@convertvar{latex}{pdflatex}
-    \sa@convertvar{inext}{.pdf}
-    \sa@convertvar{precommand}{}
-\else
 \ifluatex
     \sa@convertvar{latex}{lualatex}
     \sa@convertvar{inext}{.pdf}
     \sa@convertvar{precommand}{}
+    \setkeys{standalone.cls/convert}{imagemagick}
+\else
+\ifpdf
+    \sa@convertvar{latex}{pdflatex}
+    \sa@convertvar{inext}{.pdf}
+    \sa@convertvar{precommand}{}
+    \setkeys{standalone.cls/convert}{imagemagick}
 \else
 \ifxetex
     \sa@convertvar{latex}{xelatex}
     \sa@convertvar{inext}{.pdf}
     \sa@convertvar{precommand}{}
+    \setkeys{standalone.cls/convert}{imagemagick}
 \else
     \sa@convertvar{latex}{latex}
     \sa@convertvar{inext}{.ps}
     \sa@convertvar{precommand}{dvips \jobname.dvi}
+    \setkeys{standalone.cls/convert}{ghostscript}
 \fi\fi\fi
+%    \end{macrocode}
+%
+% Test for windows to avoid using the 'convert' executable there.
+% It is also the FAT-to-NTFS conversion tool!
+%    \begin{macrocode}
+\begingroup
+\ifluatex
+  \csname @tempswa\directlua{
+      if os.type == "windows" then
+        tex.sprint("true")
+      else
+        tex.sprint("false")
+      end
+    }\endcsname
+\else
+    \IfFileExists{/dev/null}{\@tempswafalse}{\@tempswatrue}%
+\fi
+\if@tempswa
+    \endgroup
+    \sa@convertvar{convertexe}{imgconvert}
+\else
+    \endgroup
+    \sa@convertvar{convertexe}{convert}
+\fi
 %    \end{macrocode}
 %
 %
@@ -575,6 +587,7 @@
 \let\endstandalone\relax
 %    \end{macrocode}
 % \end{environment}
+%
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsubsection{Load config file, process options and load class}
@@ -962,6 +975,11 @@
 %    \end{macrocode}
 % \end{macro}
 %
+% End of 'latex' clause
+%    \begin{macrocode}
+\fi
+%    \end{macrocode}
+%
 % End of \opt{crop} option code.
 %    \begin{macrocode}
 \fi
@@ -1017,11 +1035,13 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsubsection{Conversion code}
 %    \begin{macrocode}
+\expandafter\ifx\csname sa@internal@run\endcsname\relax\else
+    \sa@convertfalse
+\fi
 \ifsa@convert
 %    \end{macrocode}
 %
 %    \begin{macrocode}
-\RequirePackage{filemod-expmin}
 \begingroup
 \let\on@line\@gobble
 %    \end{macrocode}
@@ -1030,9 +1050,44 @@
 % Conversion macro.
 %    \begin{macrocode}
 \def\sa@convert#1{%
-    \edef\filemodbefore{\csname pdffilemoddate\endcsname{\outfile}}%
-    \immediate\write18{\sa@convert@command}%
     \IfFileExists{\outfile}{%
+        \edef\filemodbefore{\csname pdffilemoddate\endcsname{\outfile}}%
+    }{%
+    \IfFileExists{\outname\outext}{%
+        \edef\filemodbefore{\csname pdffilemoddate\endcsname{\outname\outext}}%
+    }{%
+    \IfFileExists{\outname-0\outext}{%
+        \edef\filemodbefore{\csname pdffilemoddate\endcsname{\outname-0\outext}}%
+    }{%
+    \IfFileExists{\outname-1\outext}{%
+        \edef\filemodbefore{\csname pdffilemoddate\endcsname{\outname-1\outext}}%
+    }{%
+        \def\filemodbefore{}%
+    }}}}%
+    \immediate\write18{\sa@convert@latex\space '\noexpand\expandafter\def\noexpand\csname sa@internal@run\noexpand\endcsname{1}\noexpand\input{\jobname}'}%
+    \edef\sa@convert@precommand{\sa@convert@precommand}%
+    \ifx\sa@convert@precommand\@empty\else
+        \immediate\write18{\sa@convert@precommand}%
+    \fi
+    \immediate\write18{\sa@convert@command}%
+    \@tempswafalse
+    \IfFileExists{\outfile}{%
+        \@tempswatrue
+    }{%
+    \IfFileExists{\outname\outext}{%
+        \@tempswatrue
+        \def\outfile{\outname\outext}%
+    }{%
+    \IfFileExists{\outname-0\outext}{%
+        \@tempswatrue
+        \def\outfile{\outname-0\outext}%
+    }{%
+    \IfFileExists{\outname-1\outext}{%
+        \@tempswatrue
+        \def\outfile{\outname-1\outext}%
+    }{%
+    }}}}%
+    \if@tempswa
         \edef\filemodafter{\csname pdffilemoddate\endcsname{\outfile}}%
         \ifx\filemodbefore\filemodafter
             \expandafter\ifx\csname pdffilemoddate\endcsname\relax\else
@@ -1041,9 +1096,9 @@
         \else
             \ClassInfo{standalone}{Conversion successfull.}%
         \fi
-    }{%
+    \else
         \sa@convert@failuremsg{standalone}{#1}{}%
-    }%
+    \fi
 }
 %    \end{macrocode}
 % \end{macro}
@@ -1060,40 +1115,27 @@
 \let\outext\sa@convert@outext
 \let\outname\sa@convert@outname
 \let\outfile\sa@convert@outfile
+\let\percent\@percentchar
 %    \end{macrocode}
 %
-% Execute preconvert command if it is set.
+%
 %    \begin{macrocode}
-\edef\sa@convert@precommand{\sa@convert@precommand}%
-\ifx\sa@convert@precommand\@empty\else
-    \immediate\write18{\sa@convert@precommand}%
+\ifcase0%
+    \expandafter\ifx\csname pdfshellescape\endcsname\relax
+    \ifeof18 \else 3\fi
+    \else\the\pdfshellescape\fi
+\relax% 0
+    \sa@convert@failuremsg
+        {standalone}{Shell escape disabled! Cannot convert file '\infile'.}{}%
+\or% 1
+    \sa@convert{Conversion unsuccessful!\MessageBreak 
+                There might be something wrong with your\MessageBreak
+                conversation software or the file permissions!}%
+\else% 2 or 3
+    \sa@convert{Conversion failed! Please ensure that shell escape\MessageBreak is enabled (e.g. use '-shell-escape').}%
 \fi
-%    \end{macrocode}
-%
-%    \begin{macrocode}
-\IfFileExists{\infile}{%
-    \sa@convert@newer{%
-        \ClassInfo{standalone}{Skipped conversion: outfile newer than main file.}%
-    }{%
-        \ifcase0%
-            \expandafter\ifx\csname pdfshellescape\endcsname\relax
-            \ifeof18 \else 3\fi
-            \else\the\pdfshellescape\fi
-        \relax% 0
-            \sa@convert@failuremsg
-                {standalone}{Shell escape disabled! Cannot convert file '\infile'.}{}%
-        \or% 1
-            \sa@convert{Conversion unsuccessful!\MessageBreak 
-                        There might be something wrong with your\MessageBreak
-                        conversation software or the file permissions!}%
-        \else% 2 or 3
-            \sa@convert{Conversion failed! Please ensure that shell escape\MessageBreak is enabled (e.g. use '-shell-escape').}%
-        \fi
-    }%
-}{%
-    \sa@convert@notfoundmsg{standalone}{Cannot convert missing input file '\infile'.}{}%
-}%
 \endgroup
+\expandafter\stop
 %    \end{macrocode}
 %    \begin{macrocode}
 \fi
