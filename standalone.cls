@@ -114,11 +114,55 @@
 %    \end{macrocode}
 % \end{macro}
 %
-%
+% Define if-switches for TeX formats.
+% This loads the corresponding packages if available, but falls back to some own code if they are not installed.
 %    \begin{macrocode}
-\RequirePackage{ifpdf}
-\RequirePackage{ifxetex}
-\RequirePackage{ifluatex}
+\expandafter\ifx\csname ifluatex\endcsname\relax
+    \IfFileExists{ifluatex.sty}{\@firstoftwo}{\@secondoftwo}{%
+        \RequirePackage{ifluatex}
+    }{
+        \begingroup
+        \expandafter\ifx\csname directlua\endcsname\relax
+            \endgroup
+            \expandafter\let\csname ifluatex\expandafter\endcsname\csname iffalse\endcsname
+        \else
+            \endgroup
+            \expandafter\let\csname ifluatex\expandafter\endcsname\csname iftrue\endcsname
+        \fi
+    }
+\fi
+\expandafter\ifx\csname ifpdf\endcsname\relax
+    \IfFileExists{ifpdf.sty}{\@firstoftwo}{\@secondoftwo}{%
+        \RequirePackage{ifpdf}
+    }{
+        \begingroup
+        \expandafter\ifx\csname pdfoutput\endcsname\relax
+            \endgroup
+            \expandafter\let\csname ifpdf\expandafter\endcsname\csname iffalse\endcsname
+        \else
+            \endgroup
+            \ifnum\pdfoutput<1
+                \expandafter\let\csname ifpdf\expandafter\endcsname\csname iffalse\endcsname
+            \else
+                \expandafter\let\csname ifpdf\expandafter\endcsname\csname iftrue\endcsname
+            \fi
+        \fi
+    }
+\fi
+\expandafter\ifx\csname ifxetex\endcsname\relax
+    \IfFileExists{ifxetex.sty}{\@firstoftwo}{\@secondoftwo}{%
+        \RequirePackage{ifxetex}
+    }{
+        \begingroup
+        \expandafter\ifx\csname XeTeXrevision\endcsname\relax
+            \endgroup
+            \expandafter\let\csname ifxetex\expandafter\endcsname\csname iffalse\endcsname
+        \else
+            \endgroup
+            \expandafter\let\csname ifxetex\expandafter\endcsname\csname iftrue\endcsname
+        \fi
+    }
+\fi
 %    \end{macrocode}
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
