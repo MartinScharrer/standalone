@@ -243,7 +243,7 @@
 \sa@option{varwidth}[true]{%
     \sa@boolean{varwidth}{#1}%
     \ifsa@varwidth
-        \def\sa@varwidth{\varwidth{\linewidth}}%
+        \def\sa@varwidth{\varwidth{\standalonewidth}}%
         \def\sa@endvarwidth{\endvarwidth}%
     \else
         \let\sa@varwidth\@empty
@@ -258,7 +258,9 @@
 %    \begin{macrocode}
 \sa@option{tikz}[true]{%
     \sa@boolean{tikz}{#1}%
-    \setkeys{standalone.cls}{multi}%
+    \ifsa@tikz
+        \setkeys{standalone.cls}{multi=true,varwidth=false}%
+    \fi
 }
 %    \end{macrocode}
 % \end{key}
@@ -275,6 +277,8 @@
     \ifstandalonebeamer
         \def\sa@class{beamer}%
         \sa@previewfalse
+        \sa@cropfalse
+        \sa@varwidthfalse
     \else
         \begingroup
         \def\@tempa{beamer}%
@@ -591,6 +595,13 @@
 %    \end{macrocode}
 % \end{environment}
 %
+%
+% \begin{macro}{\standalonewidth}
+%    \begin{macrocode}
+\newlength\standalonewidth
+\standalonewidth=\maxdimen
+%    \end{macrocode}
+% \end{macro}
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsubsection{Load config file, process options and load class}
