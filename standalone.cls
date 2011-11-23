@@ -472,7 +472,7 @@
 % \begin{key}{standalone.cls/convert}{ghostscript}
 %    \begin{macrocode}
 \sa@convertoption{ghostscript}[]{%
-    \def\sa@convert@command{gs -dSAFER -dBATCH -dNOPAUSE -sDEVICE=\gsdevice\space -r\density\space -sOutputFile=\outfile\space \infile}%
+    \def\sa@convert@command{\gsexe\space -dSAFER -dBATCH -dNOPAUSE -sDEVICE=\gsdevice\space -r\density\space -sOutputFile=\outfile\space \infile}%
 }
 %    \end{macrocode}
 % \end{key}
@@ -536,9 +536,11 @@
 \if@tempswa
     \endgroup
     \sa@convertvar{convertexe}{imgconvert}
+    \sa@convertvar{gsexe}{gswin32c}
 \else
     \endgroup
     \sa@convertvar{convertexe}{convert}
+    \sa@convertvar{gsexe}{gs}
 \fi
 %    \end{macrocode}
 %
@@ -1111,6 +1113,7 @@
 \let\inname\sa@convert@inname
 \let\gsdevice\sa@convert@gsdevice
 \let\convertexe\sa@convert@convertexe
+\let\gsexe\sa@convert@gsexe
 \let\density\sa@convert@density
 \let\size\sa@convert@size
 \let\outext\sa@convert@outext
