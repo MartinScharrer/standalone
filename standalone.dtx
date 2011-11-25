@@ -279,17 +279,6 @@
 % \subsection{Macros and environments}
 % The following macros and environments can be used inside \cls{standalone} files.
 %
-% \DescribeMacro{\ifstandalone}
-% Both the class and the package provide the if-switch \cs{ifstandalone}, which can be used to only include code if the file is
-% compiled standalone. The switch is set to \cs{iftrue} by the class and to \cs{iffalse} by the package.
-%
-% The additional file \file{standalone.tex} also defines this switch by checking if \cs{documentclass} was already used. It can be included
-% with |\input{standalone}| and is intended for specialised files which do not use the \cls{standalone} class.
-%
-% \DescribeMacro{\onlyifstandalone}{<code>}
-% This is the macro version of the |\ifstandalone| if-switch. It executes \meta{code} only in \cls{standalone} mode. As mentioned in section~\ref{sec:pkgoptions}
-% it can also be used to hide |\usepackage| and similar macros from the extraction scanner of the |sort| option. The macro and its argument is not printed into the |.stp| file.
-%
 % \DescribeMacro{\standaloneignore}
 % In rare cases some code must be placed before the |\documentclass| of a sub-file (e.g.\ |\PassOptionsToPackage|).
 % Because the main document will only skip code between |\documentclass| and |\begin{document}| this code will be executed by it.
@@ -365,7 +354,7 @@
 % \begin{minipage}{\textwidth}\noindent\small
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,numbers=none,caption={Effective beamer code if compiled standalone.}]
 %   \documentclass{beamer}
-%   \input{standalone.cfg}
+%   <beamer code from standalone.cfg file>
 %
 %   \usepackage{tikz}
 %
@@ -389,10 +378,35 @@
 % \end{lstlisting}
 % \end{minipage}
 %
-%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \section{Usage of the \cls{standalone} package}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \section{Common macros}
+% The following conditional macros are defined by both the \cls{standalone} class and package, but react differently when the code is compiled standalone or as part of a main document.
+%
+% \DescribeMacro{\ifstandalone}
+% Both the class and the package provide the if-switch \cs{ifstandalone}, which can be used to only include code if the file is
+% compiled standalone. The switch is set to \cs{iftrue} by the class and to \cs{iffalse} by the package.
+%
+% The additional file \file{standalone.tex} also defines this switch by checking if \cs{documentclass} was already used. It can be included
+% with |\input{standalone}| and is intended for specialised files which do not use the \cls{standalone} class.
+%
+% \DescribeMacro{\IfStandalone}{<code for standalone mode>}{<code for main document>}
+% This is the macro version of the \Macro\ifstandalone| if-switch. It executes the first argument only in \cls{standalone} mode, i.e.\ when the file is compiled on its own.
+% When included in the main document the second argument is executed instead.
+% As mentioned in section~\ref{sec:pkgoptions}
+% it can also be used to hide |\usepackage| and similar macros from the extraction scanner of the |sort| option. The macro and its arguments is not printed into the |.stp| file.
+%
+% \DescribeMacro{\onlyifstandalone}{<code>}
+% This macro is similar to \Macro\IfStandalone but only has takes one argument which is executed only in standalone mode, but ignored when compiled as part of a main document.
+% As mentioned in section~\ref{sec:pkgoptions}
+% it can also be used to hide |\usepackage| and similar macros from the extraction scanner of the |sort| option. The macro and its argument is not printed into the |.stp| file.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsection{Quick instructions}
 % Load the \cls{standalone} \emph{package} very early in the main document. Also all packages needed by all the sub-files must be loaded by the main document.
 % Include your picture or other sub-files using |\input| or a similar macro as normal.
