@@ -108,11 +108,16 @@
 % \vspace{1.2em}%
 %
 % \begin{abstract}
-% The \pkg{standalone} class and package allow the standalone compilation of external \LaTeX\ files holding
-% picture or similar environments (or any other material) while still allow to |\input| this files directly
-% to a main document. Advances features include the automatic transfer of the preambles of the external
-% files to the main preamble, the conversion of the standalone files into images or the automatically
-% compilation of included standalone files from the main document.
+% The \pkg{standalone} bundle allows users to easily place picture environments or other material in own source files
+% and compile these on their own or as part of a main document.
+% 
+% A special \cls{standalone} class is provided for use with such files, which by default crops the resulting output file to the content.
+% This allows to compile the files on their own, view them in a suitable format without large border and also to include the output file as graphic
+% into a main document. Using an advanced class option it is even possible to convert a standalone file into a raster image like PNG.
+%
+% The \pkg{standalone} package enables the user to simply load the standalone files using \Macro\input\relax inside a main document.
+% The included preamble is automatically stripped. Using package option it is also possible to automatically transfer the loaded packages
+% from these preambles into the main document preamble.
 % \end{abstract}
 %
 % \begin{multicols}{2}
@@ -150,9 +155,9 @@
 % Also \cls{standalone} is working independently of \pkg{tikz} and supports other picture environments like \pkg{pstricks} or any other \TeX\ material.
 %
 % \subsection{Dependencies}
-% The \cls{standalone} class and package require the \pkg{pgfkeys} package (PGF/TikZ bundle) as well as the \pkg{svn-prov} package.
-% The \pkg{preview} package is required by the \opt{preview} option.
-% The \pkg{beamer} option of course requires the \pkg{beamer} bundle to be installed.
+% The \cls{standalone} class and package require the \pkg{xkeyval} package.
+% The packages \pkg{ifpdf}, \pkg{ifluatex} and \pkg{ifxetex} are loaded if available, otherwise some fall-back code is used.
+% If enabled the class options \opt{varwidth}, \opt{preview} and \opt{beamer} require the package or class of the same name.
 %
 % The \pkg{standalone} package requires the \pkg{currfile} package (which in turn uses \pkg{filehook}) to track the correct file names of
 % sub-files included using |\input|.
@@ -162,8 +167,113 @@
 %
 % All of these packages are included in recent versions of the TeXLive or MikTeX distributions and are freely available on CTAN (\url{http://www.ctan.org/}).
 %
+% \clearpage
+% \section{Usage of the \cls{standalone} class}
+% \subsection{Basic usage}
+% Creating a basic standalone is straight-forward: Create a normal \LaTeX\ document which uses the \cls{standalone} as document class.
+% The preamble should load all required packages and libraries for the content. The content, usually a single picture environment like \env{tikzpicture},
+% is placed in the \env{document} body. Empty lines before and after the picture should be avoided.
 %
-% \section{Usage}
+% \par\noindent
+% \begin{minipage}{\textwidth}\small
+% \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Basic use of \emph{standalone} class.}]
+%   \documentclass{standalone}
+%   \usepackage{tikz}
+%   \begin{document}
+%   \begin{tikzpicture}
+%     \draw (0,0) rectangle (2,1) node [midway] {Example};
+%   \end{tikzpicture}
+%   \end{document}
+% \end{lstlisting}
+% \end{minipage}
+%
+% Such a file can be compiled as normal. The \cls{standalone} class will crop the resulting output file (PDF or DVI/PS) to the content size plus a certain border.
+% Page number and other header or footer material will be suppressed.
+%
+% \subsection{Class options}
+% The \cls{standalone} class provides the following options to adjust the processing and size of the content.
+% These options are removed from the normal list of class options and not passed to any loaded packages or classes like it would usually occur.
+% This is also done to avoid option conflicts with identical named options of the underlying class.
+%
+% All boolean options take either `|true|' or `|false|' as optional values. Otherwise, if the option is used without a value, `|true|' is used.
+% If not mentioned otherwise all options set the `|false|' by default.
+% Options might switch other options on or off. For example, mutual exclusive options will disable each other. The order of the option is obeyed
+% and later options will prevail over earlier ones.
+%
+% Certain class options can also be changed inside the preamble or document body using \Macro\standaloneconfig{<options>}.
+%
+% \DescribeKey{class}'='<class name>
+% Specifies the underlying class which is loaded by the \cls{standalone} class.
+% By default \cls{article} is used, which should be suitable for standalone pictures.
+% In certain cases it may be from benefit to use the same class than in the targeted main document.
+% For the \cls{beamer} class the special \opt{beamer} option should be used instead.
+%
+% \DescribeKey{crop}'='<true|false>
+% If enabled this option crops the content to its natural size plus a specified border. This is done by saving the content in a box register and resizing
+% the page size relative to the box dimensions.
+% This option is mutual exclusive with the similar \opt{preview} option and will therefore disable it.
+%
+% \DescribeKey{preview}'='<true|false>
+% If enabled this option loads the \pkg{preview} package with the \opt{tightpage} option
+% and wraps the content into a \env{preview} environment. This crops the content to its natural size plus a specified border.
+% Issues with the \pkg{preview} options and TikZ shadings under XeLaTeX have been reported. In this cases the \opt{crop} option should be used instead.
+%
+% This option is mutual exclusive with the similar \opt{crop} option and will therefore disable it.
+%
+% \DescribeKey{multi}'='<true|false>
+% By default the \cls{standalone} class assume that the whole content is one block which should be shown on one single page.
+% If this option is activated multiple pages are supported. Each page will be cropped to its content plus the selected border (as long either \opt{preview} or \opt{crop} are enabled).
+% A set of environments which hold a single page must be declared using \Macro\standaloneenv{<environment name>, \ldots}.
+% No typeset material should appear outside such environments.
+%
+% \DescribeKey{border}'='<length (all sides)>
+% \DescribeKey{border}'='{<length (left/right)>~<length (bottom/top)>}
+% \DescribeKey{border}'='{<length (left)>~<length (right)>~<length (bottom)>~<length (top)>}
+% This option allows to specify the border used by the \opt{preview} and \opt{crop} options.
+% The border can either be given using a single value for all sides, separately for the horizontal and vertical borders or for all sides separately.
+% Multiple values are separated by spaces, which require the whole value to be wrapped in braces.
+%
+% This option can be changed during the document using \Macro\standaloneconfig and will affect all following pages.
+%
+% \DescribeKey{ignorerest}'='<true|false>
+% This option is only meaningful when both \opt{multi} and \opt{crop} are enabled.
+% Then it determines if all material which does not appear inside environments declared with \Macro\standalone should be ignored or not.
+% This is done by boxing and discarding all outside material. Any code will be placed inside a group and therefore local settings made between environments
+% will not affect later code. Code in the preamble is not affected.
+% It is recommended to keep this option disabled and only use it if really required.
+% It should be noted that which \opt{preview} such material is always ignored while not affecting local settings.
+% Therefore the \opt{ignorrest} option can be seen as a compatibility setting to make \opt{crop} act more like \opt{preview}, if this is required by the user.
+%
+% \DescribeKey{varwidth}'='<true|false>
+% \DescribeKey{varwidth}'='<width>
+% A trailing empty line between the content and \Macro\end{document}\relax will normally create a paragraph which is \Macro\linewidth wide.
+% This paragraph (or any other one) will enlarge the size of smaller pictures and display itself as a large right border.
+% This option uses the \pkg{varwidth} package to wrap the content into a \env{varwidth} environment, which is based on \env{minipage},
+% but will always use the natural width of the content if it is smaller than the given maximum width.
+% The resulting effect is that the created paragraph will not cause any additional width and that multiple paragraphs can be included as part of the content.
+% The used maximal width (which is provided to the underlying \env{minipage} environment) is \Macro\linewidth by default, but can be set 
+% by provided a width as value to the option. Doing so will also switch the option on.
+%
+% A drawback of this option is that the content will be limited to the given width, i.e.\ wider picture environment will be cropped to the width at the right
+% side. In such cases either a larger width should be selected, the option be switch off, any paragraph breaks should be avoided (no trailing empty lines) or one of the 
+% specific picture options like \opt{tikz} should be used instead.
+%
+% This option can be changed during the document using \Macro\standaloneconfig and will affect all content of the following pages.
+%
+% \DescribeKey{tikz}'='<true|false>
+% This option declares that the content contains of one or more \env{tikzpicture}s. This sets |multi=true,varwidth=false|, loads the \pkg{tikz} package and
+% sets \Macro\standaloneenv{tikzpicture}.
+%
+% \DescribeKey{beamer}'='<true|false>
+% If set to `|true|' this option enables a special \cls{beamer} mode, where the normal cropping is disabled.
+% Instead the content is shown on a blank beamer frame.
+%
+% \DescribeKey{convert}'='{<conversion options>}
+% \DescribeKey{png}'='{<conversion options>}
+% These options allow to enable and configure the conversion feature. See \autoref{sec:convert} for the full description.
+%
+%
+% \section{Usage of the \cls{standalone} package}
 % \subsection{Quick instructions}
 % Load the \cls{standalone} \emph{package} very early in the main document. Also all packages needed by all the sub-files must be loaded by the main document.
 % Include your picture or other sub-files using |\input| or a similar macro as normal.
