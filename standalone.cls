@@ -211,16 +211,36 @@
 % Sets if-switches.
 %    \begin{macrocode}
 \def\sa@boolean#1#2{%
+    \sa@boolorvalue{#1}{#2}%
+        {\ClassError{standalone}{Invalid value '#2' for boolean key '#1'}{}}%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \begin{macro}{\sa@boolorvalue}[2]{name of if-switch}{`true', `false' or a value}{code to be executed if it is a value.}
+% Sets if-switches.
+%    \begin{macrocode}
+\def\sa@boolorvalue#1#2{%
     \begingroup
     \edef\@tempa{#2}%
     \def\@tempb{true}%
     \ifx\@tempa\@tempb
         \endgroup
         \csname sa@#1true\endcsname
+        \expandafter\@gobble
     \else
+    \def\@tempb{false}%
+    \ifx\@tempa\@tempb
         \endgroup
         \csname sa@#1false\endcsname
-    \fi
+        \expandafter\expandafter
+        \expandafter\@gobble
+    \else
+        \endgroup
+        \expandafter\expandafter
+        \expandafter\@firstofone
+    \fi\fi
 }
 %    \end{macrocode}
 % \end{macro}
@@ -285,9 +305,9 @@
 % The option is by default set to true if the \pkg{varwidth} package is available.
 %    \begin{macrocode}
 \sa@option{varwidth}[true]{%
-    \sa@boolean{varwidth}{#1}%
+    \sa@boolorvalue{varwidth}{#1}{\sa@varwidthtrue\def\sa@width{#1}}%
     \ifsa@varwidth
-        \def\sa@varwidth{\varwidth{\standalonewidth}}%
+        \def\sa@varwidth{\varwidth{\sa@width}}%
         \def\sa@endvarwidth{\endvarwidth}%
     \else
         \let\sa@varwidth\@empty
@@ -640,10 +660,10 @@
 % \end{environment}
 %
 %
-% \begin{macro}{\standalonewidth}
+% \begin{macro}{\sa@width}
+% Default value for \env{varwidth} width.
 %    \begin{macrocode}
-\newlength\standalonewidth
-\standalonewidth=\maxdimen
+\def\sa@width{\linewidth}
 %    \end{macrocode}
 % \end{macro}
 %
