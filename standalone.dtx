@@ -38,6 +38,7 @@
 \EnableCrossrefs
 \CodelineIndex
 \RecordChanges
+\colorlet{keydesc}{opt}
 %\OnlyDescription
 \begin{document}
   \DocInput{\jobname.dtx}
@@ -110,14 +111,8 @@
 % \begin{abstract}
 % The \pkg{standalone} bundle allows users to easily place picture environments or other material in own source files
 % and compile these on their own or as part of a main document.
-% 
 % A special \cls{standalone} class is provided for use with such files, which by default crops the resulting output file to the content.
-% This allows to compile the files on their own, view them in a suitable format without large border and also to include the output file as graphic
-% into a main document. Using an advanced class option it is even possible to convert a standalone file into a raster image like PNG.
-%
 % The \pkg{standalone} package enables the user to simply load the standalone files using \Macro\input\relax inside a main document.
-% The included preamble is automatically stripped. Using package option it is also possible to automatically transfer the loaded packages
-% from these preambles into the main document preamble.
 % \end{abstract}
 %
 % \begin{multicols}{2}
@@ -168,6 +163,8 @@
 % All of these packages are included in recent versions of the TeXLive or MikTeX distributions and are freely available on CTAN (\url{http://www.ctan.org/}).
 %
 % \clearpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \section{Usage of the \cls{standalone} class}
 % \subsection{Basic usage}
 % Creating a basic standalone is straight-forward: Create a normal \LaTeX\ document which uses the \cls{standalone} as document class.
@@ -190,6 +187,7 @@
 % Such a file can be compiled as normal. The \cls{standalone} class will crop the resulting output file (PDF or DVI/PS) to the content size plus a certain border.
 % Page number and other header or footer material will be suppressed.
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsection{Class options}
 % The \cls{standalone} class provides the following options to adjust the processing and size of the content.
 % These options are removed from the normal list of class options and not passed to any loaded packages or classes like it would usually occur.
@@ -272,7 +270,128 @@
 % \DescribeKey{png}'='{<conversion options>}
 % These options allow to enable and configure the conversion feature. See \autoref{sec:convert} for the full description.
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsection{Class configuration file}
+% The \cls{standalone} class loads a configuration file called \file{standalone.cfg} just before the options are processed.
+% Any class options can then also be given using the \Macro\standaloneconfig{<options>} macro
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsection{Macros and environments}
+% The following macros and environments can be used inside \cls{standalone} files.
+%
+% \DescribeMacro{\ifstandalone}
+% Both the class and the package provide the if-switch \cs{ifstandalone}, which can be used to only include code if the file is
+% compiled standalone. The switch is set to \cs{iftrue} by the class and to \cs{iffalse} by the package.
+%
+% The additional file \file{standalone.tex} also defines this switch by checking if \cs{documentclass} was already used. It can be included
+% with |\input{standalone}| and is intended for specialised files which do not use the \cls{standalone} class.
+%
+% \DescribeMacro{\onlyifstandalone}{<code>}
+% This is the macro version of the |\ifstandalone| if-switch. It executes \meta{code} only in \cls{standalone} mode. As mentioned in section~\ref{sec:pkgoptions}
+% it can also be used to hide |\usepackage| and similar macros from the extraction scanner of the |sort| option. The macro and its argument is not printed into the |.stp| file.
+%
+% \DescribeMacro{\standaloneignore}
+% In rare cases some code must be placed before the |\documentclass| of a sub-file (e.g.\ |\PassOptionsToPackage|).
+% Because the main document will only skip code between |\documentclass| and |\begin{document}| this code will be executed by it.
+% In order to avoid this the macro \cs{standaloneignore} can be used at the very beginning of a sub-file to skip over this code.
+% However it must be written as |\csname standaloneignore\endcsname| to avoid a `Undefined control sequence' error when compiled standalone.
+% After all the class is not loaded at this point, therefore no \cls{standalone} macros are yet defined.
+% The |\csname|\,\ldots|\endcsname| construct will simple make it equal to |\relax| in this case.
+%
+% Please note that all code before |\documentclass| is not processed by any of the \opt{subpreamble} options but always simply removed.
+% This macro was inspired by the similar macro |\docmute| of the |docmute| package.
+%
+% \DescribeEnv[<sub-file content>]{standalone}
+% The \env{standalone} environment is automatically wrapped around the content of standalone files.
+% If the \opt{multi} option is enabled it is wrapped around every page, i.e.\ every environment declared with \Macro\standaloneenv.
+% The definition of this environment depends on options like \opt{crop} and \opt{preview}.
+% It is possible to redefine this environment in the configuration file or the document preamble to adjust the processing of the content, but this is not recommended.
+% If done most content related options will stop work and/or cause errors.
+%
+% The beamer specific macros and environments are described in section~\ref{sec:beamer}.
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsection{Support for Beamer Presentations}\label{sec:beamer}
+% Presentation can be written in \LaTeX\ using the \cls{beamer} class. Each presentation frame is wrapped in a \env{frame} environment. Overlay effects
+% can be added using special macros. This effects result in multiple pages per frame. Pictures with such overlay effects can not be
+% compiled standalone using the normal settings. Instead the \cls{standalone} class must load the |beamer| class and wrap the content also in
+% a \env{frame} environment while skipping the \env{preview} environment. To activate this settings load the \cls{standalone} class with the |beamer| option.
+% Because the \env{frame} environment is quite special (it normally collects all it's content and calls the \cs{frame}) and must also support
+% verbatim content it is not easily possible to redefined the |document| environment to include \env{frame}. Also \env{frame} accepts options which |document| doesn't.
+% Therefore a second environment called \env{standaloneframe} is used in the beamer picture files. It will be equal to \env{frame} in standalone mode, but
+% without effect otherwise.
+%
+% \DescribeMacro{\ifstandalonebeamer}
+% Both the class and the package provide the if-switch \cs{ifstandalonebeamer}, which can be used to only include code if the file is
+% compiled standalone with the |beamer| class option set.
+% The switch is set to \cs{iftrue} by the class when loaded with the \opt{beamer} option and always to \cs{iffalse} by the package.
+% It can be used to place beamer specific options in the configuration files, which should be skipped for non-beamer standalone files.
+% If used inside the configuration file this switch must be placed inside \Macro\AtEndOfClass{\ldots}, because the \opt{beamer} option is not yet processed 
+%
+% \begin{DescribeEnv}{standaloneframe}
+%   !\begingroup\oargstyle!<< <overlay specification> >>!\endgroup!
+%   ['<'<default overlay spec>'>']!\\\hspace*{7em}!
+%   [<options>]{<optional frame title>}{<optional frame subtitle>}
+%   \relax\MacroArgs<code with beamer overlays>
+% \end{DescribeEnv}
+% The \env{standaloneframe} environment must be used in sub-file holding beamer overlay code.
+% It is only defined when the class is called with the |beamer| option and acts as a replacement
+% of the \env{frame} environment of beamer when compiled standalone.
+% All optional arguments of \env{frame} are supported but most might not be useful for normal sub-files.
+% When compiled as part of a main document it does nothing except of gobbling its arguments.
+%
+%
+% \par\bigskip\noindent
+% \begin{minipage}{\textwidth}\noindent\small
+% \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,numbers=none,caption={Use of \texttt{standalone} class with \texttt{beamer} option.}]
+%   % Use of 'standalone' class with a beamer overlay:
+%   \documentclass[beamer]{standalone}
+%   % Load packages needed for this TeX file:
+%   \usepackage{tikz}
+%
+%   % Surround TeX code with 'document' environment as usually:
+%   \begin{document}
+%   \begin{standaloneframe}[options] % e.g. 'fragile'
+%    % Add your TeX code:
+%     \only<1>{ One }%
+%     \only<2>{ Two }%
+%   \end{standaloneframe}
+%   \end{document}
+% \end{lstlisting}
+% \end{minipage}
+%
+% \par\bigskip\noindent
+% \begin{minipage}{\textwidth}\noindent\small
+% \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,numbers=none,caption={Effective beamer code if compiled standalone.}]
+%   \documentclass{beamer}
+%   \input{standalone.cfg}
+%
+%   \usepackage{tikz}
+%
+%   \begin{document}
+%   \begin{frame}[your options]
+%     \only<1>{ One }%
+%     \only<2>{ Two }%
+%   \end{frame}
+%   \end{document}
+% \end{lstlisting}
+% \end{minipage}
+%
+% \par\bigskip\noindent
+% \begin{minipage}{\textwidth}\noindent\small
+% \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,numbers=none,caption={Effective code if included in a beamer presentation.}]
+%   \begingroup
+%     \only<1>{ One }%
+%     \only<2>{ Two }%
+%   \endgroup
+%   \endinput
+% \end{lstlisting}
+% \end{minipage}
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \section{Usage of the \cls{standalone} package}
 % \subsection{Quick instructions}
 % Load the \cls{standalone} \emph{package} very early in the main document. Also all packages needed by all the sub-files must be loaded by the main document.
@@ -286,27 +405,6 @@
 %
 % The packages required by each sub-file can be transfered automatically to the main document preamble using the options
 % listed in section~\ref{sec:pkgoptions}.
-%
-% \subsection{Class Options}
-% The \cls{standalone} class will load a real document class.\optpar{class} By default this is |article|. The document class normally has not much
-% influence on sub-files like pictures, especially when the \pkg{preview} package is active. However, the used class can be adjusted by the user
-% with the \opt{class}|=|\meta{class name} option.
-%
-% The boolean \opt*{preview} option can be used to disable the use of the \pkg{review} package. The default is |preview=true|. The package is not loaded if |preview=false| is set.
-% The preview border can be set using the \opt*{border} option. This border will be added to the file content.
-% It can be used in one of the three following ways:
-% \begin{quote}%
-%  \MacroArgs!\opt{\texttt{border}}!'='<all sides> \\
-%  \MacroArgs!\opt{\texttt{border}}!'='{<left>~<lower>~<right>~<upper>} \\
-%  \MacroArgs!\opt{\texttt{border}}!'='{<left/right>~<lower/upper>}
-% \end{quote}
-% The default unit is |bp| (big points) which is the unit used by the PostScript and PDF formats. If |preview=false| is set this option will be ignored.
-%
-% A special \opt*{beamer} option is provided to handle beamer frames and overlays correctly. See section~\ref{sec:beamer} for more information.
-%
-% The \opt*{convert} option can be used to convert the output file to a image. See the section~\ref{sec:conv} for more information.
-%
-% All other used options are passed to the loaded class.
 %
 % \subsection{Package Options}\label{sec:pkgoptions}
 % The \cls{standalone} package removes all sub-file preambles (``sub-preambles'') by default when loaded.
@@ -353,39 +451,6 @@
 % The user might favour the information provided by the comments over this small risk and enable them using the \opt{comments} option.
 %
 % \subsection{Macros and Environments}
-% No macros or environments need to be used to make \cls{standalone} work. Simply loading the class or package is enough for the basic usage.
-% However the following macros and environments can be useful for changing the behaviour of \cls{standalone}.
-%
-% \DescribeMacro{\ifstandalone}
-% Both the class and the package provide the if-switch \cs{ifstandalone}, which can be used to only include code if the file is
-% compiled standalone. The switch is set to \cs{iftrue} by the class and to \cs{iffalse} by the package.
-%
-% The additional file \file{standalone.tex} also defines this switch by checking if \cs{documentclass} was already used. It can be included
-% with |\input{standalone}| and is intended for specialised files which do not use the \cls{standalone} class.
-%
-% \DescribeMacro{\onlyifstandalone}{<code>}
-% This is the macro version of the |\ifstandalone| if-switch. It executes \meta{code} only in \cls{standalone} mode. As mentioned in section~\ref{sec:pkgoptions}
-% it can also be used to hide |\usepackage| and similar macros from the extraction scanner of the |sort| option. The macro and its argument is not printed into the |.stp| file.
-%
-% \DescribeMacro{\standaloneignore}
-% In rare cases some code must be placed before the |\documentclass| of a sub-file (e.g.\ |\PassOptionsToPackage|).
-% Because the main document will only skip code between |\documentclass| and |\begin{document}| this code will be executed by it.
-% In order to avoid this the macro \cs{standaloneignore} can be used at the very beginning of a sub-file to skip over this code.
-% However it must be written as |\csname standaloneignore\endcsname| to avoid a `Undefined control sequence' error when compiled standalone.
-% After all the class is not loaded at this point, therefore no \cls{standalone} macros are yet defined.
-% The |\csname|\,\ldots|\endcsname| construct will simple make it equal to |\relax| in this case.
-%
-% Please note that all code before |\documentclass| is not processed by any of the \opt{subpreamble} options but always simply removed.
-% This macro was inspired by the similar macro |\docmute| of the |docmute| package.
-%
-% \DescribeEnv[<sub-file content>]{standalone}
-% The \env{standalone} environment is automatically wrapped around the content of each sub-file when compiled standalone.
-% By default it only contains a \env{preview} environment as long the class is not called with the |preview=false| option.
-% It can be redefined in the configuration file if required.
-% When compiled as part of a main document the \env{standalone} environment does nothing (apart of being a \TeX\ group).
-%
-% The beamer specific macros and environments are described in section~\ref{sec:beamer}.
-%
 % \subsection{Configuration}\label{sec:cfg}
 % The \cls{standalone} class loads the configuration file \file{standalone.cfg} after the if-switches and options are defined, but before the options are proccessed.
 % The default options which should be passed to \pkg{preview} or \cls{beamer} can be set here using:\\[\smallskipamount]
@@ -493,84 +558,6 @@
 %
 %
 %
-% \subsection{Support for Beamer Presentations}\label{sec:beamer}
-% Presentation can be written in \LaTeX\ using the |beamer| class. Each presentation frame is wrapped in a \env{frame} environment. Overlay effects
-% can be added using special macros. This effects result in multiple pages per frame. Pictures with such overlay effects can not be
-% compiled standalone using the normal settings. Instead the \cls{standalone} class must load the |beamer| class and wrap the content also in
-% a \env{frame} environment while skipping the \env{preview} environment. To activate this settings load the \cls{standalone} class with the |beamer| option.
-% Because the \env{frame} environment is quite special (it normally collects all it's content and calls the \cs{frame}) and must also support
-% verbatim content it is not easily possible to redefined the |document| environment to include \env{frame}. Also \env{frame} accepts options which |document| doesn't.
-% Therefore a second environment called |standaloneframe| is used in the beamer picture files. It will be equal to \env{frame} in standalone mode, but
-% without effect otherwise.
-%
-% \DescribeMacro{\ifstandalonebeamer}
-% Both the class and the package provide the if-switch \cs{ifstandalonebeamer}, which can be used to only include code if the file is
-% compiled standalone with the |beamer| class option set.
-% The switch is set to \cs{iftrue} by the class when loaded with the |beamer| option and always to \cs{iffalse} by the package.
-% It can be used to place beamer specific options in the configuration files, which should be skipped for non-beamer standalone files.
-% Starting from v1.0 of \cls{standalone} this switch must be placed inside \Macro\AtEndOfClass{\ldots} when used inside the config file.
-%
-% \begin{DescribeEnv}{standaloneframe}
-%   !\begingroup\oargstyle!<< <overlay specification> >>!\endgroup!
-%   ['<'<default overlay spec>'>']!\\\hspace*{7em}!
-%   [<options>]{<optional frame title>}{<optional frame subtitle>}
-%   \relax\MacroArgs<code with beamer overlays>
-% \end{DescribeEnv}
-% The \env{standaloneframe} environment must be used in sub-file holding beamer overlay code.
-% It is only defined when the class is called with the |beamer| option and acts as a replacement
-% of the \env{frame} environment of beamer when compiled standalone.
-% All optional arguments of \env{frame} are supported but most might not be useful for normal sub-files.
-% When compiled as part of a main document it does nothing except of gobbling its arguments.
-%
-%
-%
-% \par\bigskip\noindent
-% \begin{minipage}{\textwidth}\noindent\small
-% \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Use of \texttt{standalone} class with \texttt{beamer} option.}]
-%   % Use of 'standalone' class with a beamer overlay:
-%   \documentclass[beamer]{standalone}
-%   % Load packages needed for this TeX file:
-%   \usepackage{tikz}
-%
-%   % Surround TeX code with 'document' environment as usually:
-%   \begin{document}
-%   \begin{standaloneframe}[options] % e.g. 'fragile'
-%    % Add your TeX code:
-%     \only<1>{ One }%
-%     \only<2>{ Two }%
-%   \end{standaloneframe}
-%   \end{document}
-% \end{lstlisting}
-% \end{minipage}
-%
-% \par\bigskip\noindent
-% \begin{minipage}{\textwidth}\noindent\small
-% \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Effective beamer code if compiled standalone.}]
-%   \documentclass{beamer}
-%   \input{standalone.cfg}
-%
-%   \usepackage{tikz}
-%
-%   \begin{document}
-%   \begin{frame}[your options]
-%     \only<1>{ One }%
-%     \only<2>{ Two }%
-%   \end{frame}
-%   \end{document}
-% \end{lstlisting}
-% \end{minipage}
-%
-% \par\bigskip\noindent
-% \begin{minipage}{\textwidth}\noindent\small
-% \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Effective code if included in a beamer presentation.}]
-%   \begingroup
-%     \only<1>{ One }%
-%     \only<2>{ Two }%
-%   \endgroup
-%   \endinput
-% \end{lstlisting}
-% \end{minipage}
-%
 % \subsection{Simple TeX File}
 % \noindent
 % The simple |standalone.tex| file will set the \cs{ifstandalone} switch to true when compiled standalone but to false
@@ -579,7 +566,7 @@
 %
 % \noindent
 % \begin{minipage}{\textwidth}\noindent\small
-% \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Usage of 'standalone.tex'.}]
+% \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,numbers=none,caption={Usage of 'standalone.tex'.}]
 %   \input{standalone} % use before any '\documentclass'
 %   \ifstandalone
 %     % Used only if compiled standalone
