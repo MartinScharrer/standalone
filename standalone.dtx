@@ -176,7 +176,7 @@
 %
 % \par\noindent
 % \begin{minipage}{\textwidth}\small
-% \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Basic use of \emph{standalone} class.}]
+% \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Basic use of the \cls{standalone} class.},numbers=none]
 %   \documentclass{standalone}
 %   \usepackage{tikz}
 %   \begin{document}
@@ -208,19 +208,19 @@
 % In certain cases it may be from benefit to use the same class than in the targeted main document.
 % For the \cls{beamer} class the special \opt{beamer} option should be used instead.
 %
-% \DescribeKey{crop}'='<true|false>
+% \DescribeKey{crop}'=true|false'
 % If enabled this option crops the content to its natural size plus a specified border. This is done by saving the content in a box register and resizing
 % the page size relative to the box dimensions.
 % This option is mutual exclusive with the similar \opt{preview} option and will therefore disable it.
 %
-% \DescribeKey{preview}'='<true|false>
+% \DescribeKey{preview}'=true|false'
 % If enabled this option loads the \pkg{preview} package with the \opt{tightpage} option
 % and wraps the content into a \env{preview} environment. This crops the content to its natural size plus a specified border.
 % Issues with the \pkg{preview} options and TikZ shadings under XeLaTeX have been reported. In this cases the \opt{crop} option should be used instead.
 %
 % This option is mutual exclusive with the similar \opt{crop} option and will therefore disable it.
 %
-% \DescribeKey{multi}'='<true|false>
+% \DescribeKey{multi}'=true|false'
 % By default the \cls{standalone} class assume that the whole content is one block which should be shown on one single page.
 % If this option is activated multiple pages are supported. Each page will be cropped to its content plus the selected border (as long either \opt{preview} or \opt{crop} are enabled).
 % A set of environments which hold a single page must be declared using \Macro\standaloneenv{<environment name>, \ldots}.
@@ -235,7 +235,7 @@
 %
 % This option can be changed during the document using \Macro\standaloneconfig and will affect all following pages.
 %
-% \DescribeKey{ignorerest}'='<true|false>
+% \DescribeKey{ignorerest}'=true|false'
 % This option is only meaningful when both \opt{multi} and \opt{crop} are enabled.
 % Then it determines if all material which does not appear inside environments declared with \Macro\standalone should be ignored or not.
 % This is done by boxing and discarding all outside material. Any code will be placed inside a group and therefore local settings made between environments
@@ -244,7 +244,7 @@
 % It should be noted that which \opt{preview} such material is always ignored while not affecting local settings.
 % Therefore the \opt{ignorrest} option can be seen as a compatibility setting to make \opt{crop} act more like \opt{preview}, if this is required by the user.
 %
-% \DescribeKey{varwidth}'='<true|false>
+% \DescribeKey{varwidth}'=true|false'
 % \DescribeKey{varwidth}'='<width>
 % A trailing empty line between the content and \Macro\end{document}\relax will normally create a paragraph which is \Macro\linewidth wide.
 % This paragraph (or any other one) will enlarge the size of smaller pictures and display itself as a large right border.
@@ -260,11 +260,11 @@
 %
 % This option can be changed during the document using \Macro\standaloneconfig and will affect all content of the following pages.
 %
-% \DescribeKey{tikz}'='<true|false>
+% \DescribeKey{tikz}'=true|false'
 % This option declares that the content contains of one or more \env{tikzpicture}s. This sets |multi=true,varwidth=false|, loads the \pkg{tikz} package and
-% sets \Macro\standaloneenv{tikzpicture}.
+% declares \Macro\standaloneenv{tikzpicture}.
 %
-% \DescribeKey{beamer}'='<true|false>
+% \DescribeKey{beamer}'=true|false'
 % If set to `|true|' this option enables a special \cls{beamer} mode, where the normal cropping is disabled.
 % Instead the content is shown on a blank beamer frame.
 %
