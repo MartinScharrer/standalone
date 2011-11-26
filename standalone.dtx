@@ -284,7 +284,6 @@
 % \Macro\input{standalone/standalone.cfg}.
 %
 %
-%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsection{Macros and environments}
 % The following macros and environments can be used inside \cls{standalone} files.
@@ -387,6 +386,47 @@
 %   \endinput
 % \end{lstlisting}
 % \end{minipage}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsection{FAQ / Troubleshooting}
+% This section expands some issues and their solution which can arise with the \cls{standalone} class.
+%
+% \subsubsection*{Large white space / border at the right side}
+% A large white space / border on the right side occurs when the content is placed inside a paragraph.
+% This causes the content to be \Macro\linewidth wide and so smaller pictures will contain now a white space at the right.
+% A common cause for this is that there was is a empty line between the content and \Macro\end{document} which causes a paragraph break.
+%
+% This issue can be solved by either removing any trailing lines or other paragraph breaks, or by using the \opt{varwidth} option which suppresses the extra added width.
+% It is also possible to use the \opt{multi} option and \Macro\standaloneenv{<environment name>} to declare certain environments as page content.
+% The \opt{tikz} option does this for \env{tikzpictures}. See the descriptions of these options for more details.
+%
+% \subsubsection*{Some amount of the content on the right side is missing}
+% If the content is cropped to much on the right side, check if the \opt{varwidth} option is used. In this case the used maximum width (\Macro\linewidth by default) is too small.
+% A larger width can be set using \hbox{\opt{varwidth}\MacroArgs'='<length>} or the option can be disabled altogether using \hbox{\opt{varwidth}|=false|}.
+% The largest width possible is given by \Macro\maxdimen, which however might cause internal overflows.
+%
+% This can also be caused with \cls{beamer} content (i.e.\ when the \opt{beamer} option is used). In this case no cropping or \env{varwidth} environment is used at all,
+% but the content is simply to large to fit on a \cls{beamer} \env{frame}. To avoid this rescale the content to do fit. This can be realised by either using 
+% scaling facilities of the used picture environment (like |scale| with \env{environment}, but this only scales coordinates) or using \Macro\scalebox or \Macro\resizebox from \pkg{graphicx}.
+% For complicated code which contains verbatim or other catcode changing code either the \Macro\Resizebox from the \pkg{realboxes} or \Macro\begin{adjustbox}{scale=<factor>}'..'\AlsoMacro\end{adjustbox} from the 
+% \pkg{adjustbox} package should be used.
+%
+% \subsubsection*{A multi-page document contains some pages with unwanted content}
+% This is caused while \opt{multi}|=true| and \opt{crop}|=true| are set but \opt{ignorerest}|=false| \emph{and} the document contains
+% typeset material outside of environments declared with \Macro\standaloneenv. To avoid that this extra material should be removed or \opt{ignorerest} should be set to |true|.
+% This will also ignore all settings inside the document body which are not inside a declared environment. These can be moved to the preamble instead.
+% See the description of the \opt{ignorerest} option for more details.
+%
+% \subsubsection*{In a multi-page document using DVI/PS mode all pages except the first have a vertical offset}
+% The vertical reference points in PostScript could does not change when the pages are resized to fit the individual content of every page.
+% Therefore an offset is added to compensate for this, which shifts the content to the appropriate vertical position.
+% Should this not work as expected please inform the package author and provide a small example which causes this issue, together with the version number of the used |latex| compiler and tools (like |dvips|, |ps2pdf|)
+% as well as the used \cls{standalone} bundle.
+%
+% \subsubsection*{Image conversion does not work}
+% In order for the image conversion to work an external conversion software must be installed. By default either Image Magkick or GhostScript is used. Please insure that either or both of these softwares are installed.
+% Installation guide for your operating system should be easily available on the Internet. The \LaTeX\ compiler option |-shell-escape| must be used to allow this external software to be executed from within the \LaTeX\ code.
+% If this two points are fulfilled but the conversion does still not work, please check the log file. The lines in question start with |runsystem| (at least with \TeX\ Live 2011).
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
