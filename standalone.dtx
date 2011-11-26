@@ -272,8 +272,18 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsection{Class configuration file}
-% The \cls{standalone} class loads a configuration file called \file{standalone.cfg} just before the options are processed.
-% Any class options can then also be given using the \Macro\standaloneconfig{<options>} macro
+% The \cls{standalone} class loads a configuration file called \file{standalone.cfg} just before the options are processed, but after all options and if-switches are declared.
+% Any class options can then also be given using \Macro\standaloneconfig{<options>}.
+% Settings which depends on the finally used options should be placed inside \Macro\AtEndOfClass{\ldots}, so that they are processed after all options.
+% This is particular required for \cls{beamer} specific settings, because at load time of the configuration file a given \opt{beamer} option is not yet processed.
+%
+% A default configuration file is provided together with the bundle and holds some default settings. Because this file will be overwritten every time the bundle is updated, users
+% should create an own configuration file in the local TEXMF tree or the document directory. In order to keep the default behaviour this file should either contain the content of the bundle configuration file
+% or load it.
+% Because it can be assumed that the bundle configuration file resides inside a \file{standalone} directory, therefore it can be loaded from a user configuration file using
+% \Macro\input{standalone/standalone.cfg}.
+%
+%
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsection{Macros and environments}
@@ -737,4 +747,4 @@
 % \fi
 %
 % \Finale
-\endinput
+% \endinput
