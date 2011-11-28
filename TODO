@@ -1,0 +1,7 @@
+Package:
+ * Add an option to allow for inclusion of standalone files without adding a group when using \input.
+ * Finish \includestandalone feature.
+
+Class:
+ * Finish manual.
+ * Tests.
