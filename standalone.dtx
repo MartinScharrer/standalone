@@ -175,17 +175,34 @@
 % \begin{minipage}{\textwidth}\small
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Basic use of the \cls{standalone} class.},numbers=none]
 %   \documentclass{standalone}
-%   \usepackage{tikz}
+%   \usepackage{somepackage}
 %   \begin{document}
-%   \begin{tikzpicture}
-%     \draw (0,0) rectangle (2,1) node [midway] {Example};
-%   \end{tikzpicture}
+%   \begin{somepicture}
+%       \somedrawingcommands
+%   \end{somepicture}
 %   \end{document}
 % \end{lstlisting}
 % \end{minipage}
 %
 % Such a file can be compiled as normal. The \cls{standalone} class will crop the resulting output file (PDF or DVI/PS) to the content size plus a certain border.
 % Page number and other header or footer material will be suppressed.
+%
+% For pictures drawn with TikZ a dedicated \opt{tikz} option is provided which loads the \pkg{tikz} package and also configures the \env{tikzpicture} environment to create a single cropped page.
+%
+% \par\noindent
+% \begin{minipage}{\textwidth}\small
+% \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Basic use of the \cls{standalone} class.},numbers=none]
+%   \documentclass[tikz]{standalone}
+%   %\usetikzlibrary{calc}
+%   \begin{document}
+%   \begin{tikzpicture}
+%     \draw (0,0) rectangle (2,1) node [midway] {Example};
+%   \end{tikzpicture}
+%   % Further 'tikzpicture' environments are possible which will create further pages.
+%   \end{document}
+% \end{lstlisting}
+% \end{minipage}
+%
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsection{Class options}
@@ -271,22 +288,14 @@
 % These options allow to enable and configure the conversion feature. See \autoref{sec:convert} for the full description.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \subsection{Class configuration file}
-% The \cls{standalone} class loads a configuration file called \file{standalone.cfg} just before the options are processed, but after all options and if-switches are declared.
-% Any class options can then also be given using \Macro\standaloneconfig{<options>}.
-% Settings which depends on the finally used options should be placed inside \Macro\AtEndOfClass{\ldots}, so that they are processed after all options.
-% This is particular required for \cls{beamer} specific settings, because at load time of the configuration file a given \opt{beamer} option is not yet processed.
-%
-% A default configuration file is provided together with the bundle and holds some default settings. Because this file will be overwritten every time the bundle is updated, users
-% should create an own configuration file in the local TEXMF tree or the document directory. In order to keep the default behaviour this file should either contain the content of the bundle configuration file
-% or load it.
-% Because it can be assumed that the bundle configuration file resides inside a \file{standalone} directory, therefore it can be loaded from a user configuration file using
-% \Macro\input{standalone/standalone.cfg}.
-%
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsection{Macros and environments}
 % The following macros and environments can be used inside \cls{standalone} files.
+%
+% \DescribeMacro\standaloneconfig{<options>}
+% ..
+%
+% \DescribeMacro\standaloneenv{<environment>', '<environment>', '\ldots}
+% ..
 %
 % \DescribeMacro{\standaloneignore}
 % In rare cases some code must be placed before the |\documentclass| of a sub-file (e.g.\ |\PassOptionsToPackage|).
@@ -388,6 +397,20 @@
 % \end{minipage}
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsection{Class configuration file}
+% The \cls{standalone} class loads a configuration file called \file{standalone.cfg} just before the options are processed, but after all options and if-switches are declared.
+% Any class options can then also be given using \Macro\standaloneconfig{<options>}.
+% Settings which depends on the finally used options should be placed inside \Macro\AtEndOfClass{\ldots}, so that they are processed after all options.
+% This is particular required for \cls{beamer} specific settings, because at load time of the configuration file a given \opt{beamer} option is not yet processed.
+%
+% A default configuration file is provided together with the bundle and holds some default settings. Because this file will be overwritten every time the bundle is updated, users
+% should create an own configuration file in the local TEXMF tree or the document directory. In order to keep the default behaviour this file should either contain the content of the bundle configuration file
+% or load it.
+% Because it can be assumed that the bundle configuration file resides inside a \file{standalone} directory, therefore it can be loaded from a user configuration file using
+% \Macro\input{standalone/standalone.cfg}.
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsection{FAQ / Troubleshooting}
 % This section expands some issues and their solution which can arise with the \cls{standalone} class.
 %
@@ -408,8 +431,8 @@
 % This can also be caused with \cls{beamer} content (i.e.\ when the \opt{beamer} option is used). In this case no cropping or \env{varwidth} environment is used at all,
 % but the content is simply to large to fit on a \cls{beamer} \env{frame}. To avoid this rescale the content to do fit. This can be realised by either using 
 % scaling facilities of the used picture environment (like |scale| with \env{environment}, but this only scales coordinates) or using \Macro\scalebox or \Macro\resizebox from \pkg{graphicx}.
-% For complicated code which contains verbatim or other catcode changing code either the \Macro\Resizebox from the \pkg{realboxes} or \Macro\begin{adjustbox}{scale=<factor>}'..'\AlsoMacro\end{adjustbox} from the 
-% \pkg{adjustbox} package should be used.
+% For complicated code which contains verbatim or other catcode changing code either the \Macro\Resizebox from the \pkg{realboxes} package
+% or the \MacroArgs{adjustbox}{scale=<factor>} environment from the \pkg{adjustbox} package should be used.
 %
 % \subsubsection*{A multi-page document contains some pages with unwanted content}
 % This is caused while \opt{multi}|=true| and \opt{crop}|=true| are set but \opt{ignorerest}|=false| \emph{and} the document contains
@@ -523,16 +546,6 @@
 % The if-switches can be used, but \Macro{ifbeamerstandalone} will always be false because the \opt{beamer}
 % option is not yet processed. Such code should be places inside \Macro\AtEndOfClass{\ldots}. 
 % Please note that this was handled differently before v1.0, so in old configuration files edited by the user the \Macro\AtEndOfClass must now be added.
-%
-% \DescribeMacro\standaloneconfig{<key=value, key=value, \ldots>}
-% This macro is defined by the class and also provided by the package and allows the configuration of both.
-% All package and class options can be used here as well, but are only valid in the current group (i.e.\ global when used in the preamble or config file).
-% However, the class options must be prefixed with `|cls/|'. The key=value engine of the \pkg{pgfkeys} package (\pkg{pgf} bundle) is used which is
-% described in detail in the |pgfmanual|, part V, section 55 "Key Management".
-%
-% This macro also allows the definitions of custom class options, e.g.\ to support different image types for conversion.
-% For example to define the short-key `|bmp|' to convert to the BMP format use:\\
-% \hbox to \linewidth{\hss|\standaloneconfig{cls/bmp/.style={convert={outext={.bmp}}}}|\hss}
 %
 % ^^A\newpage
 % \subsection{Usage Examples}
