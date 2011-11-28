@@ -524,7 +524,7 @@
 \def\sa@defgsdevice#1#2{%
     \@namedef{sa@gsdevice@#1}{#2}%
 }
-\@namedef{sa@gsdevice@.jpg}{jpg}%
+\@namedef{sa@gsdevice@.jpg}{jpeg}%
 \@namedef{sa@gsdevice@.png}{png16m}%
 %    \end{macrocode}
 % \end{key}
@@ -546,9 +546,9 @@
 % \end{key}
 %
 %    \begin{macrocode}
-\sa@convertvar{jobname}{\jobname}
+\sa@convertvar{subjobname}{\jobname}
 \sa@convertvar{size}{}
-\sa@convertvar{inname}{\sa@convert@jobname}
+\sa@convertvar{inname}{\subjobname}
 \sa@convertvar{infile}{\inname\inext}
 \sa@convertvar{outext}{.png}
 \sa@convertvar{outname}{\inname}
@@ -753,8 +753,10 @@
 % These \env{varwidth} macros are the reason why \Macro\PreviewEnvironment is not used directly.
 %    \begin{macrocode}
 \def\@standaloneenv#1{%
-    \expandafter\let\csname sa@orig@#1\expandafter\endcsname\csname #1\endcsname
-    \expandafter\let\csname sa@orig@end#1\expandafter\endcsname\csname end#1\endcsname
+    \expandafter\ifx\csname sa@orig@#1\endcsname\relax\else
+        \expandafter\let\csname sa@orig@#1\expandafter\endcsname\csname #1\endcsname
+        \expandafter\let\csname sa@orig@end#1\expandafter\endcsname\csname end#1\endcsname
+    \fi
     \expandafter\def\csname #1\endcsname{%
         \ifnum\sa@internal=0
             \preview
@@ -866,8 +868,10 @@
 \fi
 \ifsa@ignorerest
     \def\@standaloneenv#1{%
-        \expandafter\let\csname sa@orig@#1\expandafter\endcsname\csname #1\endcsname
-        \expandafter\let\csname sa@orig@end#1\expandafter\endcsname\csname end#1\endcsname
+        \expandafter\ifx\csname sa@orig@#1\endcsname\relax\else
+            \expandafter\let\csname sa@orig@#1\expandafter\endcsname\csname #1\endcsname
+            \expandafter\let\csname sa@orig@end#1\expandafter\endcsname\csname end#1\endcsname
+        \fi
         \expandafter\def\csname #1\endcsname{%
             \ifnum\sa@internal=0
                 \edef\@tempa{\endgroup
@@ -894,8 +898,10 @@
     }%
 \else
     \def\@standaloneenv#1{%
-        \expandafter\let\csname sa@orig@#1\expandafter\endcsname\csname #1\endcsname
-        \expandafter\let\csname sa@orig@end#1\expandafter\endcsname\csname end#1\endcsname
+        \expandafter\ifx\csname sa@orig@#1\endcsname\relax\else
+            \expandafter\let\csname sa@orig@#1\expandafter\endcsname\csname #1\endcsname
+            \expandafter\let\csname sa@orig@end#1\expandafter\endcsname\csname end#1\endcsname
+        \fi
         \expandafter\def\csname #1\endcsname{%
             \ifnum\sa@internal=0
                 \sa@boxit
@@ -1142,7 +1148,7 @@
     }{%
         \def\filemodbefore{}%
     }}}}%
-    \immediate\write18{\sa@convert@latex\space -jobname '\sa@convert@jobname' '\noexpand\expandafter\def\noexpand\csname sa@internal@run\noexpand\endcsname{1}\noexpand\input{\jobname}'}%
+    \immediate\write18{\sa@convert@latex\space -jobname '\sa@convert@subjobname' '\noexpand\expandafter\def\noexpand\csname sa@internal@run\noexpand\endcsname{1}\noexpand\input{\jobname}'}%
     \edef\sa@convert@precommand{\sa@convert@precommand}%
     \ifx\sa@convert@precommand\@empty\else
         \immediate\write18{\sa@convert@precommand}%
@@ -1183,6 +1189,7 @@
 %
 % Provide the internal macros to the user level.
 %    \begin{macrocode}
+\let\subjobname\sa@convert@subjobname
 \let\infile\sa@convert@infile
 \let\inext\sa@convert@inext
 \let\inname\sa@convert@inname
