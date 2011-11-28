@@ -41,7 +41,7 @@
 \CodelineIndex
 \RecordChanges
 \colorlet{keydesc}{opt}
-%\OnlyDescription
+\OnlyDescription
 \begin{document}
   \DocInput{\jobname.dtx}
   \PrintChanges
@@ -98,17 +98,11 @@
 %   pdfkeywords = {standalone, LaTeX, TeX}
 % }%
 % \fi
-% \clearpage
-% \null
-% \vspace*{-2em}
-% \begin{center}
-%   {\LARGE\textsf{The \textbf{standalone} Class and Package\\[\bigskipamount]}}
-%   {\large Martin Scharrer \\[\smallskipamount]\normalsize
-%   \url{martin@scharrer-online.de}\\[\medskipamount]
-%   \url{http://www.ctan.org/pkg/standalone/}\\[\bigskipamount]}
-%   {\large Version \fileversion\ -- \filedate}\\
-% \end{center}
-% \vspace{1.2em}%
+% \author{Martin Scharrer}
+% \email{martin@scharrer.me}
+% \repository{https://bitbucket.org/martin_scharrer/standalone}
+% \maketitle
+%
 %
 % \begin{abstract}
 % The \pkg{standalone} bundle allows users to easily place picture environments or other material in own source files
@@ -117,6 +111,7 @@
 % The \pkg{standalone} package enables the user to simply load the standalone files using \Macro\input\relax inside a main document.
 % \end{abstract}
 %
+% \smallskip
 % \begin{multicols}{2}
 % \setcounter{tocdepth}{2}
 % \tableofcontents
@@ -142,14 +137,18 @@
 % margins, page numbers or anything else. A configuration file \file{standalone.cfg} read by the class allows the user to adjust settings and macros easily
 % on a per directory base.
 %
-% \subsection{Similar Packages}
-% The \pkg{docmute} package by T.M.\ Trzeciak is written for the same basic task as the \cls{standalone} package. However, no sub-preamble processing other than the removal is support. It also
-% doesn't provide a special class or configuration file.
+% \subsection{Quick instructions}
+% Load the \cls{standalone} \emph{package} very early in the main document. Also all packages needed by all the sub-files must be loaded by the main document.
+% Include your picture or other sub-files using |\input| or a similar macro as normal.
+% In the sub-files use the \cls{standalone} \emph{class} with a normal \cs{documentclass} and load all packages needed for the particular
+% file. Finally wrap the actual content of the sub-file in a \env{document} environment. Avoid empty lines at the begin or end of the document body.
 %
-% The \lib{external} library of \pkg{tikz} allows to externalize \env{tikzpictures} from an main document. Its build feature is similar to the one provided by \cls{standalone}.
-% However, both work form different directions: \cls{standalone} allows to include external \env{tikzpictures} to be included in a main file while ignoring the preamble while
-% \lib{external} writes them from the main file to temporary external files. The user must decide which workflow is better suited for him/her.
-% Also \cls{standalone} is working independently of \pkg{tikz} and supports other picture environments like \pkg{pstricks} or any other \TeX\ material.
+% When the sub-file is compiled on its own the |\documentclass| and \env{document} environment will be active as normal. The main file, however,
+% will skip everything from the |\documentclass| till the |\begin{document}|. The (now fake) \env{document} environment is redefined to be a simple
+% TeX-group. Any code after the |\end{document}| will be ignored. The real \env{document} environment of the main file will be unaffected and will work as normal.
+%
+% The packages required by each sub-file can be transfered automatically to the main document preamble using the options
+% listed in section~\ref{sec:pkgoptions}.
 %
 % \subsection{Dependencies}
 % The \cls{standalone} class and package require the \pkg{xkeyval} package.
@@ -162,9 +161,8 @@
 %
 % To compile the documentation of \cls{standalone} the \cls{ydoc} bundle is required.
 %
-% All of these packages are included in recent versions of the TeXLive or MikTeX distributions and are freely available on CTAN (\url{http://www.ctan.org/}).
+% All of these packages are included in recent versions of the TeXLive or MikTeX distributions and are freely available on \href{http://www.ctan.org/}{CTAN}.
 %
-% \clearpage
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \section{Usage of the \cls{standalone} class}
@@ -291,7 +289,8 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsection{Macros and environments}
-% The following macros and environments can be used inside \cls{standalone} files.
+% The following macros and environments can be used inside the preamble of \cls{standalone} files. Further macros are listed in \autoref{sec:common} which are
+% defined by both the class and package and can be used in standalone files but also in the main document.
 %
 % \DescribeMacro\standaloneconfig{<options>}
 % This configuration macro accepts the class options described in \autoref{sec:classoptions}.
@@ -364,18 +363,18 @@
 % All optional arguments of \env{frame} are supported but most might not be useful for normal sub-files.
 % When compiled as part of a main document it does nothing except of gobbling its arguments.
 %
+% The listings~\ref{lst:beamer}--\ref{lst:beamerrepl} shows a beamer standalone example and its effective code in standalone and main document mode.
 %
 % \par\bigskip\noindent
 % \begin{minipage}{\textwidth}\noindent\small
-% \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,numbers=none,caption={Use of \texttt{standalone} class with \texttt{beamer} option.}]
+% \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,numbers=none,caption={Use of \texttt{standalone} class with \texttt{beamer} option.},label=lst:beamer]
 %   % Use of 'standalone' class with a beamer overlay:
 %   \documentclass[beamer]{standalone}
 %   % Load packages needed for this TeX file:
 %   \usepackage{tikz}
-%
-%   % Surround TeX code with 'document' environment as usually:
+%   % Surround TeX code with 'document' environment:
 %   \begin{document}
-%   \begin{standaloneframe}[options] % e.g. 'fragile'
+%   \begin{standaloneframe}[<options>] % e.g. 'fragile'
 %    % Add your TeX code:
 %     \only<1>{ One }%
 %     \only<2>{ Two }%
@@ -389,9 +388,7 @@
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,numbers=none,caption={Effective beamer code if compiled standalone.}]
 %   \documentclass{beamer}
 %   <beamer code from standalone.cfg file>
-%
 %   \usepackage{tikz}
-%
 %   \begin{document}
 %   \begin{frame}[your options]
 %     \only<1>{ One }%
@@ -403,7 +400,7 @@
 %
 % \par\bigskip\noindent
 % \begin{minipage}{\textwidth}\noindent\small
-% \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,numbers=none,caption={Effective code if included in a beamer presentation.}]
+% \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,numbers=none,caption={Effective code if included in a beamer presentation.},label=lst:beamerrepl]
 %   \begingroup
 %     \only<1>{ One }%
 %     \only<2>{ Two }%
@@ -418,6 +415,7 @@
 % Any class options can then also be given using \Macro\standaloneconfig{<options>}.
 % Settings which depends on the finally used options should be placed inside \Macro\AtEndOfClass{\ldots}, so that they are processed after all options.
 % This is particular required for \cls{beamer} specific settings, because at load time of the configuration file a given \opt{beamer} option is not yet processed.
+% Please note that this was handled differently before v1.0, so in old configuration files edited by the user the \Macro\AtEndOfClass must now be added.
 %
 % A default configuration file is provided together with the bundle and holds some default settings. Because this file will be overwritten every time the bundle is updated, users
 % should create an own configuration file in the local TEXMF tree or the document directory. In order to keep the default behaviour this file should either contain the content of the bundle configuration file
@@ -496,7 +494,7 @@
 % In order for an external program to be executed the \texttt{-shell-escape} option\footnote{Maybe named differently depending on the used \LaTeX\ distribution} must be used for the 
 % compiler executable, e.g.\ \texttt{pdflatex -shell-escape filename}. Without this option no conversion is possible.
 %
-% By default the conversion program of Image Magick (\url{http://www.imagemagick.org/}) is used for PDF \LaTeX\ files, which is freely available for Unix/Linux, Mac and MS Windows.
+% By default the conversion program of \href{http://www.imagemagick.org/}{Image Magick} is used for PDF \LaTeX\ files, which is freely available for Unix/Linux, Mac and MS Windows.
 % Under Ubuntu Linux it can be installed using the shell command `\texttt{sudo apt-get install imagemagick}'.
 % The conversion executable is simply called `|convert|'. However, there is another program with the same name provided by MS Windows itself which
 % converts old FAT filesystems to NTFS! It has been suggested to rename the Image Magick executable to `|imgconvert|' instead.
@@ -506,7 +504,7 @@
 % \codeline{\AlsoMacro\standaloneconfig{'convert='{'convertexe='{convert}}}}
 % in the configuration file `|standalone.cfg|'.
 %
-% Another conversion program is Ghostscript (\url{http://pages.cs.wisc.edu/~ghost/}) which is a very common PostScript interpreter which also supports PDF.
+% Another conversion program is \href{http://pages.cs.wisc.edu/~ghost/}{Ghostscript} which is a very common PostScript interpreter which also supports PDF.
 % It is used by default for DVI/PS files.
 % Under Ubuntu Linux it is most likely already installed but otherwise can be installed using `|sudo apt-get install ghostscript|' or
 % `|sudo apt-get install gs|'.
@@ -545,6 +543,25 @@
 % \par\medskip\noindent
 % Produces PNG (default) with a size of 640px (suitable to be uploaded on StackExchange sites without the image getting downscaled):\\*[\smallskipamount]
 % |  \documentclass[convert={size=640}]{standalone}|
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% \subsection{Simple TeX File}
+% A simple \file{standalone.tex} file is provided together with the bundle, which may be useful in special occasions.
+% It will set the \cs{ifstandalone} switch to \emph{true} when compiled standalone but to \emph{false}
+% when loaded after any |\documentclass| macro, as long the switch isn't defined yet.
+% It must be used if this switch is required before the |\documentclass| of a standalone file.
+%
+% \noindent
+% \begin{minipage}{\textwidth}\noindent\small
+% \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,numbers=none,caption={Usage of 'standalone.tex'.}]
+%   \input{standalone} % use before any '\documentclass'
+%   \ifstandalone
+%     % Used only if compiled standalone
+%   \fi
+% \end{lstlisting}
+% \end{minipage}
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsection{FAQ / Troubleshooting}
@@ -592,43 +609,16 @@
 % \section{Usage of the \cls{standalone} package}
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \section{Common macros}
-% The following conditional macros are defined by both the \cls{standalone} class and package, but react differently when the code is compiled standalone or as part of a main document.
+% \subsection{Similar Packages}
+% The \pkg{docmute} package by T.M.\ Trzeciak is written for the same basic task as the \cls{standalone} package. However, no sub-preamble processing other than the removal is support. It also
+% doesn't provide a special class or configuration file.
 %
-% \DescribeMacro{\ifstandalone}
-% Both the class and the package provide the if-switch \cs{ifstandalone}, which can be used to only include code if the file is
-% compiled standalone. The switch is set to \cs{iftrue} by the class and to \cs{iffalse} by the package.
-%
-% The additional file \file{standalone.tex} also defines this switch by checking if \cs{documentclass} was already used. It can be included
-% with |\input{standalone}| and is intended for specialised files which do not use the \cls{standalone} class.
-%
-% \DescribeMacro{\IfStandalone}{<code for standalone mode>}{<code for main document>}
-% This is the macro version of the \Macro\ifstandalone| if-switch. It executes the first argument only in \cls{standalone} mode, i.e.\ when the file is compiled on its own.
-% When included in the main document the second argument is executed instead.
-% As mentioned in section~\ref{sec:pkgoptions}
-% it can also be used to hide |\usepackage| and similar macros from the extraction scanner of the |sort| option. The macro and its arguments is not printed into the |.stp| file.
-%
-% \DescribeMacro{\onlyifstandalone}{<code>}
-% This macro is similar to \Macro\IfStandalone but only has takes one argument which is executed only in standalone mode, but ignored when compiled as part of a main document.
-% As mentioned in section~\ref{sec:pkgoptions}
-% it can also be used to hide |\usepackage| and similar macros from the extraction scanner of the |sort| option. The macro and its argument is not printed into the |.stp| file.
+% The \lib{external} library of \pkg{tikz} allows to externalize \env{tikzpictures} from an main document. Its build feature is similar to the one provided by \cls{standalone}.
+% However, both work form different directions: \cls{standalone} allows to include external \env{tikzpictures} to be included in a main file while ignoring the preamble while
+% \lib{external} writes them from the main file to temporary external files. The user must decide which workflow is better suited for him/her.
+% Also \cls{standalone} is working independently of \pkg{tikz} and supports other picture environments like \pkg{pstricks} or any other \TeX\ material.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \subsection{Quick instructions}
-% Load the \cls{standalone} \emph{package} very early in the main document. Also all packages needed by all the sub-files must be loaded by the main document.
-% Include your picture or other sub-files using |\input| or a similar macro as normal.
-% In the sub-files use the \cls{standalone} \emph{class} with a normal \cs{documentclass} and load all packages needed for the particular
-% file. Finally wrap the actual content of the sub-file in a |document| environment.
-%
-% When the sub-file is compiled on its own the |\documentclass| and |document| environment will be active as normal. The main file, however,
-% will skip everything from the |\documentclass| till the |\begin{document}|. The (now fake) |document| environment is redefined to be a simple
-% TeX-group. Any code after the |\end{document}| will be ignored. The real |document| environment of the main file will be unaffected and will work as normal.
-%
-% The packages required by each sub-file can be transfered automatically to the main document preamble using the options
-% listed in section~\ref{sec:pkgoptions}.
-%
 % \subsection{Package Options}\label{sec:pkgoptions}
 % The \cls{standalone} package removes all sub-file preambles (``sub-preambles'') by default when loaded.
 % However, if the package is loaded with the \opt*{subpreambles} options, all sub-preambles are stored in an auxiliary file with the name `\meta{main tex file name}|.sta|' (for \emph{sta}ndalone).
@@ -673,20 +663,38 @@
 % between `active' macros and macros which are commented out. All above mentioned macro inside comments will then be processed as when there where `active'.
 % The user might favour the information provided by the comments over this small risk and enable them using the \opt{comments} option.
 %
-% \subsection{Macros and Environments}
-% \subsection{Configuration}\label{sec:cfg}
-% The \cls{standalone} class loads the configuration file \file{standalone.cfg} after the if-switches and options are defined, but before the options are proccessed.
-% The default options which should be passed to \pkg{preview} or \cls{beamer} can be set here using:\\[\smallskipamount]
-% \hspace*{2\parindent}\Macro\PassOptionsToPackage{<options>}{preview}\\
-% \hspace*{2\parindent}\Macro\PassOptionsToClass{<options>}{beamer}\\[\medskipamount]
-% The if-switches can be used, but \Macro{ifbeamerstandalone} will always be false because the \opt{beamer}
-% option is not yet processed. Such code should be places inside \Macro\AtEndOfClass{\ldots}. 
-% Please note that this was handled differently before v1.0, so in old configuration files edited by the user the \Macro\AtEndOfClass must now be added.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \section{Common macros}\label{sec:common}
+% The following conditional macros are defined by both the \cls{standalone} class and package, but react differently when the code is compiled standalone or as part of a main document.
 %
-% ^^A\newpage
-% \subsection{Usage Examples}
+% \DescribeMacro{\ifstandalone}
+% Both the class and the package provide the if-switch \cs{ifstandalone}, which can be used to only include code if the file is
+% compiled standalone. The switch is set to \cs{iftrue} by the class and to \cs{iffalse} by the package.
+%
+% The additional file \file{standalone.tex} also defines this switch by checking if \cs{documentclass} was already used. It can be included
+% with |\input{standalone}| and is intended for specialised files which do not use the \cls{standalone} class.
+%
+% \DescribeMacro{\IfStandalone}{<code for standalone mode>}{<code for main document>}
+% This is the macro version of the \Macro\ifstandalone| if-switch. It executes the first argument only in \cls{standalone} mode, i.e.\ when the file is compiled on its own.
+% When included in the main document the second argument is executed instead.
+% As mentioned in section~\ref{sec:pkgoptions}
+% it can also be used to hide |\usepackage| and similar macros from the extraction scanner of the |sort| option. The macro and its arguments is not printed into the |.stp| file.
+%
+% \DescribeMacro{\onlyifstandalone}{<code>}
+% This macro is similar to \Macro\IfStandalone but only has takes one argument which is executed only in standalone mode, but ignored when compiled as part of a main document.
+% As mentioned in section~\ref{sec:pkgoptions}
+% it can also be used to hide |\usepackage| and similar macros from the extraction scanner of the |sort| option. The macro and its argument is not printed into the |.stp| file.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \section{Usage Examples}
 %
 % \def\lstlistingname{Example}
+% \setcounter{lstlisting}{0}
 %
 % \par\noindent
 % \begin{minipage}{\textwidth}\small
@@ -769,37 +777,6 @@
 % \end{lstlisting}
 % \end{minipage}
 %
-%
-%
-% \subsection{Simple TeX File}
-% \noindent
-% The simple |standalone.tex| file will set the \cs{ifstandalone} switch to true when compiled standalone but to false
-% when loaded after any |\documentclass| macro, as long the switch isn't defined yet.
-% It must be used if the switch is required is intended to be used before the |\documentclass| of a standalone file.
-%
-% \noindent
-% \begin{minipage}{\textwidth}\noindent\small
-% \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,numbers=none,caption={Usage of 'standalone.tex'.}]
-%   \input{standalone} % use before any '\documentclass'
-%   \ifstandalone
-%     % Used only if compiled standalone
-%   \fi
-% \end{lstlisting}
-% \end{minipage}
-%
-% \subsection{Usage with \texttt{svn-multi} keywords}\label{sec:svnmulti}
-% If the version control package \texttt{svn-multi} is used, the keyword macros (|\svnid| or |\svnidlong|)
-% need to be placed after the |\begin{document}| to be taken into account by the main document.
-% The \texttt{svn-multi} package must be loaded by the sub-file preamble to avoid compile errors in standalone mode.
-% Alternative, if the keywords are not required in this mode, they can be surrounded by |\ifstandalone\else|\dots|\fi|.
-%
-% \subsection{Convert to Image}
-% \textbf{This feature is new and not fully tested on every platform yet. Please do not hesitate to contact the author by e-mail about issues or suggestions.}
-%
-% \par\medskip\noindent
-% The compiled output PDF (DVI/PS support pending) can be converted to an image (recommended is PNG, but JPG or other are also supported) with
-% the help of an external application. The resulting image is useful for web-publishing or importing the standalone TeX picture into a
-% software with can't handle PDF/(E)PS.
 %
 %
 % \StopEventually{}
