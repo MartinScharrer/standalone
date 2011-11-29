@@ -188,10 +188,10 @@
 \let\sa@beamerfalse\standalonebeamerfalse
 %    \end{macrocode}
 %
-% \begin{macro}{\sa@option}
+% \begin{macro}{\sa@clsoption}
 % Wrapper macro to define options.
 %    \begin{macrocode}
-\def\sa@option{%
+\def\sa@clsoption{%
     \define@key{standalone.cls}%
 }
 %    \end{macrocode}
@@ -201,7 +201,7 @@
 % \begin{key}{standalone.cls}{border}
 % Sets the border around the content.
 %    \begin{macrocode}
-\sa@option{border}{%
+\sa@clsoption{border}{%
     \sa@readborder#1 {} {} {} {} \@nnil
 }
 %    \end{macrocode}
@@ -252,7 +252,7 @@
 % \begin{key}{standalone.cls}{preview}
 % Boolean to control if \pkg{preview} package should be used.
 %    \begin{macrocode}
-\sa@option{preview}[true]{%
+\sa@clsoption{preview}[true]{%
     \sa@boolean{preview}{#1}%
     \ifsa@preview
         \setkeys{standalone.cls}{crop=false,float=false}%
@@ -267,7 +267,7 @@
 % Boolean to control if own code should be used.
 % That code boxes the content and resizes the page to match the box dimensions.
 %    \begin{macrocode}
-\sa@option{crop}[true]{%
+\sa@clsoption{crop}[true]{%
     \sa@boolean{crop}{#1}%
     \ifsa@crop
         \setkeys{standalone.cls}{preview=false,float=false}%
@@ -281,7 +281,7 @@
 % Boolean to control if all other code outside of specified environments should be explicit ignored.
 % That code boxes the outside content and then than discards it.
 %    \begin{macrocode}
-\sa@option{ignorerest}[true]{%
+\sa@clsoption{ignorerest}[true]{%
     \sa@boolean{ignorerest}{#1}%
 }
 %    \end{macrocode}
@@ -291,7 +291,7 @@
 % \begin{key}{standalone.cls}{multi}
 % Boolean to control if multiple pages are used.
 %    \begin{macrocode}
-\sa@option{multi}[true]{%
+\sa@clsoption{multi}[true]{%
     \sa@boolean{multi}{#1}%
 }
 %    \end{macrocode}
@@ -305,7 +305,7 @@
 %
 % The option is by default set to true if the \pkg{varwidth} package is available.
 %    \begin{macrocode}
-\sa@option{varwidth}[true]{%
+\sa@clsoption{varwidth}[true]{%
     \sa@boolorvalue{varwidth}{#1}{\sa@varwidthtrue\def\sa@width{#1}}%
     \ifsa@varwidth
         \def\sa@varwidth{\varwidth{\sa@width}}%
@@ -321,7 +321,7 @@
 %
 % \begin{key}{standalone.cls}{tikz}
 %    \begin{macrocode}
-\sa@option{tikz}[true]{%
+\sa@clsoption{tikz}[true]{%
     \sa@boolean{tikz}{#1}%
     \ifsa@tikz
         \setkeys{standalone.cls}{multi=true,varwidth=false}%
@@ -337,7 +337,7 @@
 % If true sets the class to \cls{beamer} and switches \opt{preview} off.
 % If false the default class is restored if the current class was \cls{beamer}.
 %    \begin{macrocode}
-\sa@option{beamer}[true]{%
+\sa@clsoption{beamer}[true]{%
     \sa@boolean{beamer}{#1}%
     \ifstandalonebeamer
         \def\sa@class{beamer}%
@@ -358,7 +358,7 @@
 %
 % \begin{key}{standalone.cls}{class}
 %    \begin{macrocode}
-\sa@option{class}{%
+\sa@clsoption{class}{%
     \def\sa@class{#1}%
 }
 \def\sa@class{article}
@@ -368,7 +368,7 @@
 %
 % \begin{key}{standalone.cls}{float}
 %    \begin{macrocode}
-\sa@option{float}[true]{%
+\sa@clsoption{float}[true]{%
     \sa@boolean{float}{#1}%
     \ifsa@float
         \let\@float\sa@origfloat
@@ -405,7 +405,7 @@
 %
 % \begin{key}{standalone.cls}{convert}
 %    \begin{macrocode}
-\sa@option{convert}[true]{%
+\sa@clsoption{convert}[true]{%
     \setkeys{standalone.cls/convert}{#1}%
 }
 %    \end{macrocode}
@@ -413,7 +413,7 @@
 %
 % \begin{key}{standalone.cls}{disable@convert}
 %    \begin{macrocode}
-\sa@option{disable@convert}[]{%
+\sa@clsoption{disable@convert}[]{%
     \typeout{Disable conversion}
     \sa@convertfalse
     \let\sa@converttrue\relax
@@ -471,7 +471,7 @@
 %
 % \begin{key}{standalone.cls}{png}
 %    \begin{macrocode}
-\sa@option{png}[]{%
+\sa@clsoption{png}[]{%
     \setkeys{standalone.cls/convert}{png,#1}%
 }
 %    \end{macrocode}
@@ -488,7 +488,7 @@
 %
 % \begin{key}{standalone.cls}{jpg}
 %    \begin{macrocode}
-\sa@option{jpg}[]{%
+\sa@clsoption{jpg}[]{%
     \setkeys{standalone.cls/convert}{jpg,#1}%
 }
 %    \end{macrocode}
@@ -505,7 +505,7 @@
 %
 % \begin{key}{standalone.cls}{gif}
 %    \begin{macrocode}
-\sa@option{gif}[]{%
+\sa@clsoption{gif}[]{%
     \setkeys{standalone.cls/convert}{gif,#1}%
 }
 %    \end{macrocode}
