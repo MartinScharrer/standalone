@@ -1165,8 +1165,10 @@
     \RequirePackage{gincltex}
     \newcommand*\includestandalone[2][]{%
         \begingroup
+        \setkeys*{standalone.sty}{##1}%
         \edef\@tempa{{##2\sa@graphicext}}%
-        \expandafter\includestandalone@\@tempa{##2}{##1}%
+        \expandafter\expandafter\expandafter\includestandalone@
+        \expandafter\expandafter\expandafter{\expandafter\XKV@rm\expandafter}\@tempa{##2}%
         \endgroup
     }
 }{%
@@ -1191,7 +1193,7 @@
 \newif\ifsa@buildsuccess
 %    \end{macrocode}
 %
-% \begin{macro}{\includestandalone@}[3]{<filename>.<graphic ext>}{<filename>}{<options>}
+% \begin{macro}{\includestandalone@}[3]{<options>}{<filename>.<graphic ext>}{<filename>}
 %% 0 = PDF if exists, TEX otherwise
 %% 1 = force TEX
 %% 2 = force PDF
@@ -1201,52 +1203,52 @@
 \def\includestandalone@#1#2#3{%
     \ifcase\sa@mode
     \relax% 0
-        \IfFileExists{#1}%
-            {\includegraphics[#3]{#1}}%
-            {\includegraphics[#3]{#2.tex}}%
+        \IfFileExists{#2}%
+            {\includegraphics[#1]{#2}}%
+            {\includegraphics[#1]{#3.tex}}%
     \or% 1
-        \includegraphics[#3]{#2.tex}%
+        \includegraphics[#1]{#3.tex}%
     \or% 2
-        \includegraphics[#3]{#1}%
+        \includegraphics[#1]{#2}%
     \or% 3
-        \sa@buildgraphic{#2}%
+        \sa@buildgraphic{#3}%
         \ifsa@buildsuccess
-            \includegraphics[#3]{#1}%
+            \includegraphics[#1]{#2}%
         \else
             \PackageWarning{standalone}%
-                {Graphic '#1' could not be build.^^J%
+                {Graphic '#2' could not be build.^^J%
                 Shell escape activated?}%
-                \includegraphics[#3]{#2.tex}%
+                \includegraphics[#1]{#3.tex}%
         \fi
     \or% 4
-        \IfFileExists{#1}%
-            {\includegraphics[#3]{#1}}%
-            {\sa@buildgraphic{#2}%
+        \IfFileExists{#2}%
+            {\includegraphics[#1]{#2}}%
+            {\sa@buildgraphic{#3}%
              \ifsa@buildsuccess
-                \includegraphics[#3]{#1}%
+                \includegraphics[#1]{#2}%
              \else
                 \PackageWarning{standalone}%
-                 {Graphic '#1' could not be build.^^J%
+                 {Graphic '#2' could not be build.^^J%
                   Shell escape activated?}%
-                 \includegraphics[#3]{#2.tex}%
+                 \includegraphics[#1]{#3.tex}%
              \fi
             }%
     \or% 5
-        \filemodCmp{#2.tex}{#1}%
-            {\sa@buildgraphic{#2}%
+        \filemodCmp{#3.tex}{#2}%
+            {\sa@buildgraphic{#3}%
              \ifsa@buildsuccess
-                \includegraphics[#3]{#1}%
+                \includegraphics[#1]{#2}%
              \else
                 \PackageWarning{standalone}%
-                 {Graphic '#1' could not be build.^^J%
+                 {Graphic '#2' could not be build.^^J%
                   Shell escape activated?}%
-                 \includegraphics[#3]{#2.tex}%
+                 \includegraphics[#1]{#3.tex}%
              \fi
             }%
             {%
                 \PackageInfo{standalone}%
-                    {#2.tex file newer then #1}%
-                \includegraphics[#3]{#1}%
+                    {#3.tex file newer then #2}%
+                \includegraphics[#1]{#2}%
             }%
     \fi
 }
