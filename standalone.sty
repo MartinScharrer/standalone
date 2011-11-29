@@ -121,12 +121,15 @@
 % \begin{macro}{\ifsa@subpreambles}
 % \begin{macro}{\ifsa@sortsubpreambles}
 % \begin{macro}{\ifsa@printsubpreambles}
+% \begin{macro}{\ifsa@group}
 % The if-switches for the options.
 %    \begin{macrocode}
 \newif\ifsa@subpreambles
 \newif\ifsa@sortsubpreambles
 \newif\ifsa@printsubpreambles
+\newif\ifsa@group
 %    \end{macrocode}
+% \end{macro}
 % \end{macro}
 % \end{macro}
 % \end{macro}
@@ -209,11 +212,21 @@
 % \end{key}
 %
 %
-% \begin{key}{standalone.sty}{subpreamble}
+% \begin{key}{standalone.sty}{subpreambles}
 %    \begin{macrocode}
-\sa@pkgoption{subpreamble}[true]{%
-    \sa@boolean{subpreamble}{#1}%
+\sa@pkgoption{subpreambles}[true]{%
+    \sa@boolean{subpreambles}{#1}%
 }
+%    \end{macrocode}
+% \end{key}
+%
+%
+% \begin{key}{standalone.sty}{group}
+%    \begin{macrocode}
+\sa@pkgoption{group}[true]{%
+    \sa@boolean{group}{#1}%
+}
+\sa@grouptrue
 %    \end{macrocode}
 % \end{key}
 %
@@ -305,6 +318,7 @@
   external/cmd={\ifpdf pdf\fi latex --interaction=batchmode '\string\PassOptionsToClass{border=0pt}{standalone}\string\input{\image}'},
 \fi
 \ProcessOptionsX*<standalone.sty>\relax
+\disable@keys{standalone.sty}{subpreambles,print,sort}
 %    \end{macrocode}
 %
 % In non-sorted print mode comments are preserved by default.
@@ -1032,13 +1046,21 @@
 %    \end{macrocode}
 % \end{macro}
 %
+%    \begin{macrocode}
+%    \end{macrocode}
+%
 % \begin{macro}{\sa@document}
 % This is the |\begin{document}| of the sub files. It does nothing except of
 % redefining |\end{document}| and calling our own |atbegindocument| hook.
 %    \begin{macrocode}
 \def\sa@document{%
-  \let\enddocument\sa@enddocument
-  \sa@atbegindocument
+    \ifsa@group
+        \let\enddocument\sa@enddocument
+    \else
+        \endgroup
+        \global\let\enddocument\sa@enddocument
+    \fi
+    \sa@atbegindocument
 }
 %    \end{macrocode}
 % \end{macro}
@@ -1050,12 +1072,19 @@
 % will cause a space even if |\endinput| follows directly.
 %    \begin{macrocode}
 \def\sa@enddocument{%
-  \sa@atenddocument
-  \@ignoretrue
-  \aftergroup\endinput
+    \sa@atenddocument
+    \ifsa@group\else
+        \global\let\document\sa@orig@document
+        \global\let\enddocument\sa@orig@enddocument
+        \begingroup
+        \def\@currenvir{document}%
+    \fi
+    \@ignoretrue
+    \aftergroup\endinput
 }
 %    \end{macrocode}
 % \end{macro}
+%
 %
 % \begin{macro}{\sa@@enddocument}
 % This is a `after end document' handler for the sub-files. It restores macros and
