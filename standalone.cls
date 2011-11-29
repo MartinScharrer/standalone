@@ -178,6 +178,7 @@
 \newif\ifsa@ignorerest
 \newif\ifsa@tikz
 \newif\ifsa@convert
+\newif\ifsa@float
 %    \end{macrocode}
 %
 % The \cs{ifstandalonebeamer} switch is in the user-level.
@@ -254,7 +255,7 @@
 \sa@option{preview}[true]{%
     \sa@boolean{preview}{#1}%
     \ifsa@preview
-        \sa@cropfalse
+        \setkeys{standalone.cls}{crop=false,float=false}%
     \fi
 }
 \sa@previewtrue
@@ -269,7 +270,7 @@
 \sa@option{crop}[true]{%
     \sa@boolean{crop}{#1}%
     \ifsa@crop
-        \sa@previewfalse
+        \setkeys{standalone.cls}{preview=false,float=false}%
     \fi
 }
 %    \end{macrocode}
@@ -340,9 +341,7 @@
     \sa@boolean{beamer}{#1}%
     \ifstandalonebeamer
         \def\sa@class{beamer}%
-        \sa@previewfalse
-        \sa@cropfalse
-        \sa@varwidthfalse
+        \setkeys{standalone.cls}{preview=false,crop=false,varwidth=false}%
     \else
         \begingroup
         \def\@tempa{beamer}%
@@ -363,6 +362,41 @@
     \def\sa@class{#1}%
 }
 \def\sa@class{article}
+%    \end{macrocode}
+% \end{key}
+%
+%
+% \begin{key}{standalone.cls}{float}
+%    \begin{macrocode}
+\sa@option{float}[true]{%
+    \sa@boolean{float}{#1}%
+    \ifsa@float
+        \let\@float\sa@origfloat
+        \let\end@float\sa@origendfloat
+    \else
+        \ifx\@float\sa@nofloat\else
+            \let\sa@origfloat\@float
+        \fi
+        \ifx\end@float\sa@endnofloat\else
+            \let\sa@origendfloat\end@float
+        \fi
+        \let\@float\sa@nofloat
+        \let\end@float\sa@endnofloat
+    \fi
+}
+\def\sa@nofloat#1{%
+    \def\@captype{#1}%
+    \trivlist\item[]%
+    \@ifnextchar[{%
+        \begingroup
+        \def\@tempa[####1]{%
+            \endgroup
+        }\@tempa
+    }{}%
+}
+\def\sa@endnofloat{%
+    \endtrivlist
+}
 %    \end{macrocode}
 % \end{key}
 %
@@ -753,7 +787,7 @@
 % These \env{varwidth} macros are the reason why \Macro\PreviewEnvironment is not used directly.
 %    \begin{macrocode}
 \def\@standaloneenv#1{%
-    \expandafter\ifx\csname sa@orig@#1\endcsname\relax\else
+    \expandafter\ifx\csname sa@orig@#1\endcsname\relax
         \expandafter\let\csname sa@orig@#1\expandafter\endcsname\csname #1\endcsname
         \expandafter\let\csname sa@orig@end#1\expandafter\endcsname\csname end#1\endcsname
     \fi
@@ -868,7 +902,7 @@
 \fi
 \ifsa@ignorerest
     \def\@standaloneenv#1{%
-        \expandafter\ifx\csname sa@orig@#1\endcsname\relax\else
+        \expandafter\ifx\csname sa@orig@#1\endcsname\relax
             \expandafter\let\csname sa@orig@#1\expandafter\endcsname\csname #1\endcsname
             \expandafter\let\csname sa@orig@end#1\expandafter\endcsname\csname end#1\endcsname
         \fi
@@ -898,7 +932,7 @@
     }%
 \else
     \def\@standaloneenv#1{%
-        \expandafter\ifx\csname sa@orig@#1\endcsname\relax\else
+        \expandafter\ifx\csname sa@orig@#1\endcsname\relax
             \expandafter\let\csname sa@orig@#1\expandafter\endcsname\csname #1\endcsname
             \expandafter\let\csname sa@orig@end#1\expandafter\endcsname\csname end#1\endcsname
         \fi

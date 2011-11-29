@@ -228,6 +228,7 @@
 % If enabled this option crops the content to its natural size plus a specified border. This is done by saving the content in a box register and resizing
 % the page size relative to the box dimensions.
 % This option is mutual exclusive with the similar \opt{preview} option and will therefore disable it.
+% Also \Key{float}'=false' will be set by \Key{crop}'=true' in order to avoid issues with floating environments.
 %
 % \DescribeKey{preview}'=true|false'
 % If enabled this option loads the \pkg{preview} package with the \opt{tightpage} option
@@ -235,12 +236,15 @@
 % Issues with the \pkg{preview} options and TikZ shadings under XeLaTeX have been reported. In this cases the \opt{crop} option should be used instead.
 %
 % This option is mutual exclusive with the similar \opt{crop} option and will therefore disable it.
+% Also \Key{float}'=false' will be set by \Key{preview}'=true' in order to avoid issues with floating environments.
 %
 % \DescribeKey{multi}'=true|false'
 % By default the \cls{standalone} class assume that the whole content is one block which should be shown on one single page.
 % If this option is activated multiple pages are supported. Each page will be cropped to its content plus the selected border (as long either \opt{preview} or \opt{crop} are enabled).
 % A set of environments which hold a single page must be declared using \Macro\standaloneenv{<environment name>, \ldots}.
 % No typeset material should appear outside such environments.
+% Note that this option is enabled automatically by \Macro\standaloneenv if either \opt{crop} or \opt{preview} is enabled.
+% However, it needs to be set explicitly as class option if the \opt{ignorerest} option is also set.
 %
 % \DescribeKey{border}'='<length (all sides)>
 % \DescribeKey{border}'='{<length (left/right)>~<length (bottom/top)>}
@@ -283,6 +287,17 @@
 % \DescribeKey{beamer}'=true|false'
 % If set to `|true|' this option enables a special \cls{beamer} mode, where the normal cropping is disabled.
 % Instead the content is shown on a blank beamer frame.
+%
+% \DescribeKey{float}'=true|false'
+% If this option is that to `|false|' (which is the default) any floats like \env{figure} and \env{table} environments are turned into non-floating environment.
+% This is required for the options \opt{crop} and \opt{preview} to work, so these will set \Key{float}'=false' when set to `|true|' itself.
+% In general it is recommended to keep floating environments inside the main document and only place the content of them into standalone files.
+% This also makes it simple to include the same content in different floats of different main documents.
+%
+% If custom floats are defined using a package like \pkg{float} are not supported yet. Dependent on the way they define floats they might still work.
+% For these \Key{float}'=true' should be set as class options so that the normal definition of floats is preserved.
+% Afterwards \Macro\standaloneconfig{float=false} can be used to disable floats while taking the changed float definition into account.
+%
 %
 % \DescribeKey{convert}'='{<conversion options>}
 % \DescribeKey{png}'='{<conversion options>}
@@ -598,6 +613,12 @@
 % Therefore an offset is added to compensate for this, which shifts the content to the appropriate vertical position.
 % Should this not work as expected please inform the package author and provide a small example which causes this issue, together with the version number of the used |latex| compiler and tools (like |dvips|, |ps2pdf|)
 % as well as the used \cls{standalone} bundle.
+%
+% \subsubsection*{Errors ``Float(s) lost'' or ``not in outer par mode''}
+% Floating environments like \env{figure} or \env{table} can not be used while \Key{float}'=true' and either \Key{crop}'=true' or \Key{preview}'=true' is set.
+% The last two options will try to store the float into a box which is not allowed (because it can't the float any longer).
+% Usually \Key{float}'=false' will solve this error, because it turns these environments into non-floating alternatives.
+% Because both the \Key{crop} and \Key{preview} option will set \Key{float}'=false' themselves, this issue can only arise when the \Key{float} option is manually set afterwards.
 %
 % \subsubsection*{Image conversion does not work}
 % In order for the image conversion to work an external conversion software must be installed. By default either Image Magkick or GhostScript is used. Please insure that either or both of these softwares are installed.
