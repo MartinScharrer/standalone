@@ -720,13 +720,13 @@
 %
 % \DescribeKey{mode}'='<mode>
 % Sets the mode for \Macro\includestandalone. Valid values are `|tex|' (use source file, default),
-% `|pdf|' (use PDF file), `\verb+pdf|tex+' (use PDF if available, source otherwise),
-% `|eps|' (use EPS file), `\verb+eps|tex+' (use EPS if available, source otherwise),
+% `|image|' (use existing image file produced by the source file), `\verb+image|tex+' (use image if available, source otherwise),
 % `|build|' (build PDF from source, then use it) and `|buildnew|' (only build PDF if source file is newer). See \autoref{sec:pkgmacros} for more details.
 %
 % \DescribeKey{extension}'='<.extension>
-% The image file extension used for \Key{mode}'=image' can be selected using this option. By default the target output file extension of the used \LaTeX\ compiler is used, i.e.\ PDF for |pdflatex|,
-% |lualatex| and |xelatex| and EPS (converted from DVI) for |latex|.
+% The image file extension (with leading dot) used for \Key{mode}'=image' can be selected using this option.
+% By default the target output file extension of the used \LaTeX\ compiler is used, i.e.\ `|.pdf|' for |pdflatex|,
+% |lualatex| and |xelatex| and `|.eps|' (converted from DVI) for |latex|.
 %
 % \DescribeKey{buildjobname}'='<name>
 % If \Key{mode}'=build' or \Key{mode}'=buildnew' is selected this macro can be used to change the used jobname for the sub-process building the image files. By default the source file name is used.
@@ -748,10 +748,10 @@
 % \DescribeMacro\includestandalone[<options>]{<file>}
 % This sophisticated macro can be used instead of \Macro\input\relax to include standalone files. Its behaviour is controlled by the \opt{mode} package option.
 % This macro can either include the source code in the same way as \Macro\input\relax (\Key{mode}'=tex'), include the output file (PDF, EPS) using \Macro\includegraphics\relax
-% (\Key{mode}'=pdf' or \Key{mode}'=eps'), try first the output file and use the source file if it is available (\Key{mode}'=pdf|tex' or \Key{mode}'=eps|tex'),
+% (\Key{mode}'=image'), try first the output file and use the source file if it is available (\Key{mode}'=image|tex'),
 % build the output file from the source file either always (\Key{mode}'=build') or only if the source file is newer (\Key{mode}'=buildnew').
 %
-% The \meta{file} argument must be the file name of the standalone source file \emph{without} the extension. The macro accepts the same options as \Macro\includegraphics as well
+% The \meta{file} argument must be the file name of the standalone source file \emph{without} the extension. The macro accepts the same \meta{options} as \Macro\includegraphics as well
 % as any options suitable for \Macro\standaloneconfig. This means that the source file can also be resized and rotated in `|tex|' mode like an image.
 % TODO: In this mode the package also tries to extract and apply the class options from the standalone file and apply these to the included source.
 %
@@ -769,7 +769,7 @@
 % with |\input{standalone}| and is intended for specialised files which do not use the \cls{standalone} class.
 %
 % \DescribeMacro{\IfStandalone}{<code for standalone mode>}{<code for main document>}
-% This is the macro version of the \Macro\ifstandalone| if-switch. It executes the first argument only in \cls{standalone} mode, i.e.\ when the file is compiled on its own.
+% This is the macro version of the \Macro\ifstandalone if-switch. It executes the first argument only in \cls{standalone} mode, i.e.\ when the file is compiled on its own.
 % When included in the main document the second argument is executed instead.
 % As mentioned in \autoref{sec:pkgoptions}
 % it can also be used to hide |\usepackage| and similar macros from the extraction scanner of the |sort| option. The macro and its arguments is not printed into the |.stp| file.
