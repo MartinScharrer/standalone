@@ -722,6 +722,7 @@
 % Sets the mode for \Macro\includestandalone. Valid values are `|tex|' (use source file, default),
 % `|image|' (use existing image file produced by the source file), `\verb+image|tex+' (use image if available, source otherwise),
 % `|build|' (build PDF from source, then use it) and `|buildnew|' (only build PDF if source file is newer). See \autoref{sec:pkgmacros} for more details.
+% See also the \autoref{sec:build} for further details.
 %
 % \DescribeKey{extension}'='<.extension>
 % The image file extension (with leading dot) used for \Key{mode}'=image' can be selected using this option.
@@ -730,9 +731,15 @@
 %
 % \DescribeKey{buildjobname}'='<name>
 % If \Key{mode}'=build' or \Key{mode}'=buildnew' is selected this macro can be used to change the used jobname for the sub-process building the image files. By default the source file name is used.
+% See also the \autoref{sec:build} for further details.
+%
+% \DescribeKey{buildexe}'='<latex executable>
+% If \Key{mode}'=build' or \Key{mode}'=buildnew' is selected this macro can be used to change the used \LaTeX\ compiler executable. By default the same as for the main document is used.
+% See also the \autoref{sec:build} for further details.
 %
 % \DescribeKey{buildcmd}'='<shell command>
 % If \Key{mode}'=build' or \Key{mode}'=buildnew' is selected this macro can be used to change the used shell command for the sub-process building the image files.
+% See also the \autoref{sec:build} for further details.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsection{Macros}\label{sec:pkgmacros}
@@ -740,7 +747,7 @@
 % defined by both the class and package and can be used in standalone files but also in the main document.
 %
 % \DescribeMacro\standaloneconfig{<options>}
-% This configuration macro accepts some of the package options described in \autoref{sec:pkgoptions}. These options are \opt{group}, \opt{mode}, \opt{extension}, \opt{buildjobname} and \opt{buildmcd},
+% This configuration macro accepts some of the package options described in \autoref{sec:pkgoptions}. These options are \opt{group}, \opt{mode}, \opt{extension} and all \opt{build...} options,
 % which can be changed for different included standalone files.
 %
 % If both the \pkg{standalone} class and package is used together this macro can also be used to set the class options as described in \autoref{sec:classmacros}.
@@ -750,11 +757,34 @@
 % This macro can either include the source code in the same way as \Macro\input\relax (\Key{mode}'=tex'), include the output file (PDF, EPS) using \Macro\includegraphics\relax
 % (\Key{mode}'=image'), try first the output file and use the source file if it is available (\Key{mode}'=image|tex'),
 % build the output file from the source file either always (\Key{mode}'=build') or only if the source file is newer (\Key{mode}'=buildnew').
+% See also the \autoref{sec:build} for further details.
 %
 % The \meta{file} argument must be the file name of the standalone source file \emph{without} the extension. The macro accepts the same \meta{options} as \Macro\includegraphics as well
 % as any options suitable for \Macro\standaloneconfig. This means that the source file can also be resized and rotated in `|tex|' mode like an image.
 % TODO: In this mode the package also tries to extract and apply the class options from the standalone file and apply these to the included source.
 %
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsection{Building images from standalone files}\label{sec:build}
+% Using the \Macro\includestandalone macro standalone files can be either included directly as source files or as vector graphic images which are build from these.
+% The \pkg{standalone} package provides the feature to automatically build image files from given standalone source files.
+% This is controlled by the \opt{mode} options. This was already described in \autoref{sec:pkgoptions} and~\ref{sec:pkgmacros}.
+%
+% This enables the user to switch easily between including source code or images, either globally or only for selected standalone files.
+% Using images has the benefit that the included material, often complicated pictures, does not have to be recompiled every time with the main document.
+% This leads to significant speed improvements. The drawback is a slight increase in file size, because the material will have its own file headers.
+% Also any settings done in the main document which would affects the source code will not have an effect on the image. This can be positive or negative dependent on the case.
+%
+% An extended feature is the automatic building of images from the standalone files, either always or only if the source files are newer than the existing image files.
+% In this cases the \Macro\includestandlone macro will call the \LaTeX\ compiler on the standalone files in question to produce the images, then include these using \Macro\includegraphics.
+% This requires the `|-shell-escape|' compiler option to be set, otherwise the execution of shell commands is disabled for security reasons.
+%
+% The image files will normally be created in the current directory of the main document, which is not necessarily the same directory where the source files are located.
+% Dependent on the used compiler settings, files in the current directory will be found first before other directories are searched.
+% Using \Key{mode}'=buildnew' newly build image files placed in the current directory will therefore taken before older images files potentially located in the directory of
+% the standalone files. Because the exact directory of source files is not accessible within \LaTeX\ documents, it is not possible to create the images files always in the same directories 
+% as the source files. Compiler options like `|-output-directory|' can be useful to influence the output directory of the build images. However, these options must be used with the 
+% internal compiler run, i.e.\ by setting \Key{buildcmd} appropriately, not (only) on the main \LaTeX\ compiler run.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
