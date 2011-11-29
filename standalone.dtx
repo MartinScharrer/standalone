@@ -764,6 +764,8 @@
 % The \meta{file} argument must be the file name of the standalone source file \emph{without} the extension. The macro accepts the same \meta{options} as \Macro\includegraphics as well
 % as any options suitable for \Macro\standaloneconfig. This means that the source file can also be resized and rotated in `|tex|' mode like an image.
 % TODO: In this mode the package also tries to extract and apply the class options from the standalone file and apply these to the included source.
+% Unfortunately, it can not be fully guaranteed that the standalone content will be displayed identical in source code and image mode. Some settings might not be applied
+% in the same way and rounding differences may occur.
 %
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
