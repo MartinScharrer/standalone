@@ -212,7 +212,7 @@
 % This is also done to avoid option conflicts with identical named options of the underlying class.
 %
 % All boolean options take either `|true|' or `|false|' as optional values. Otherwise, if the option is used without a value, `|true|' is used.
-% If not mentioned otherwise all options set the `|false|' by default.
+% If not mentioned otherwise all options set to `|false|' initially.
 % Options might switch other options on or off. For example, mutual exclusive options will disable each other. The order of the option is obeyed
 % and later options will prevail over earlier ones.
 %
@@ -304,7 +304,7 @@
 % These options allow to enable and configure the conversion feature. See \autoref{sec:convert} for the full description.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \subsection{Macros and environments}
+% \subsection{Macros and environments}\label{sec:classmacros}
 % The following macros and environments can be used inside the preamble of \cls{standalone} files. Further macros are listed in \autoref{sec:common} which are
 % defined by both the class and package and can be used in standalone files but also in the main document.
 %
@@ -655,21 +655,25 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsection{Package options}\label{sec:pkgoptions}
 % The following options are supported by the \pkg{standalone} package.
+% Most of them are boolean options which take either `|true|' or `|false|' as optional values. If such an option is used without a value, `|true|' is used.
+% If not mentioned otherwise all options set to `|false|' initially.
+% Options might switch other options on or off. The order of the option is obeyed and later options will prevail over earlier ones.
+% Note that some older versions of the \pkg{standalone} package only take the option without any value.
 %
-% \DescribeKey{subpreambles}
+% \DescribeKey{subpreambles}'=true|false'
 % The \cls{standalone} package removes all sub-file preambles (``sub-preambles'') by default when loaded.
 % However, if the package is loaded with the \opt{subpreambles} options, all sub-preambles are stored in an auxiliary file with the name `\meta{main tex file name}|.sta|' (for \emph{sta}ndalone).
 % This file is then loaded or processed at the beginning of the next \LaTeX\ run (i.e.\ at the place in the preamble where the \cls{standalone} package is loaded).
 % The way how the \opt{subpreambles} option works can be controlled by the options \opt{sort}, \opt{print} and \opt{comments}/\opt{nocomments}.
 % Please note that the \opt{sort} and \opt{print} options require of course the \opt{subpreambles} option and will enable it if not already done so.
 %
-% \DescribeKey{sort}
+% \DescribeKey{sort}'=true|false'
 % With only the \opt{subpreambles} option set, the sub-preambles are simple read and executed unchanged. This includes the risk of option clashes if one package is loaded with different
 % options inside the sub-preambles and/or the main preamble. This is avoided by the \opt{sort} option, which accumulates all packages loaded by all sub-files together with their options.
 % The options are then marked to be loaded by the package using \LaTeX{}s \cs{PassOptionsToPackage} macro. The packages are loaded at the end of the preamble using the \cs{AtBeginDocument} hook.
 % This allows the user to load the same packages with own options in the main file, after the |subversion| package is loaded, without any option clashes.
 %
-% \DescribeKey{print}
+% \DescribeKey{print}'=true|false'
 % While the \opt{sort} option is giving already good results, problems with the order of packages can still occur. Some packages provide, redefine or patch the same macros, so that they must be loaded in
 % the correct order to give the desired result. Potential additional code in the sub-preambles, required for some sub-figures but maybe incompatible with others, complicates the situation further.
 % If such issues occur they can hardly be handled in an automatic way. Instead the sub-preambles must be carefully merged into the main preamble.
@@ -697,15 +701,60 @@
 % The macro \Macro\onlyifstandalone{<code>} (see below) was created because of this two reasons. Its argument braces hide the content from the scanner.
 % It is then also completely removed from the printed sub-preamble code.
 %
-% \DescribeKey{comments}
+% \DescribeKey{comments}'=true|false'
 % \DescribeKey{nocomments}
-% The complementary options \opt{comments}/\opt{nocomments} select if the |.stp| file should also include the comments of the sub-preambles.
+% The \opt{comment} option selects if the |.stp| file should also include the comments of the sub-preambles.
+% For backwards compatibility \opt{nocomments} exists which is identical to \Key{comments}'=false'.
 % Comments are included by default in the non-sorting print mode (\opt{print} without \opt{sort} option), but can cause `wrong' results during the `sorting' process and are therefore removed by default in this mode.
 % The reason for this can be explained as follows.
 % In order to transfer the comments from the sub-files to the |.stp| file \TeX\ must be instructed to handle them as normal input and not discard them.
 % However, in this case the scanning algorithm which removes |\usepackage| and friends can not distinguish
 % between `active' macros and macros which are commented out. All above mentioned macro inside comments will then be processed as when there where `active'.
 % The user might favour the information provided by the comments over this small risk and enable them using the \opt{comments} option.
+%
+% \DescribeKey{group}'=true|false'
+% This option is set the `|true|' by default and controlled whether or not a group is added around the content of standalone files. Normally (`|true|') the \env{document} environment of the sub-files
+% is turned into an environment which does nothing, besides adding the usual group. If set to `|false|' this environment made transparent, so that no group is added.
+% Any definition inside the document body of sub-files will still be accessible after the \Macro\input\relax macro. Note that this does not effects the \Macro\includestandalone macro which always
+% will add a group.
+%
+% \DescribeKey{mode}'='<mode>
+% Sets the mode for \Macro\includestandalone. Valid values are `|tex|' (use source file, default),
+% `|pdf|' (use PDF file), `\verb+pdf|tex+' (use PDF if available, source otherwise),
+% `|eps|' (use EPS file), `\verb+eps|tex+' (use EPS if available, source otherwise),
+% `|build|' (build PDF from source, then use it) and `|buildnew|' (only build PDF if source file is newer). See \autoref{sec:pkgmacros} for more details.
+%
+% \DescribeKey{extension}'='<.extension>
+% The image file extension used for \Key{mode}'=image' can be selected using this option. By default the target output file extension of the used \LaTeX\ compiler is used, i.e.\ PDF for |pdflatex|,
+% |lualatex| and |xelatex| and EPS (converted from DVI) for |latex|.
+%
+% \DescribeKey{buildjobname}'='<name>
+% If \Key{mode}'=build' or \Key{mode}'=buildnew' is selected this macro can be used to change the used jobname for the sub-process building the image files. By default the source file name is used.
+%
+% \DescribeKey{buildcmd}'='<shell command>
+% If \Key{mode}'=build' or \Key{mode}'=buildnew' is selected this macro can be used to change the used shell command for the sub-process building the image files.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsection{Macros}\label{sec:pkgmacros}
+% The following user macros are provided by the \cls{standalone} package. Further macros are listed in \autoref{sec:common} which are
+% defined by both the class and package and can be used in standalone files but also in the main document.
+%
+% \DescribeMacro\standaloneconfig{<options>}
+% This configuration macro accepts some of the package options described in \autoref{sec:pkgoptions}. These options are \opt{group}, \opt{mode}, \opt{extension}, \opt{buildjobname} and \opt{buildmcd},
+% which can be changed for different included standalone files.
+%
+% If both the \pkg{standalone} class and package is used together this macro can also be used to set the class options as described in \autoref{sec:classmacros}.
+%
+% \DescribeMacro\includestandalone[<options>]{<file>}
+% This sophisticated macro can be used instead of \Macro\input\relax to include standalone files. Its behaviour is controlled by the \opt{mode} package option.
+% This macro can either include the source code in the same way as \Macro\input\relax (\Key{mode}'=tex'), include the output file (PDF, EPS) using \Macro\includegraphics\relax
+% (\Key{mode}'=pdf' or \Key{mode}'=eps'), try first the output file and use the source file if it is available (\Key{mode}'=pdf|tex' or \Key{mode}'=eps|tex'),
+% build the output file from the source file either always (\Key{mode}'=build') or only if the source file is newer (\Key{mode}'=buildnew').
+%
+% The \meta{file} argument must be the file name of the standalone source file \emph{without} the extension. The macro accepts the same options as \Macro\includegraphics as well
+% as any options suitable for \Macro\standaloneconfig. This means that the source file can also be resized and rotated in `|tex|' mode like an image.
+% TODO: In this mode the package also tries to extract and apply the class options from the standalone file and apply these to the included source.
+%
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

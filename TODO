@@ -9,3 +9,4 @@ Package:
 Class:
  * Finish manual.
  * Tests.
+ * \PassOptionsToClass must be supported

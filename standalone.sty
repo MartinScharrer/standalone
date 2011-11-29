@@ -275,14 +275,14 @@
 \def\sa@mode@none{%
     \let\sa@mode\relax%
 }
-\@namedef{sa@mode@pdf|tex}{%
-    \def\sa@mode{0}%
-}
 \def\sa@mode@tex{%
     \def\sa@mode{1}%
 }
-\def\sa@mode@pdf{%
+\def\sa@mode@image{%
     \def\sa@mode{2}%
+}
+\@namedef{sa@mode@image|tex}{%
+    \def\sa@mode{0}%
 }
 \def\sa@mode@build{%
     \def\sa@mode{3}%
@@ -300,23 +300,50 @@
 %    \end{macrocode}
 % \end{key}
 %
-%
+% \begin{key}{standalone.sty}{extension}
 %    \begin{macrocode}
+\sa@pkgoption{extension}{%
+    \def\sa@graphicext{#1}%
+}
 \ifpdf
     \def\sa@graphicext{.pdf}
+    \iflualatex
+        \def\sa@compiler{lualatex}
+    \else
+        \def\sa@compiler{pdflatex}
+    \fi
 \else
 \ifxetex
     \def\sa@graphicext{.pdf}
+    \def\sa@compiler{xelatex}
 \else
     \def\sa@graphicext{.eps}
+    \def\sa@compiler{latex}
 \fi\fi
-
-\iffalse
-  external/ext/.store in=\sa@graphicext,
-  external/ext={\ifpdf .pdf\else .eps\fi},
-  external/cmd/.store in=\sa@compilecmd,
-  external/cmd={\ifpdf pdf\fi latex --interaction=batchmode '\string\PassOptionsToClass{border=0pt}{standalone}\string\input{\image}'},
-\fi
+%    \end{macrocode}
+% \end{key}
+%
+% \begin{key}{standalone.sty}{buildjobname}
+%    \begin{macrocode}
+\sa@pkgoption{buildjobname}{%
+    \def\sa@buildjobname{#1}%
+}
+\def\sa@buildjobname{\image}
+%    \end{macrocode}
+% \end{key}
+%
+%
+% \begin{key}{standalone.sty}{buildcmd}
+%    \begin{macrocode}
+\sa@pkgoption{buildcmd}{%
+    \def\sa@buildcmd{#1}%
+}
+\def\sa@buildmcd{\latex\space --interaction=batchmode '\string\PassOptionsToClass{border=0pt}{standalone}\string\input{\image}'}
+%    \end{macrocode}
+% \end{key}
+%
+%
+%    \begin{macrocode}
 \ProcessOptionsX*<standalone.sty>\relax
 \disable@keys{standalone.sty}{subpreambles,print,sort}
 %    \end{macrocode}
@@ -1217,7 +1244,7 @@
         \edef\image{#1}%
         \edef\outfile{\image\sa@graphicext}%
         \edef\filemodbefore{\csname pdffilemoddate\endcsname{\outfile}}%
-        \immediate\write18{\sa@compilecmd}%
+        \immediate\write18{\sa@buildcmd}%
         \IfFileExists{\outfile}{%
             \edef\filemodafter{\csname pdffilemoddate\endcsname{\outfile}}%
             \ifx\filemodbefore\filemodafter
