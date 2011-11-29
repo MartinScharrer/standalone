@@ -287,13 +287,16 @@
 \def\sa@mode@build{%
     \def\sa@mode{3}%
 }
+\def\sa@mode@buildmissing{%
+    \def\sa@mode{4}%
+}
 \def\sa@mode@buildnew{%
     \ifxetex
         \PackageWarning{standalone}{The 'mode=buildnew' option is not available for XeTeX.\MessageBreak
                                     Therefore 'mode=build' will be used instead}%
         \def\sa@mode{3}%
     \else
-        \def\sa@mode{4}%
+        \def\sa@mode{5}%
     \fi
 }
 \sa@mode@tex
@@ -307,7 +310,7 @@
 }
 \ifpdf
     \def\sa@graphicext{.pdf}
-    \iflualatex
+    \ifluatex
         \def\sa@compiler{lualatex}
     \else
         \def\sa@compiler{pdflatex}
@@ -347,7 +350,7 @@
 \sa@pkgoption{buildcmd}{%
     \def\sa@buildcmd{#1}%
 }
-\def\sa@buildmcd{\latex\space --interaction=batchmode '\string\PassOptionsToClass{border=0pt}{standalone}\string\input{\image}'}
+\def\sa@buildcmd{\sa@compiler\space --interaction=batchmode '\string\PassOptionsToClass{border=0pt}{standalone}\string\input{\image}'}
 %    \end{macrocode}
 % \end{key}
 %
@@ -1206,6 +1209,16 @@
     \or% 2
         \includegraphics[#3]{#1}%
     \or% 3
+        \sa@buildgraphic{#2}%
+        \ifsa@buildsuccess
+            \includegraphics[#3]{#1}%
+        \else
+            \PackageWarning{standalone}%
+                {Graphic '#1' could not be build.^^J%
+                Shell escape activated?}%
+                \includegraphics[#3]{#2.tex}%
+        \fi
+    \or% 4
         \IfFileExists{#1}%
             {\includegraphics[#3]{#1}}%
             {\sa@buildgraphic{#2}%
@@ -1218,7 +1231,7 @@
                  \includegraphics[#3]{#2.tex}%
              \fi
             }%
-    \or% 4
+    \or% 5
         \filemodCmp{#2.tex}{#1}%
             {\sa@buildgraphic{#2}%
              \ifsa@buildsuccess
@@ -1267,7 +1280,7 @@
             \fi
         }{%
             \global\sa@buildsuccessfalse
-        }
+        }%
         \endgroup
     \fi
 }

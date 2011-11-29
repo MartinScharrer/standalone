@@ -721,7 +721,8 @@
 % \DescribeKey{mode}'='<mode>
 % Sets the mode for \Macro\includestandalone. Valid values are `|tex|' (use source file, default),
 % `|image|' (use existing image file produced by the source file), `\verb+image|tex+' (use image if available, source otherwise),
-% `|build|' (build PDF from source, then use it) and `|buildnew|' (only build PDF if source file is newer). See \autoref{sec:pkgmacros} for more details.
+% `|build|' (build image from source, then use it), `|buildmissing|' (only build image if it does not exist) 
+% and `|buildnew|' (only build image if source file is newer). See \autoref{sec:pkgmacros} for more details.
 % See also the \autoref{sec:build} for further details.
 %
 % \DescribeKey{extension}'='<.extension>
@@ -730,15 +731,15 @@
 % |lualatex| and |xelatex| and `|.eps|' (converted from DVI) for |latex|.
 %
 % \DescribeKey{buildjobname}'='<name>
-% If \Key{mode}'=build' or \Key{mode}'=buildnew' is selected this macro can be used to change the used jobname for the sub-process building the image files. By default the source file name is used.
+% If an image building mode is selected this macro can be used to change the used jobname for the sub-process building the image files. By default the source file name is used.
 % See also the \autoref{sec:build} for further details.
 %
 % \DescribeKey{buildexe}'='<latex executable>
-% If \Key{mode}'=build' or \Key{mode}'=buildnew' is selected this macro can be used to change the used \LaTeX\ compiler executable. By default the same as for the main document is used.
+% If an image building mode is selected this macro can be used to change the used \LaTeX\ compiler executable. By default the same as for the main document is used.
 % See also the \autoref{sec:build} for further details.
 %
 % \DescribeKey{buildcmd}'='<shell command>
-% If \Key{mode}'=build' or \Key{mode}'=buildnew' is selected this macro can be used to change the used shell command for the sub-process building the image files.
+% If an image building mode is selected this macro can be used to change the used shell command for the sub-process building the image files.
 % See also the \autoref{sec:build} for further details.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -756,7 +757,8 @@
 % This sophisticated macro can be used instead of \Macro\input\relax to include standalone files. Its behaviour is controlled by the \opt{mode} package option.
 % This macro can either include the source code in the same way as \Macro\input\relax (\Key{mode}'=tex'), include the output file (PDF, EPS) using \Macro\includegraphics\relax
 % (\Key{mode}'=image'), try first the output file and use the source file if it is available (\Key{mode}'=image|tex'),
-% build the output file from the source file either always (\Key{mode}'=build') or only if the source file is newer (\Key{mode}'=buildnew').
+% build the output file from the source file either always (\Key{mode}'=build'), only if the image files does not exist (\Key{mode}'=buildmissing')
+% or only if the source file is newer (\Key{mode}'=buildnew').
 % See also the \autoref{sec:build} for further details.
 %
 % The \meta{file} argument must be the file name of the standalone source file \emph{without} the extension. The macro accepts the same \meta{options} as \Macro\includegraphics as well
@@ -785,6 +787,8 @@
 % the standalone files. Because the exact directory of source files is not accessible within \LaTeX\ documents, it is not possible to create the images files always in the same directories 
 % as the source files. Compiler options like `|-output-directory|' can be useful to influence the output directory of the build images. However, these options must be used with the 
 % internal compiler run, i.e.\ by setting \Key{buildcmd} appropriately, not (only) on the main \LaTeX\ compiler run.
+%
+% If the build process fails a warning is issued and the source code will be included instead. It should be noted that failure detection is not perfect and might lead to false positives or negatives.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
