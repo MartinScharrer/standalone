@@ -149,7 +149,7 @@
 % TeX-group. Any code after the |\end{document}| will be ignored. The real \env{document} environment of the main file will be unaffected and will work as normal.
 %
 % The packages required by each sub-file can be transfered automatically to the main document preamble using the options
-% listed in section~\ref{sec:pkgoptions}.
+% listed in \autoref{sec:pkgoptions}.
 %
 % \subsection{Dependencies}
 % The \cls{standalone} class and package require the \pkg{xkeyval} package.
@@ -346,7 +346,7 @@
 % It is possible to redefine this environment in the configuration file or the document preamble to adjust the processing of the content, but this is not recommended.
 % If done most content related options will stop work and/or cause errors.
 %
-% The beamer specific macros and environments are described in section~\ref{sec:beamer}.
+% The beamer specific macros and environments are described in \autoref{sec:beamer}.
 %
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -450,7 +450,7 @@
 % By default conversion is disabled (\Key{convert}'=false'). If enabled without providing own settings (\Key{convert}, \Key{convert}'=true')
 % the following default settings are used: PNG format, a density of 300dpi, no explicit size and the output file name is given by \Macro\jobname, i.e.\ the name of the \LaTeX\ document.
 % Using the \opt{convert} option with any value other than |false| will enabled it.
-% All normal conversation settings are listed in Table~\ref{tab:convopt}, while Table~\ref{tab:advconvopt} lists the more advanced options which e.g.\ can be used to modify the conversation command directly.
+% All normal conversation settings are listed in \autoref{tab:convopt}, while \autoref{tab:advconvopt} lists the more advanced options which e.g.\ can be used to modify the conversation command directly.
 %
 % \begin{table}
 % \vspace*{-10ex}%
@@ -722,12 +722,12 @@
 % \DescribeMacro{\IfStandalone}{<code for standalone mode>}{<code for main document>}
 % This is the macro version of the \Macro\ifstandalone| if-switch. It executes the first argument only in \cls{standalone} mode, i.e.\ when the file is compiled on its own.
 % When included in the main document the second argument is executed instead.
-% As mentioned in section~\ref{sec:pkgoptions}
+% As mentioned in \autoref{sec:pkgoptions}
 % it can also be used to hide |\usepackage| and similar macros from the extraction scanner of the |sort| option. The macro and its arguments is not printed into the |.stp| file.
 %
 % \DescribeMacro{\onlyifstandalone}{<code>}
 % This macro is similar to \Macro\IfStandalone but only has takes one argument which is executed only in standalone mode, but ignored when compiled as part of a main document.
-% As mentioned in section~\ref{sec:pkgoptions}
+% As mentioned in \autoref{sec:pkgoptions}
 % it can also be used to hide |\usepackage| and similar macros from the extraction scanner of the |sort| option. The macro and its argument is not printed into the |.stp| file.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
