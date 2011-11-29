@@ -275,13 +275,29 @@
     \def\sa@mode{3}%
 }
 \def\sa@mode@buildnew{%
-    \def\sa@mode{4}%
+    \ifxetex
+        \PackageWarning{standalone}{The 'mode=buildnew' option is not available for XeTeX.\MessageBreak
+                                    Therefore 'mode=build' will be used instead}%
+        \def\sa@mode{3}%
+    \else
+        \def\sa@mode{4}%
+    \fi
 }
+\sa@mode@tex
 %    \end{macrocode}
 % \end{key}
 %
 %
 %    \begin{macrocode}
+\ifpdf
+    \def\sa@graphicext{.pdf}
+\else
+\ifxetex
+    \def\sa@graphicext{.pdf}
+\else
+    \def\sa@graphicext{.eps}
+\fi\fi
+
 \iffalse
   external/ext/.store in=\sa@graphicext,
   external/ext={\ifpdf .pdf\else .eps\fi},
@@ -1081,8 +1097,8 @@
     \RequirePackage{gincltex}
     \newcommand*\includestandalone[2][]{%
         \begingroup
-        \edef\@tempa{{#2\sa@graphicext}}%
-        \expandafter\includestandalone@\@tempa{#2}{#1}%
+        \edef\@tempa{{##2\sa@graphicext}}%
+        \expandafter\includestandalone@\@tempa{##2}{##1}%
         \endgroup
     }
 }{%
@@ -1093,7 +1109,7 @@
     \endgroup
     \newcommand*\includestandalone[2][]{%
         \begingroup
-        \input{#2}%
+        \input{##2}%
         \endgroup
     }
 }
@@ -1101,7 +1117,9 @@
 % \end{macro}
 %
 %    \begin{macrocode}
-\RequirePackage{filemod-expmin}
+\ifxetex\else
+    \RequirePackage{filemod-expmin}
+\fi
 \newif\ifsa@buildsuccess
 %    \end{macrocode}
 %
