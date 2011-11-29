@@ -1,8 +1,8 @@
 %
 % \iffalse
-%<*sty>
 %<!COPYRIGHT>
 % \fi
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsection{The Package File}
 %
 %    \begin{macrocode}
@@ -16,17 +16,20 @@
     Package to include TeX sub-files with preambles]
 %    \end{macrocode}
 %
-% The package file is to be loaded by a main document which includes |standalone| sub-files.
-% It is also loaded by the |standalone| class to share code. The class then redefines certain macros.
+% The package file is to be loaded by a main document which includes \cls{standalone} sub-files.
+% It is also loaded by the \cls{standalone} class to share code. The class then redefines certain macros.
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsubsection{If-Switches}
 %
 % \begin{macro}{\ifstandalone}
 % Declare |standalone| if-switch and set it to false. The class will set it to true.
 % The |\csname| trickery is used to avoid issues if the switch was already defined.
 %    \begin{macrocode}
-\expandafter\newif\csname ifstandalone\endcsname
-\standalonefalse
+\@ifundefined{ifstandalone}{%
+    \expandafter\newif\csname ifstandalone\endcsname
+    \standalonefalse
+}{}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -37,9 +40,9 @@
 % The |\csname| trickery is used to avoid issues if the switch was already defined.
 %    \begin{macrocode}
 \@ifundefined{ifstandalonebeamer}{%
-\expandafter\newif\csname ifstandalonebeamer\endcsname
-\standalonebeamerfalse
-}{}%
+    \expandafter\newif\csname ifstandalonebeamer\endcsname
+    \standalonebeamerfalse
+}{}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -48,11 +51,71 @@
 % Macro version of |\ifstandalone|. The |{ }| around the argument protects the content from the package etc. scanners.
 % Only defined if not already defined by the class, in the case of a |standalone| file included other |standalone| files.
 %    \begin{macrocode}
-\@ifundefined{onlyifstandalone}
-  {\let\onlyifstandalone\@gobble}
-  {}
+\@ifundefined{onlyifstandalone}{%
+    \let\onlyifstandalone\@gobble
+}{}
 %    \end{macrocode}
 % \end{macro}
+%
+% \begin{macro}{\IfStandalone}[2]{true clause}{false clause}
+% Macro version of |\ifstandalone .. \else .. \fi|. The |{ }| around the argument protects the content from the package etc. scanners.
+%    \begin{macrocode}
+\@ifundefined{IfStandalone}{%
+    \let\IfStandalone\@secondoftwo
+}{}
+%    \end{macrocode}
+% \end{macro}
+%
+% Define if-switches for TeX formats.
+% This loads the corresponding packages if available, but falls back to some own code if they are not installed.
+%    \begin{macrocode}
+\expandafter\ifx\csname ifluatex\endcsname\relax
+    \IfFileExists{ifluatex.sty}{\@firstoftwo}{\@secondoftwo}{%
+        \RequirePackage{ifluatex}
+    }{
+        \begingroup
+        \expandafter\ifx\csname directlua\endcsname\relax
+            \endgroup
+            \expandafter\let\csname ifluatex\expandafter\endcsname\csname iffalse\endcsname
+        \else
+            \endgroup
+            \expandafter\let\csname ifluatex\expandafter\endcsname\csname iftrue\endcsname
+        \fi
+    }
+\fi
+\expandafter\ifx\csname ifpdf\endcsname\relax
+    \IfFileExists{ifpdf.sty}{\@firstoftwo}{\@secondoftwo}{%
+        \RequirePackage{ifpdf}
+    }{
+        \begingroup
+        \expandafter\ifx\csname pdfoutput\endcsname\relax
+            \endgroup
+            \expandafter\let\csname ifpdf\expandafter\endcsname\csname iffalse\endcsname
+        \else
+            \endgroup
+            \ifnum\pdfoutput<1
+                \expandafter\let\csname ifpdf\expandafter\endcsname\csname iffalse\endcsname
+            \else
+                \expandafter\let\csname ifpdf\expandafter\endcsname\csname iftrue\endcsname
+            \fi
+        \fi
+    }
+\fi
+\expandafter\ifx\csname ifxetex\endcsname\relax
+    \IfFileExists{ifxetex.sty}{\@firstoftwo}{\@secondoftwo}{%
+        \RequirePackage{ifxetex}
+    }{
+        \begingroup
+        \expandafter\ifx\csname XeTeXrevision\endcsname\relax
+            \endgroup
+            \expandafter\let\csname ifxetex\expandafter\endcsname\csname iffalse\endcsname
+        \else
+            \endgroup
+            \expandafter\let\csname ifxetex\expandafter\endcsname\csname iftrue\endcsname
+        \fi
+    }
+\fi
+%    \end{macrocode}
 %
 %
 % \begin{macro}{\ifsa@subpreambles}
@@ -68,74 +131,164 @@
 % \end{macro}
 % \end{macro}
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsubsection{Options}
 %    \begin{macrocode}
-\RequirePackage{ifpdf}
-\RequirePackage{pgfopts}
+\RequirePackage{xkeyval}
+%    \end{macrocode}
 %
-\pgfkeys{/standalone/.cd,
-  subpreambles/.is if=sa@subpreambles,
-  subpreambles/.default=true,
+% \begin{macro}{\sa@pkgoption}
+% Wrapper macro to define options.
+%    \begin{macrocode}
+\def\sa@pkgoption{%
+    \define@key{standalone.sty}%
+}
+%    \end{macrocode}
+% \end{macro}
 %
-  sort/.is choice,
-  sort/true/.code={%
-    \sa@sortsubpreamblestrue
-    \sa@subpreamblestrue
-  },
-  sort/false/.code={%
-    \sa@sortsubpreamblesfalse
-  },
-  sort/.default=true,
 %
-  print/.is choice,
-  print/true/.code={%
-    \sa@printsubpreamblestrue
-    \sa@subpreamblestrue
-  },
-  print/false/.code={%
-    \sa@printsubpreamblesfalse
-  },
-  print/.default=true,
+% \begin{macro}{\sa@boolean}[2]{name of if-switch}{`true' or `false'}
+% Sets if-switches.
+%    \begin{macrocode}
+\def\sa@boolean#1#2{%
+    \sa@boolorvalue{#1}{#2}%
+        {\ClassError{standalone}{Invalid value '#2' for boolean key '#1'}{}}%
+}
+%    \end{macrocode}
+% \end{macro}
 %
-  comments/.is choice,
-  comments/true/.code={%
-    \def\sa@percent{\@makeother\%}%
-  },
-  comments/false/.code={%
-    \def\sa@percent{}%
-  },
-  comments/.default=true,
-  nocomments/.style={/standalone/comments=false},
-  nocomments/.value forbidden,
 %
-  mode/.is choice,
-  mode/none/.code={%
-    \let\sa@mode\relax
-  },
-  mode/pdf|tex/.code={%
+% \begin{macro}{\sa@boolorvalue}[2]{name of if-switch}{`true', `false' or a value}{code to be executed if it is a value.}
+% Sets if-switches.
+%    \begin{macrocode}
+\def\sa@boolorvalue#1#2{%
+    \begingroup
+    \edef\@tempa{#2}%
+    \def\@tempb{true}%
+    \ifx\@tempa\@tempb
+        \endgroup
+        \csname sa@#1true\endcsname
+        \expandafter\@gobble
+    \else
+    \def\@tempb{false}%
+    \ifx\@tempa\@tempb
+        \endgroup
+        \csname sa@#1false\endcsname
+        \expandafter\expandafter
+        \expandafter\@gobble
+    \else
+        \endgroup
+        \expandafter\expandafter
+        \expandafter\@firstofone
+    \fi\fi
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{key}{standalone.sty}{sort}
+%    \begin{macrocode}
+\sa@pkgoption{sort}[true]{%
+    \sa@boolean{sortsubpreambles}{#1}%
+    \ifsa@sortsubpreambles
+        \sa@subpreamblestrue
+    \fi
+}
+%    \end{macrocode}
+% \end{key}
+%
+%
+% \begin{key}{standalone.sty}{print}
+%    \begin{macrocode}
+\sa@pkgoption{print}[true]{%
+    \sa@boolean{printsubpreambles}{#1}%
+    \ifsa@printsubpreambles
+        \sa@subpreamblestrue
+    \fi
+}
+%    \end{macrocode}
+% \end{key}
+%
+%
+% \begin{key}{standalone.sty}{subpreamble}
+%    \begin{macrocode}
+\sa@pkgoption{subpreamble}[true]{%
+    \sa@boolean{subpreamble}{#1}%
+}
+%    \end{macrocode}
+% \end{key}
+%
+%
+% \begin{key}{standalone.sty}{comments}
+%    \begin{macrocode}
+\sa@pkgoption{comments}[true]{%
+    \sa@boolean{comments}{#1}%
+    \ifsa@comments
+        \def\sa@percent{\@makeother\%}%
+    \else
+        \def\sa@percent{\catcode`\%=14\relax}%
+    \fi
+}
+%    \end{macrocode}
+% \end{key}
+%
+% \begin{key}{standalone.sty}{nocomments}
+%    \begin{macrocode}
+\sa@pkgoption{nocomments}[]{%
+    \begingroup
+        \def\@tempa{#1}%
+        \ifx\@tempa\@empty\else
+            \PackageWarning{standalone}{Unwanted value of 'nocomments' was ignored}{}A
+        \fi
+    \endgroup
+    \setkeys{standalone.sty}{comments=false}%
+}
+%    \end{macrocode}
+% \end{key}
+%
+% \begin{key}{standalone.sty}{mode}
+%    \begin{macrocode}
+\sa@pkgoption{mode}{%
+    \begingroup
+    \expandafter\let\expandafter\@tempa\csname sa@mode@#1\endcsname
+    \ifx\@tempa\relax
+        \endgroup
+        \PackageError{standalone}{Wrong value for option 'mode'}{}%
+    \else
+        \expandafter
+        \endgroup
+        \@tempa
+    \fi
+}
+\def\sa@mode@none{%
+    \let\sa@mode\relax%
+}
+\@namedef{sa@mode@pdf|tex}{%
     \def\sa@mode{0}%
-  },
-  mode/tex/.code={%
+}
+\def\sa@mode@tex{%
     \def\sa@mode{1}%
-  },
-  mode/pdf/.code={%
+}
+\def\sa@mode@pdf{%
     \def\sa@mode{2}%
-  },
-  mode/build/.code={%
+}
+\def\sa@mode@build{%
     \def\sa@mode{3}%
-  },
-  mode/buildnew/.code={%
+}
+\def\sa@mode@buildnew{%
     \def\sa@mode{4}%
-  },
-  mode=tex,
+}
+%    \end{macrocode}
+% \end{key}
 %
+%
+%    \begin{macrocode}
+\iffalse
   external/ext/.store in=\sa@graphicext,
   external/ext={\ifpdf .pdf\else .eps\fi},
-%
   external/cmd/.store in=\sa@compilecmd,
   external/cmd={\ifpdf pdf\fi latex --interaction=batchmode '\string\PassOptionsToClass{border=0pt}{standalone}\string\input{\image}'},
-}
-\ProcessPgfOptions{/standalone}
+\fi
+\ProcessOptionsX*<standalone.sty>\relax
 %    \end{macrocode}
 %
 % In non-sorted print mode comments are preserved by default.
@@ -143,7 +296,7 @@
 \ifsa@printsubpreambles
   \ifsa@sortsubpreambles\else
     \@ifundefined{sa@percent}{%
-      \def\sa@percent{\@makeother\%}%
+        \setkeys{standalone.sty}{comments=true}%
     }{}%
   \fi
 \fi
@@ -151,7 +304,15 @@
 %
 % \begin{macro}{\standaloneconfig}
 %    \begin{macrocode}
-\providecommand*{\standaloneconfig}{\pgfqkeys{/standalone}}
+\@ifclassloaded{standalone}{%
+    \def\standaloneconfig{%
+        \setkeys{standalone.sty,standalone.cls}%
+    }%
+}{%
+    \newcommand*{\standaloneconfig}{%
+        \setkeys{standalone.sty}%
+    }%
+}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -161,6 +322,7 @@
 \RequirePackage{currfile}
 %    \end{macrocode}
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsubsection{Processing of Sub-Preambles}
 %
 %    \begin{macrocode}
@@ -203,6 +365,7 @@
 %    \end{macrocode}
 %
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsubsection{Sorting of package options}
 %
 % Macros only needed for this mode are defined inside the |\if...|
@@ -630,6 +793,7 @@
 %    \end{macrocode}
 %
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsubsection{Skipping of Sub-Preambles in Main Mode}
 %
 % This macros make the main document skip all preambles in sub-files.
@@ -908,20 +1072,30 @@
 % \end{macro}
 %
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsubsection{Include Standalone}
-%
-%    \begin{macrocode}
-\RequirePackage{gincltex}
-%    \end{macrocode}
-%
 %
 % \begin{macro}{\includestandalone}
 %    \begin{macrocode}
-\newcommand*\includestandalone[2][]{%
+\IfFileExists{gincltex.sty}{%
+    \RequirePackage{gincltex}
+    \newcommand*\includestandalone[2][]{%
+        \begingroup
+        \edef\@tempa{{#2\sa@graphicext}}%
+        \expandafter\includestandalone@\@tempa{#2}{#1}%
+        \endgroup
+    }
+}{%
     \begingroup
-    \edef\@tempa{{#2\sa@graphicext}}%
-    \expandafter\includestandalone@\@tempa{#2}{#1}%
+    \let\on@line\@gobble
+    \PackageWarning{standalone}{Required package 'gincltex' not found.\MessageBreak
+                                The \string\includestandalone\space feature is disabled.}
     \endgroup
+    \newcommand*\includestandalone[2][]{%
+        \begingroup
+        \input{#2}%
+        \endgroup
+    }
 }
 %    \end{macrocode}
 % \end{macro}
@@ -1018,6 +1192,5 @@
 % \end{macro}
 %
 % \iffalse
-%</sty>
 % \fi
 %
