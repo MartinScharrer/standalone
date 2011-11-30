@@ -1027,6 +1027,7 @@
         \global\hsize=\maxdimen
         \global\vsize=\maxdimen
         \sa@papersize
+        \ifsa@multi
         \begingroup
         \@tempdima0.99626\paperwidth
         \@tempdimb0.99626\paperheight
@@ -1046,6 +1047,7 @@
             0 0 bop^^J%
             \@percentchar\@percentchar EndPageSetup}%
         \endgroup
+        \fi
         \topskip=0pt
         \noindent\sa@ps@content
         \newpage
@@ -1082,6 +1084,9 @@
     \global\let\sa@papersize\relax
     \special{papersize=\the\paperwidth,\the\paperheight}%
     \global\sa@yoffset=\paperheight
+    \special{ps::%
+        \@percentchar\@percentchar HiResBoundingBox: 0 0 \the\paperwidth\space\the\paperheight^^J%
+    }%
 }
 %    \end{macrocode}
 % \end{macro}
