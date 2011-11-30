@@ -931,6 +931,16 @@
 \newcommand{\sa@documentclass}[2][]{%
   \let\document\sa@document
   \begingroup
+  \edef\@tempa{#2}%
+  \edef\@tempb{standalone}%
+  \ifx\@tempa\@tempb
+    \endgroup
+    \def\sa@subfileoptions{#1}%
+  \else
+    \endgroup
+    \let\sa@subfileoptions\@empty
+  \fi
+  \begingroup
   \ifsa@subpreambles
     \@ifundefined{sa@written@\currfilepath}%
       {%
@@ -1109,6 +1119,32 @@
 %    \begin{macrocode}
 %    \end{macrocode}
 %
+% \begin{key}{standalone.sty/class}{12pt}
+%    \begin{macrocode}
+\define@key{standalone.sty/class}{12pt}[]{%
+    \def\sa@subfile@size{12}%
+}
+%    \end{macrocode}
+% \end{key}
+%
+%
+% \begin{key}{standalone.sty/class}{11pt}
+%    \begin{macrocode}
+\define@key{standalone.sty/class}{11pt}[]{%
+    \def\sa@subfile@size{11}%
+}
+%    \end{macrocode}
+% \end{key}
+%
+%
+% \begin{key}{standalone.sty/class}{10pt}
+%    \begin{macrocode}
+\define@key{standalone.sty/class}{10pt}[]{%
+    \def\sa@subfile@size{10}%
+}
+%    \end{macrocode}
+% \end{key}
+%
 % \begin{macro}{\sa@document}
 % This is the |\begin{document}| of the sub files. It does nothing except of
 % redefining |\end{document}| and calling our own |atbegindocument| hook.
@@ -1116,6 +1152,26 @@
 \def\sa@document{%
     \ifsa@group
         \let\enddocument\sa@enddocument
+        \ifx\sa@subfileoptions\@empty\else
+            \def\sa@subfile@size{10}%
+            \begingroup
+            \def\@tempa{\setkeys*{standalone.sty/class}}%
+            \expandafter\expandafter
+            \expandafter\endgroup
+            \expandafter\@tempa\expandafter{\sa@subfileoptions}%
+            \let\sa@newcommand\newcommand
+            \let\newcommand\renewcommand
+            \edef\@tempa{%
+                \noexpand\makeatletter
+                \endlinechar=-1\relax
+                \catcode`\noexpand\ =9\relax
+                \noexpand\input{size\sa@subfile@size.clo}%
+                \catcode`\noexpand\@=\the\catcode`\@
+                \catcode`\noexpand\ =\the\catcode`\ \relax
+                \endlinechar=\the\endlinechar\relax
+            }\@tempa
+            \let\newcommand\sa@newcommand
+        \fi
     \else
         \endgroup
         \global\let\enddocument\sa@enddocument

@@ -1086,6 +1086,7 @@
     \global\sa@yoffset=\paperheight
     \special{ps::%
         \@percentchar\@percentchar HiResBoundingBox: 0 0 \the\paperwidth\space\the\paperheight^^J%
+                \endgroup
     }%
 }
 %    \end{macrocode}
