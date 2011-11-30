@@ -615,6 +615,13 @@
 % Should this not work as expected please inform the package author and provide a small example which causes this issue, together with the version number of the used |latex| compiler and tools (like |dvips|, |ps2pdf|)
 % as well as the used \cls{standalone} bundle.
 %
+% \subsubsection*{Issues with cropped files in DVI mode}
+% The \opt{crop} option uses PostScript commans in DVI mode, i.e.\ when |latex| not |pdflatex| (or others) is used as a compiler.
+% This PostScript commands will only work once the DVI is converted to PS or EPS.
+% Currently this cropping code is experimental and might not produce a full (E)PS standard compatible file.
+% This can lead to wrong bounding boxes and wrong orientations or, dependent on the used PostScript tool, even to PostScript compiler errors.
+% Some issues can be overcome by converting the the (E)PS file to a (more) standard compatible version using tools like |eps2eps| or Ghostscript.
+%
 % \subsubsection*{Errors ``Float(s) lost'' or ``not in outer par mode''}
 % Floating environments like \env{figure} or \env{table} can not be used while \Key{float}'=true' and either \Key{crop}'=true' or \Key{preview}'=true' is set.
 % The last two options will try to store the float into a box which is not allowed (because it can't the float any longer).
