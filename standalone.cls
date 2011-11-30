@@ -1182,7 +1182,7 @@
     }{%
         \def\filemodbefore{}%
     }}}}%
-    \immediate\write18{\sa@convert@latex\space -shell-escape -jobname '\sa@convert@subjobname' '\noexpand\expandafter\def\noexpand\csname sa@internal@run\noexpand\endcsname{1}\noexpand\input{\jobname}'}%
+    \immediate\write18{\sa@convert@latex\space -jobname '\sa@convert@subjobname' '\noexpand\expandafter\def\noexpand\csname sa@internal@run\noexpand\endcsname{1}\noexpand\input{\jobname}'}%
     \edef\sa@convert@precommand{\sa@convert@precommand}%
     \ifx\sa@convert@precommand\@empty\else
         \immediate\write18{\sa@convert@precommand}%
