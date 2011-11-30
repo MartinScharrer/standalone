@@ -308,52 +308,73 @@
 \sa@pkgoption{extension}{%
     \def\sa@graphicext{#1}%
 }
+%    \end{macrocode}
+% \end{key}
+%
+% \begin{macro}{\sa@buildvar}[2]{name}{initial value}
+% Wrapper to define \opt{build} variables.
+%    \begin{macrocode}
+\def\sa@buildvar#1#2{%
+    \define@key{standalone.sty/build}{#1}{%
+        \@namedef{sa@build@#1}{##1}%
+    }%
+    \@namedef{sa@build@#1}{#2}%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{key}{standalone.sty/build}{jobname}
+%    \begin{macrocode}
+\sa@buildvar{jobname}{\file}
+%    \end{macrocode}
+% \end{key}
+%
+%
+% \begin{key}{standalone.sty/build}{latex}
+%    \begin{macrocode}
+\sa@buildvar{latex}{}
+%    \end{macrocode}
+% \end{key}
+%
+%
+% \begin{key}{standalone.sty/build}{latexoptions}
+%    \begin{macrocode}
+\sa@buildvar{latexoptions}{%
+    -interaction=batchmode -shell-escape -jobname '\buildjobname'
+}
+%    \end{macrocode}
+% \end{key}
+%
+%
+% \begin{key}{standalone.sty/build}{command}
+%    \begin{macrocode}
+\sa@buildvar{command}{%
+    \latex\space\latexoptions\space\file
+}
+%%    '\string\PassOptionsToClass{border=0pt}{standalone}\string\input{\image}'
+%    \end{macrocode}
+% \end{key}
+%
+% Set default values depending on the used compiler.
+%    \begin{macrocode}
+\def\sa@build@postcommand{}
 \ifpdf
     \def\sa@graphicext{.pdf}
     \ifluatex
-        \def\sa@compiler{lualatex}
+        \def\sa@build@latex{lualatex}
     \else
-        \def\sa@compiler{pdflatex}
+        \def\sa@build@latex{pdflatex}
     \fi
 \else
 \ifxetex
     \def\sa@graphicext{.pdf}
-    \def\sa@compiler{xelatex}
+    \def\sa@build@latex{xelatex}
 \else
     \def\sa@graphicext{.eps}
-    \def\sa@compiler{latex}
+    \def\sa@build@latex{latex}
+    \def\sa@build@postcommand{dvips -o '\file.eps' '\file.dvi'}
 \fi\fi
 %    \end{macrocode}
-% \end{key}
-%
-% \begin{key}{standalone.sty}{buildjobname}
-%    \begin{macrocode}
-\sa@pkgoption{buildjobname}{%
-    \def\sa@buildjobname{#1}%
-}
-\def\sa@buildjobname{\image}
-%    \end{macrocode}
-% \end{key}
-%
-%
-% \begin{key}{standalone.sty}{buildexe}
-%    \begin{macrocode}
-\sa@pkgoption{buildexe}{%
-    \def\sa@compiler{#1}%
-}
-%    \end{macrocode}
-% \end{key}
-%
-%
-% \begin{key}{standalone.sty}{buildcmd}
-%    \begin{macrocode}
-\sa@pkgoption{buildcmd}{%
-    \def\sa@buildcmd{#1}%
-}
-\def\sa@buildcmd{\sa@compiler\space --interaction=batchmode '\string\PassOptionsToClass{border=0pt}{standalone}\string\input{\image}'}
-%    \end{macrocode}
-% \end{key}
-%
 %
 %    \begin{macrocode}
 \ProcessOptionsX*<standalone.sty>\relax
@@ -1265,10 +1286,16 @@
         \PackageError{standalone}{Shell escape needed to create graphic! Use the '-shell-escape' option.}{}%
     \else
         \begingroup
-        \edef\image{#1}%
-        \edef\outfile{\image\sa@graphicext}%
+        \edef\file{#1}%
+        \edef\outfile{\file\sa@graphicext}%
         \edef\filemodbefore{\csname pdffilemoddate\endcsname{\outfile}}%
-        \immediate\write18{\sa@buildcmd}%
+        \let\latex\sa@build@latex
+        \let\latexoptions\sa@build@latexoptions
+        \let\buildjobname\sa@build@jobname
+        \immediate\write18{\sa@build@command}%
+        \ifx\sa@build@postcommand\@empty\else
+            \immediate\write18{\sa@build@postcommand}%
+        \fi
         \IfFileExists{\outfile}{%
             \edef\filemodafter{\csname pdffilemoddate\endcsname{\outfile}}%
             \ifx\filemodbefore\filemodafter

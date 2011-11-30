@@ -33,6 +33,7 @@
     DTX file of the standalone bundle]
 \documentclass[a4paper,11pt]{ydoc}
 \usepackage{flafter}
+\usepackage{standalone}
 %\addtolength{\oddsidemargin}{1cm}
 %\addtolength{\textwidth}{-1cm}
 \def\subsectionautorefname{section}
@@ -723,24 +724,17 @@
 % `|image|' (use existing image file produced by the source file), `\verb+image|tex+' (use image if available, source otherwise),
 % `|build|' (build image from source, then use it), `|buildmissing|' (only build image if it does not exist) 
 % and `|buildnew|' (only build image if source file is newer). See \autoref{sec:pkgmacros} for more details.
-% See also the \autoref{sec:build} for further details.
+% See also \autoref{sec:build} for further details.
 %
 % \DescribeKey{extension}'='<.extension>
 % The image file extension (with leading dot) used for \Key{mode}'=image' can be selected using this option.
 % By default the target output file extension of the used \LaTeX\ compiler is used, i.e.\ `|.pdf|' for |pdflatex|,
 % |lualatex| and |xelatex| and `|.eps|' (converted from DVI) for |latex|.
 %
-% \DescribeKey{buildjobname}'='<name>
-% If an image building mode is selected this macro can be used to change the used jobname for the sub-process building the image files. By default the source file name is used.
-% See also the \autoref{sec:build} for further details.
+% \DescribeKey{build}'='{<build options>}
+% This option allows to set the options used for building images from standalone files.
+% See \autoref{sec:build}, especially \autoref{tab:buildsettings} for further details.
 %
-% \DescribeKey{buildexe}'='<latex executable>
-% If an image building mode is selected this macro can be used to change the used \LaTeX\ compiler executable. By default the same as for the main document is used.
-% See also the \autoref{sec:build} for further details.
-%
-% \DescribeKey{buildcmd}'='<shell command>
-% If an image building mode is selected this macro can be used to change the used shell command for the sub-process building the image files.
-% See also the \autoref{sec:build} for further details.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsection{Macros}\label{sec:pkgmacros}
@@ -748,7 +742,7 @@
 % defined by both the class and package and can be used in standalone files but also in the main document.
 %
 % \DescribeMacro\standaloneconfig{<options>}
-% This configuration macro accepts some of the package options described in \autoref{sec:pkgoptions}. These options are \opt{group}, \opt{mode}, \opt{extension} and all \opt{build...} options,
+% This configuration macro accepts some of the package options described in \autoref{sec:pkgoptions}. These options are \opt{group}, \opt{mode}, \opt{extension} and \opt{build},
 % which can be changed for different included standalone files.
 %
 % If both the \pkg{standalone} class and package is used together this macro can also be used to set the class options as described in \autoref{sec:classmacros}.
@@ -788,9 +782,42 @@
 % Using \Key{mode}'=buildnew' newly build image files placed in the current directory will therefore taken before older images files potentially located in the directory of
 % the standalone files. Because the exact directory of source files is not accessible within \LaTeX\ documents, it is not possible to create the images files always in the same directories 
 % as the source files. Compiler options like `|-output-directory|' can be useful to influence the output directory of the build images. However, these options must be used with the 
-% internal compiler run, i.e.\ by setting \Key{buildcmd} appropriately, not (only) on the main \LaTeX\ compiler run.
+% internal compiler run, i.e.\ by setting \Key{build}'='{'latexoptions='<...>} appropriately, not (only) on the main \LaTeX\ compiler run.
 %
 % If the build process fails a warning is issued and the source code will be included instead. It should be noted that failure detection is not perfect and might lead to false positives or negatives.
+%
+% \begin{table}
+% \vspace*{-10ex}%
+% \makeatletter
+% \def\showbuildvar#1{{%
+%   \expandafter\let\expandafter\@tempa\csname sa@build@#1\endcsname
+%   \@onelevel@sanitize\@tempa
+%   \texttt{\@tempa}
+% }}%
+% \makeatother
+% \belowcaptionskip=\abovecaptionskip
+% \caption{Build settings}\label{tab:buildsettings}
+% \hbox to \textwidth{\hss%
+% \begin{tabular}{>{\ttfamily}lp{\dimexpr.45\textwidth\relax}l}
+%  \toprule
+%  \multicolumn{1}{l}{Build setting} &  Description & Default value \\
+%  \midrule
+%   latex & \LaTeX\ compiler to be used & Same as main compiler \\
+%   latexoptions & Command line options for compiler & \scriptsize\showbuildvar{latexoptions} \\
+%   jobname & Jobname for build compiler run & \scriptsize\showbuildvar{jobname} \\
+%   command & Full build shell command & \scriptsize\showbuildvar{command} \\
+%   postcommand & Command executed after main command, to produce final output file & \scriptsize\texttt{dvips -o '\textbackslash file.eps' '\textbackslash file.dvi'} \normalsize (DVI mode only)\\
+%  \bottomrule\noalign{\smallskip}
+%  \multicolumn{3}{l}{%
+%   \strut Note: the settings (except `\texttt{command}' and `\texttt{postcommand}') can also be used as macros in other settings.
+%   }\\%
+%  \multicolumn{3}{l}{%
+%   \strut The given file name is available (without extension) as \texttt{\textbackslash file}.
+%   }%
+% \end{tabular}
+% \hss}
+% \end{table}
+%
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
