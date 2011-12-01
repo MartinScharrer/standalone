@@ -935,10 +935,10 @@
   \edef\@tempb{standalone}%
   \ifx\@tempa\@tempb
     \endgroup
-    \def\sa@subfileoptions{#1}%
+    \def\sa@subfile@options{#1}%
   \else
     \endgroup
-    \let\sa@subfileoptions\@empty
+    \let\sa@subfile@options\@empty
   \fi
   \begingroup
   \ifsa@subpreambles
@@ -1145,6 +1145,15 @@
 %    \end{macrocode}
 % \end{key}
 %
+%
+% \begin{key}{standalone.sty/class}{10pt}
+%    \begin{macrocode}
+\define@key{standalone.sty/class}{class}{%
+    \def\sa@subfile@class{#1}%
+}
+%    \end{macrocode}
+% \end{key}
+%
 % \begin{macro}{\sa@document}
 % This is the |\begin{document}| of the sub files. It does nothing except of
 % redefining |\end{document}| and calling our own |atbegindocument| hook.
@@ -1152,25 +1161,46 @@
 \def\sa@document{%
     \ifsa@group
         \let\enddocument\sa@enddocument
-        \ifx\sa@subfileoptions\@empty\else
+        \ifx\sa@subfile@options\@empty\else
+% Process class options
             \def\sa@subfile@size{10}%
+            \def\sa@subfile@class{article}%
             \begingroup
             \def\@tempa{\setkeys*{standalone.sty/class}}%
             \expandafter\expandafter
             \expandafter\endgroup
-            \expandafter\@tempa\expandafter{\sa@subfileoptions}%
+            \expandafter\@tempa\expandafter{\sa@subfile@options}%
+% Determinate required size files (normal classes or KOMA Script).
+% If the main file does not use a KOMA class itself, the KOMA size files
+% can't be used.
+            \@ifundefined{KOMAClassName}{%
+                \def\@tempa{size}%
+            }{%
+                \def\@tempa##1##2##3##4\relax{\def\@tempa{##1##2##3}}%
+                \expandafter\@tempa\sa@subfile@class{}{}{}\relax
+                \def\@tempb{scr}%
+                \ifx\@tempa\@tempb
+                    \def\@tempa##1{scrsize##1pt}%
+                \else
+                    \def\@tempa{size}%
+                \fi
+            }%
+% Load size file
             \let\sa@newcommand\newcommand
+            \let\sa@@ifundefined\@ifundefined
             \let\newcommand\renewcommand
+            \let\@ifundefined\@thirdofthree
             \edef\@tempa{%
                 \noexpand\makeatletter
                 \endlinechar=-1\relax
-                \catcode`\noexpand\ =9\relax
-                \noexpand\input{size\sa@subfile@size.clo}%
+                \ignorespaces
+                \noexpand\input{\@tempa\sa@subfile@size.clo}%
+                \noexpand\ifhmode\unskip\noexpand\fi
                 \catcode`\noexpand\@=\the\catcode`\@
-                \catcode`\noexpand\ =\the\catcode`\ \relax
                 \endlinechar=\the\endlinechar\relax
             }\@tempa
             \let\newcommand\sa@newcommand
+            \let\@ifundefined\sa@@ifundefined
         \fi
     \else
         \endgroup
