@@ -122,13 +122,16 @@
 % \begin{macro}{\ifsa@sortsubpreambles}
 % \begin{macro}{\ifsa@printsubpreambles}
 % \begin{macro}{\ifsa@group}
+% \begin{macro}{\ifsa@obeyclassoptions}
 % The if-switches for the options.
 %    \begin{macrocode}
 \newif\ifsa@subpreambles
 \newif\ifsa@sortsubpreambles
 \newif\ifsa@printsubpreambles
 \newif\ifsa@group
+\newif\ifsa@obeyclassoptions
 %    \end{macrocode}
+% \end{macro}
 % \end{macro}
 % \end{macro}
 % \end{macro}
@@ -300,6 +303,14 @@
     \fi
 }
 \sa@mode@tex
+%    \end{macrocode}
+% \end{key}
+%
+% \begin{key}{standalone.sty}{obeyclassoptions}
+%    \begin{macrocode}
+\sa@pkgoption{obeyclassoptions}[true]{%
+    \sa@boolean{obeyclassoptions}{#1}%
+}
 %    \end{macrocode}
 % \end{key}
 %
@@ -930,15 +941,17 @@
 %    \begin{macrocode}
 \newcommand{\sa@documentclass}[2][]{%
   \let\document\sa@document
-  \begingroup
-  \edef\@tempa{#2}%
-  \edef\@tempb{standalone}%
-  \ifx\@tempa\@tempb
-    \endgroup
-    \def\sa@subfile@options{#1}%
-  \else
-    \endgroup
-    \let\sa@subfile@options\@empty
+  \let\sa@subfile@options\@empty
+  \ifsa@obeyclassoptions
+    \begingroup
+    \edef\@tempa{#2}%
+    \edef\@tempb{standalone}%
+    \ifx\@tempa\@tempb
+        \endgroup
+        \def\sa@subfile@options{#1}%
+    \else
+        \endgroup
+    \fi
   \fi
   \begingroup
   \ifsa@subpreambles
@@ -1116,7 +1129,9 @@
 %    \end{macrocode}
 % \end{macro}
 %
+%
 %    \begin{macrocode}
+\ifsa@obeyclassoptions
 %    \end{macrocode}
 %
 % \begin{key}{standalone.sty/class}{12pt}
@@ -1225,6 +1240,10 @@
 %    \end{macrocode}
 % \end{macro}
 %
+%    \begin{macrocode}
+\fi
+%    \end{macrocode}
+%
 %
 % \begin{macro}{\sa@document}
 % This is the |\begin{document}| of the sub files. It does nothing except of
@@ -1294,7 +1313,9 @@
 \def\sa@enddocument{%
     \sa@atenddocument
     \ifsa@group
-        \egroup
+        \ifx\sa@subfile@options\@empty\else
+            \egroup
+        \fi
     \else
         \global\let\document\sa@orig@document
         \global\let\enddocument\sa@orig@enddocument
