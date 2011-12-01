@@ -1185,22 +1185,26 @@
                     \def\@tempa{size}%
                 \fi
             }%
-% Load size file
+% Load size file. Redefine macros to avoid errors and spaces be introduced.
             \let\sa@newcommand\newcommand
             \let\sa@@ifundefined\@ifundefined
+            \let\sa@selectfont\selectfont
             \let\newcommand\renewcommand
+            \let\selectfont\relax
             \let\@ifundefined\@thirdofthree
             \edef\@tempa{%
                 \noexpand\makeatletter
-                \endlinechar=-1\relax
-                \ignorespaces
+                \noexpand\nullfont
                 \noexpand\input{\@tempa\sa@subfile@size.clo}%
-                \noexpand\ifhmode\unskip\noexpand\fi
+                \def\noexpand\f@size{\f@size}%
+                \def\noexpand\curr@fontshape{\curr@fontshape}%
+                \noexpand\selectfont
                 \catcode`\noexpand\@=\the\catcode`\@
-                \endlinechar=\the\endlinechar\relax
             }\@tempa
             \let\newcommand\sa@newcommand
             \let\@ifundefined\sa@@ifundefined
+            \let\selectfont\sa@selectfont
+            \normalsize
         \fi
     \else
         \endgroup
