@@ -240,9 +240,10 @@
 % Also \Key{float}'=false' will be set by \Key{preview}'=true' in order to avoid issues with floating environments.
 %
 % \DescribeKey{multi}'=true|false'
+% \DescribeKey{multi}'='{<environment name>, \ldots>}
 % By default the \cls{standalone} class assume that the whole content is one block which should be shown on one single page.
 % If this option is activated multiple pages are supported. Each page will be cropped to its content plus the selected border (as long either \opt{preview} or \opt{crop} are enabled).
-% A set of environments which hold a single page must be declared using \Macro\standaloneenv{<environment name>, \ldots}.
+% A set of environments which hold a single page must either be given as option value or declared using \Macro\standaloneenv{<environment name>, \ldots}.
 % No typeset material should appear outside such environments.
 % Note that this option is enabled automatically by \Macro\standaloneenv if either \opt{crop} or \opt{preview} is enabled.
 % However, it needs to be set explicitly as class option if the \opt{ignorerest} option is also set.

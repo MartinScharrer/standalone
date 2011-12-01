@@ -292,7 +292,7 @@
 % Boolean to control if multiple pages are used.
 %    \begin{macrocode}
 \sa@clsoption{multi}[true]{%
-    \sa@boolean{multi}{#1}%
+    \sa@boolorvalue{multi}{#1}{\sa@multitrue\AtEndOfClass{\standaloneenv{#1}}}%
 }
 %    \end{macrocode}
 % \end{key}
