@@ -1192,13 +1192,10 @@
             \let\newcommand\renewcommand
             \let\selectfont\relax
             \let\@ifundefined\@thirdofthree
+            \makeatletter
+            \nullfont
             \edef\@tempa{%
-                \noexpand\makeatletter
-                \noexpand\nullfont
                 \noexpand\input{\@tempa\sa@subfile@size.clo}%
-                \def\noexpand\f@size{\f@size}%
-                \def\noexpand\curr@fontshape{\curr@fontshape}%
-                \noexpand\selectfont
                 \catcode`\noexpand\@=\the\catcode`\@
             }\@tempa
             \let\newcommand\sa@newcommand
