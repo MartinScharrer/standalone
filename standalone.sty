@@ -1261,7 +1261,7 @@
             \expandafter\expandafter
             \expandafter\endgroup
             \expandafter\@tempa\expandafter{\sa@subfile@options}%
-            \marginbox{{\sa@border@left} {\sa@border@bottom} {\sa@border@right} {\sa@border@top}}\bgroup
+            \setbox\@tempboxa\color@hbox
 % Determinate required size files (normal classes or KOMA Script).
 % If the main file does not use a KOMA class itself, the KOMA size files
 % can't be used.
@@ -1314,7 +1314,22 @@
     \sa@atenddocument
     \ifsa@group
         \ifx\sa@subfile@options\@empty\else
-            \egroup
+            \color@endbox
+            \sbox\@tempboxa{%
+                \setlength\@tempdima{\sa@border@left}%
+                \hskip\@tempdima
+                \setlength\@tempdima{\sa@border@right}%
+                \setlength\@tempdimb{\sa@border@bottom}%
+                \setlength\@tempdimc{\sa@border@top}%
+                \advance\@tempdima\wd\@tempboxa
+                \wd\@tempboxa\@tempdima
+                \advance\@tempdimb\dp\@tempboxa
+                \dp\@tempboxa\@tempdimb
+                \advance\@tempdimc\ht\@tempboxa
+                \ht\@tempboxa\@tempdimc
+                \raise\dp\@tempboxa\box\@tempboxa
+            }%
+            \usebox\@tempboxa
         \fi
     \else
         \global\let\document\sa@orig@document
@@ -1387,7 +1402,6 @@
         \endgroup
     }
 }
-\RequirePackage{trimclip}
 %    \end{macrocode}
 % \end{macro}
 %
