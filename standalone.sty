@@ -1154,6 +1154,78 @@
 %    \end{macrocode}
 % \end{key}
 %
+% \begin{key}{standalone.sty/class}{border}
+%    \begin{macrocode}
+\define@key{standalone.sty/class}{border}{%
+    \sa@readborder#1 {} {} {} {} \@nnil
+}
+%    \end{macrocode}
+% \end{key}
+%
+%
+% \begin{macro}{\sa@border@left}
+% \begin{macro}{\sa@border@right}
+% \begin{macro}{\sa@border@top}
+% \begin{macro}{\sa@border@margin}
+%    \begin{macrocode}
+\def\sa@border@left{0.50001bp}
+\let\sa@border@right\sa@border@left
+\let\sa@border@top\sa@border@left
+\let\sa@border@bottom\sa@border@left
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+%
+%
+% \begin{macro}{\rem@bp}
+%    \begin{macrocode}
+\def\rem@bp#1bp\relax#2\@nnil{#1}%
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \begin{macro}{\default@bp}
+%    \begin{macrocode}
+\def\default@bp#1#2{%
+    \begingroup
+    \afterassignment\remove@to@nnil
+    \dimen@ #2bp\relax\@nnil
+    \expandafter
+    \endgroup
+    \expandafter
+    \def\expandafter#1\expandafter{\the\dimen@}%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \begin{macro}{\sa@readborder}
+%    \begin{macrocode}
+\def\sa@readborder#1 #2 #3 #4 #5\@nnil{%
+    \ifx\\#2#3#4\\%
+        \default@bp\sa@border@left{#1}%
+        \let\sa@border@right\sa@border@left
+        \let\sa@border@top\sa@border@left
+        \let\sa@border@bottom\sa@border@left
+    \else
+    \ifx\\#4\\%
+        \default@bp\sa@border@left{#1}%
+        \let\sa@border@right\sa@border@left
+        \default@bp\sa@border@top{#2}%
+        \let\sa@border@bottom\sa@border@top
+    \else
+        \default@bp\sa@border@left{#1}%
+        \default@bp\sa@border@bottom{#2}%
+        \default@bp\sa@border@right{#3}%
+        \default@bp\sa@border@top{#4}%
+    \fi\fi
+}%
+%    \end{macrocode}
+% \end{macro}
+%
+%
 % \begin{macro}{\sa@document}
 % This is the |\begin{document}| of the sub files. It does nothing except of
 % redefining |\end{document}| and calling our own |atbegindocument| hook.
@@ -1170,6 +1242,7 @@
             \expandafter\expandafter
             \expandafter\endgroup
             \expandafter\@tempa\expandafter{\sa@subfile@options}%
+            \marginbox{{\sa@border@left} {\sa@border@bottom} {\sa@border@right} {\sa@border@top}}\bgroup
 % Determinate required size files (normal classes or KOMA Script).
 % If the main file does not use a KOMA class itself, the KOMA size files
 % can't be used.
@@ -1220,7 +1293,9 @@
 %    \begin{macrocode}
 \def\sa@enddocument{%
     \sa@atenddocument
-    \ifsa@group\else
+    \ifsa@group
+        \egroup
+    \else
         \global\let\document\sa@orig@document
         \global\let\enddocument\sa@orig@enddocument
         \begingroup
@@ -1291,6 +1366,7 @@
         \endgroup
     }
 }
+\RequirePackage{trimclip}
 %    \end{macrocode}
 % \end{macro}
 %
