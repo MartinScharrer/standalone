@@ -131,6 +131,8 @@
 \newif\ifsa@group
 \newif\ifsa@obeyclassoptions
 \newif\ifsa@multi
+\newif\ifsa@tikz
+\newif\ifsa@varwidth
 %    \end{macrocode}
 % \end{macro}
 % \end{macro}
@@ -1172,7 +1174,7 @@
 %
 % \begin{key}{standalone.sty/class}{multi}
 %    \begin{macrocode}
-\define@key{standalone.sty/class}{multi}{%
+\define@key{standalone.sty/class}{multi}[true]{%
     \sa@boolorvalue{multi}{#1}{%
         \sa@multitrue\AtEndOfClass{\standaloneenv{#1}}%
     }%
@@ -1217,10 +1219,8 @@
 }
 \newcount\sa@internal
 \newcount\sa@pagenum
-\def\sa@allpages{-}%
+\def\sa@allpages{-1}%
 \let\sa@box\@tempboxa
-\let\sa@varwidth\@empty
-\let\sa@endvarwidth\@empty
 %    \end{macrocode}
 % \end{key}
 %
@@ -1240,6 +1240,46 @@
 }%
 %    \end{macrocode}
 % \end{macro}
+%
+% \begin{key}{standalone.sty/class}{tikz}
+%    \begin{macrocode}
+\define@key{standalone.sty/class}{tikz}[true]{%
+    \sa@boolean{tikz}{#1}%
+    \ifsa@tikz
+        \setkeys*{standalone.sty/class}{multi=tikzpicture,varwidth=false}%
+    \fi
+}
+%    \end{macrocode}
+% \end{key}
+%
+% \begin{key}{standalone.sty/class}{varwidth}
+%    \begin{macrocode}
+\define@key{standalone.sty/class}{varwidth}[true]{%
+    \sa@boolorvalue{varwidth}{#1}{\sa@varwidthtrue\def\sa@width{#1}}%
+    \ifsa@varwidth
+        \expandafter\ifx\csname ver@varwidth.sty\endcsname\relax
+            \PackageWarning{standalone}{A standalone file which uses the varwidth package\MessageBreak
+                                        has been encountered while obeyclassoptions=true.\MessageBreak
+                                        Please load this package in the preamble.\MessageBreak
+                                        The file in question is loaded}%
+            \sa@varwidthfalse
+        \fi
+    \fi
+    \ifsa@varwidth
+        \def\sa@varwidth{\varwidth{\sa@width}}%
+        \def\sa@endvarwidth{\endvarwidth}%
+    \else
+        \let\sa@varwidth\@empty
+        \let\sa@endvarwidth\@empty
+    \fi
+}
+\let\sa@varwidth\@empty
+\let\sa@endvarwidth\@empty
+\def\sa@width{\linewidth}
+%    \end{macrocode}
+% \end{key}
+%
+%
 %
 %
 % \begin{key}{standalone.sty/class}{beamer}
