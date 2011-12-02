@@ -324,7 +324,7 @@
 \sa@clsoption{tikz}[true]{%
     \sa@boolean{tikz}{#1}%
     \ifsa@tikz
-        \setkeys{standalone.cls}{multi=true,varwidth=false}%
+        \setkeys{standalone.cls}{multi=tikzpicture,varwidth=false}%
     \fi
 }
 %    \end{macrocode}
@@ -752,7 +752,6 @@
 %    \begin{macrocode}
 \ifsa@tikz
     \RequirePackage{tikz}
-    \AtEndOfPackage{\standaloneenv{tikzpicture}}
 \fi
 %    \end{macrocode}
 %
