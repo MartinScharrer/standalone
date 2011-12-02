@@ -1169,6 +1169,21 @@
 %    \end{macrocode}
 % \end{key}
 %
+% \begin{key}{standalone.sty/class}{beamer}
+% The if-switch is always set the `|false|' aftwards, because we are not in standalone mode.
+%    \begin{macrocode}
+\define@key{standalone.sty/class}{beamer}[true]{%
+    \sa@boolean{beamer}{#1}%
+    \ifstandalonebeamer
+        \setkeys*{standalone.sty/class}{class=beamer,preview=false,crop=false,varwidth=false}%
+    \fi
+    \standalonebeamerfalse
+}
+\let\sa@beamertrue\standalonebeamertrue
+\let\sa@beamerfalse\standalonebeamerfalse
+%    \end{macrocode}
+% \end{key}
+%
 % \begin{key}{standalone.sty/class}{border}
 %    \begin{macrocode}
 \define@key{standalone.sty/class}{border}{%
@@ -1302,11 +1317,23 @@
 % Process class options
             \def\sa@subfile@size{10}%
             \def\sa@subfile@class{article}%
+            \let\NeedsTeXFormat\@gobble
+            \let\sa@atendofclass\@empty
+            \def\AtEndOfClass{\g@addto@macro\sa@atendofclass}%
+            \def\standaloneconfig{\setkeys*{standalone.sty/class}}%
+            \let\sa@@latex@error\@latex@error
+            \let\@latex@error\@gobbletwo
+            \let\sa@selectfont\selectfont
+            \let\selectfont\relax
+            \makeatletter
+            \nullfont
+            \InputIfFileExists{standalone.cfg}{}{}%
             \begingroup
             \def\@tempa{\setkeys*{standalone.sty/class}}%
             \expandafter\expandafter
             \expandafter\endgroup
             \expandafter\@tempa\expandafter{\sa@subfile@options}%
+            \sa@atendofclass
             \sa@beginbox
 % Determinate required size files (normal classes or KOMA Script).
 % If the main file does not use a KOMA class itself, the KOMA size files
@@ -1326,17 +1353,14 @@
 % Load size file. Redefine macros to avoid errors and spaces be introduced.
             \let\sa@newcommand\newcommand
             \let\sa@@ifundefined\@ifundefined
-            \let\sa@selectfont\selectfont
             \let\newcommand\renewcommand
-            \let\selectfont\relax
             \let\@ifundefined\@thirdofthree
-            \makeatletter
-            \nullfont
             \edef\@tempa{%
                 \noexpand\input{\@tempa\sa@subfile@size.clo}%
                 \catcode`\noexpand\@=\the\catcode`\@
             }\@tempa
             \let\newcommand\sa@newcommand
+            \let\@latex@error\sa@@latex@error
             \let\@ifundefined\sa@@ifundefined
             \let\selectfont\sa@selectfont
             \normalsize

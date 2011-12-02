@@ -712,7 +712,6 @@
 % Process options as normal keys. Only unknown keys are set as global options.
 %    \begin{macrocode}
 \begingroup
-\expandafter\show\csname opt@standalone.cls\endcsname
 \def\@tempa{\endgroup\setkeys*{standalone.cls}}
 \expandafter\expandafter\expandafter\@tempa
 \expandafter\expandafter\expandafter{\csname opt@standalone.cls\endcsname}
