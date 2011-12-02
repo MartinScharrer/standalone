@@ -740,7 +740,9 @@
 % This feature is intended to ensure (nearly) identical results independent if the standalone files are included as source code or as image,
 % in order to permit an easy switch between this two modes.
 % In particular, the standard size options |10pt|, |11pt| and |12pt| are applied to the standalone file (supported for the standard and KOMA Script classes)
-% as well as the \opt{border} class option.
+% as well as the \opt{border} class option. The \opt{multi}'='{<environment>, \ldots} option is supported and will make the |page=|\meta{number} option of \Macro\includegraphics
+% work with \Macro\includestandalone. This means, that one particular page can be selected, while all other environments are skipped.
+% By default the first page is taken (if \opt{multi} was used). The special value of |-1| will include all pages from the source file (but not from the image).
 %
 % This is an extended feature, which requires substantial amount of extra code and some advanced techniques to switch the font size.
 % It might not work correctly under all circumstances. Because of this it is disabled by default.
