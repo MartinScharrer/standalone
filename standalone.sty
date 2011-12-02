@@ -1161,7 +1161,7 @@
 % \end{key}
 %
 %
-% \begin{key}{standalone.sty/class}{10pt}
+% \begin{key}{standalone.sty/class}{class}
 %    \begin{macrocode}
 \define@key{standalone.sty/class}{class}{%
     \def\sa@subfile@class{#1}%
@@ -1241,6 +1241,52 @@
 % \end{macro}
 %
 %    \begin{macrocode}
+\IfFileExists{adjustbox.sty}{%
+    \IfFileExists{trimclip.sty}{%
+        \RequirePackage{trimclip}%
+    }{%
+        \RequirePackage{adjustbox}%
+    }%
+    \def\sa@beginbox{%
+        \ifcase0%
+            \ifdim\sa@border@left<\z@ 1\fi
+            \ifdim\sa@border@right<\z@ 1\fi
+            \ifdim\sa@border@top<\z@ 1\fi
+            \ifdim\sa@border@bottom<\z@ 1\fi
+        \relax
+            \marginbox{{\sa@border@left} {\sa@border@bottom} {\sa@border@right} {\sa@border@top}}\bgroup
+        \else
+            \clipbox{{-\sa@border@left} {-\sa@border@bottom} {-\sa@border@right} {-\sa@border@top}}\bgroup
+        \fi
+    }%
+    \let\sa@endbox\egroup
+}{%
+    \PackageInfo{standalone}{The 'adjustbox' bundle was not found. Negative borders will not be clipped.}%
+    \def\sa@beginbox{%
+        \setbox\@tempboxa\color@hbox
+    }%
+    \def\sa@endbox{%
+        \color@endbox
+        \sbox\@tempboxa{%
+            \setlength\@tempdima{\sa@border@left}%
+            \hskip\@tempdima
+            \setlength\@tempdima{\sa@border@right}%
+            \setlength\@tempdimb{\sa@border@bottom}%
+            \setlength\@tempdimc{\sa@border@top}%
+            \advance\@tempdima\wd\@tempboxa
+            \wd\@tempboxa\@tempdima
+            \advance\@tempdimb\dp\@tempboxa
+            \dp\@tempboxa\@tempdimb
+            \advance\@tempdimc\ht\@tempboxa
+            \ht\@tempboxa\@tempdimc
+            \raise\dp\@tempboxa\box\@tempboxa
+        }%
+        \usebox\@tempboxa
+    }%
+}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
 \fi
 %    \end{macrocode}
 %
@@ -1261,7 +1307,7 @@
             \expandafter\expandafter
             \expandafter\endgroup
             \expandafter\@tempa\expandafter{\sa@subfile@options}%
-            \setbox\@tempboxa\color@hbox
+            \sa@beginbox
 % Determinate required size files (normal classes or KOMA Script).
 % If the main file does not use a KOMA class itself, the KOMA size files
 % can't be used.
@@ -1314,22 +1360,7 @@
     \sa@atenddocument
     \ifsa@group
         \ifx\sa@subfile@options\@empty\else
-            \color@endbox
-            \sbox\@tempboxa{%
-                \setlength\@tempdima{\sa@border@left}%
-                \hskip\@tempdima
-                \setlength\@tempdima{\sa@border@right}%
-                \setlength\@tempdimb{\sa@border@bottom}%
-                \setlength\@tempdimc{\sa@border@top}%
-                \advance\@tempdima\wd\@tempboxa
-                \wd\@tempboxa\@tempdima
-                \advance\@tempdimb\dp\@tempboxa
-                \dp\@tempboxa\@tempdimb
-                \advance\@tempdimc\ht\@tempboxa
-                \ht\@tempboxa\@tempdimc
-                \raise\dp\@tempboxa\box\@tempboxa
-            }%
-            \usebox\@tempboxa
+            \sa@endbox
         \fi
     \else
         \global\let\document\sa@orig@document
