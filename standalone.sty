@@ -130,6 +130,7 @@
 \newif\ifsa@printsubpreambles
 \newif\ifsa@group
 \newif\ifsa@obeyclassoptions
+\newif\ifsa@multi
 %    \end{macrocode}
 % \end{macro}
 % \end{macro}
@@ -1169,6 +1170,78 @@
 %    \end{macrocode}
 % \end{key}
 %
+% \begin{key}{standalone.sty/class}{multi}
+%    \begin{macrocode}
+\define@key{standalone.sty/class}{multi}{%
+    \sa@boolorvalue{multi}{#1}{%
+        \sa@multitrue\AtEndOfClass{\standaloneenv{#1}}%
+    }%
+    \ifsa@multi
+        \def\sa@requestedpage{1}%
+        \def\standaloneenv##1{%
+            \begingroup
+            \edef\@tempa{\endgroup\noexpand\@for\noexpand\@tempa:=\zap@space##1 \@empty}%
+            \@tempa\do{\expandafter\@standaloneenv\expandafter{\@tempa}}%
+        }%
+        \def\@standaloneenv##1{%
+            \expandafter\ifx\csname sa@orig@##1\endcsname\relax
+                \expandafter\let\csname sa@orig@##1\expandafter\endcsname\csname ##1\endcsname
+                \expandafter\let\csname sa@orig@end##1\expandafter\endcsname\csname end##1\endcsname
+            \fi
+            \expandafter\def\csname ##1\endcsname{%
+                \ifnum\sa@internal=0
+                    \global\advance\sa@pagenum\@ne
+                    \sa@boxit
+                \fi
+                \advance\sa@internal\@ne
+                \csname sa@orig@##1\endcsname
+            }%
+            \expandafter\def\csname end##1\endcsname{%
+                \csname sa@orig@end##1\endcsname
+                \advance\sa@internal\m@ne
+                \ifnum\sa@internal=0
+                    \endsa@boxit
+                    \ifx\sa@requestedpage\sa@allpages
+                        \usebox\sa@box
+                    \else
+                    \ifnum\sa@requestedpage=\sa@pagenum
+                        \usebox\sa@box
+                    \fi\fi
+                \fi
+                \@ignoretrue
+            }%
+        }%
+    \else
+        \let\standaloneenv\@gobble
+    \fi
+}
+\newcount\sa@internal
+\newcount\sa@pagenum
+\def\sa@allpages{-}%
+\let\sa@box\@tempboxa
+\let\sa@varwidth\@empty
+\let\sa@endvarwidth\@empty
+%    \end{macrocode}
+% \end{key}
+%
+%
+% \begin{macro}{\sa@boxit}
+%    \begin{macrocode}
+\def\sa@boxit{%
+    \setbox\sa@box\hbox\bgroup\color@setgroup\sa@varwidth
+}%
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\endsa@boxit}
+%    \begin{macrocode}
+\def\endsa@boxit{%
+    \sa@endvarwidth\color@endgroup\egroup
+}%
+%    \end{macrocode}
+% \end{macro}
+%
+%
 % \begin{key}{standalone.sty/class}{beamer}
 % The if-switch is always set the `|false|' aftwards, because we are not in standalone mode.
 %    \begin{macrocode}
@@ -1301,6 +1374,7 @@
 }
 %    \end{macrocode}
 %
+%
 %    \begin{macrocode}
 \fi
 %    \end{macrocode}
@@ -1334,6 +1408,17 @@
             \expandafter\endgroup
             \expandafter\@tempa\expandafter{\sa@subfile@options}%
             \sa@atendofclass
+            \ifpdf
+                \ifx\GPT@page\@empty\else
+                    \let\sa@requestedpage\GPT@page
+                \fi
+            \else
+            \ifxetex
+                \ifx\Gin@XeTeX@page\@empty\else
+                    \let\sa@requestedpage\Gin@XeTeX@page
+                \fi
+            \fi\fi
+            \sa@pagenum\z@
             \sa@beginbox
 % Determinate required size files (normal classes or KOMA Script).
 % If the main file does not use a KOMA class itself, the KOMA size files
