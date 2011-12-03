@@ -1137,6 +1137,12 @@
 \ifsa@obeyclassoptions
 %    \end{macrocode}
 %
+%    \begin{macrocode}
+\IfFileExists{varwidth.sty}{%
+    \RequirePackage{varwidth}%
+}{}
+%    \end{macrocode}
+%
 % \begin{key}{standalone.sty/class}{12pt}
 %    \begin{macrocode}
 \define@key{standalone.sty/class}{12pt}[]{%
