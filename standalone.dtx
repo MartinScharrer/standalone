@@ -165,6 +165,15 @@
 %
 % All of these packages are included in recent versions of the TeXLive or MikTeX distributions and are freely available on \href{http://www.ctan.org/}{CTAN}.
 %
+% \subsection{Bug reports, feature requests and other feedback}
+% Bug reports, feature requests and other feedback about the \cls{standalone} bundle can be sent to the author
+% either by email to \href{mailto:martin@scharrer-online.de?subject=standalone:%20}{martin@scharrer-online.de}
+% or using the issue tracker for the bundle under \href{https://bitbucket.org/martin_scharrer/standalone/issues}.
+% Bug reports should include the used version of \cls{standalone} as well as the used \LaTeX\ format (|pdflatex|, |latex|, |xelatex|, etc.) and distribution including its version.
+% Usually a minimal example which recreate the issue is immensely helpful in analysing and solving any bug.
+% Please look for existing related issue tickets first and check the FAQ/troubleshooting in \autoref{sec:classfaq} first.
+% Issues related to the \opt{preview} class option should be compared with a direct use of the underlying \pkg{preview}
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \section{Usage of the \cls{standalone} class}
@@ -581,7 +590,7 @@
 % \end{minipage}
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \subsection{FAQ / Troubleshooting}
+% \subsection{FAQ / Troubleshooting}\label{sec:classfaq}
 % This section expands some issues and their solution which can arise with the \cls{standalone} class.
 %
 % \subsubsection*{Large white space / border at the right side}
@@ -736,7 +745,9 @@
 %
 % \DescribeKey{obeyclassoptions}'=true|false'
 % If this option is enabled the \Macro\includestandalone will try to obey the class options used in the standalone files while in `|tex|' mode.
-% This only works if the standalone file uses the \cls{standalone} class and only with certain options.
+% This only works if the standalone file uses the \cls{standalone} class and only with certain options. The class configuration file will also be loaded (in
+% a local scope, for every standalone file) in order to load the default settings.
+%
 % This feature is intended to ensure (nearly) identical results independent if the standalone files are included as source code or as image,
 % in order to permit an easy switch between this two modes.
 % In particular, the standard size options |10pt|, |11pt| and |12pt| are applied to the standalone file (supported for the standard and KOMA Script classes)
@@ -746,6 +757,7 @@
 % Because \opt{multi} option will assume that either \opt{crop} or \opt{preview} is enabled and will always ignore other content like with \Key{ignorerest}'=true'.
 % These three class option will be ignored by the package, which might lead to different behaviour between standalone and main-document mode, but only for uncommon cases 
 % where \opt{multi} is used without declaring environments and with disabled cropping (\opt{crop}/\opt{preview}).
+% In order to support a potential \opt{varwidth} option the \pkg{varwidth} is loaded if it is available.
 %
 % This is an extended feature, which requires substantial amount of extra code and some advanced techniques to switch the font size.
 % It might not work correctly under all circumstances. Because of this it is disabled by default.
