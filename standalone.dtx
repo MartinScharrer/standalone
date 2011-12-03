@@ -248,15 +248,6 @@
 % This option is mutual exclusive with the similar \opt{crop} option and will therefore disable it.
 % Also \Key{float}'=false' will be set by \Key{preview}'=true' in order to avoid issues with floating environments.
 %
-% \DescribeKey{multi}'=true|false'
-% \DescribeKey{multi}'='{<environment name>, \ldots>}
-% By default the \cls{standalone} class assume that the whole content is one block which should be shown on one single page.
-% If this option is activated multiple pages are supported. Each page will be cropped to its content plus the selected border (as long either \opt{preview} or \opt{crop} are enabled).
-% A set of environments which hold a single page must either be given as option value or declared using \Macro\standaloneenv{<environment name>, \ldots}.
-% No typeset material should appear outside such environments.
-% Note that this option is enabled automatically by \Macro\standaloneenv if either \opt{crop} or \opt{preview} is enabled.
-% However, it needs to be set explicitly as class option if the \opt{ignorerest} option is also set.
-%
 % \DescribeKey{border}'='<length (all sides)>
 % \DescribeKey{border}'='{<length (left/right)>~<length (bottom/top)>}
 % \DescribeKey{border}'='{<length (left)>~<length (right)>~<length (bottom)>~<length (top)>}
@@ -265,6 +256,17 @@
 % Multiple values are separated by spaces, which require the whole value to be wrapped in braces.
 %
 % This option can be changed during the document using \Macro\standaloneconfig and will affect all following pages.
+%
+% \DescribeKey{multi}'=true|false'
+% \DescribeKey{multi}'='{<environment name>, \ldots>}
+% By default the \cls{standalone} class assume that the whole content is one block which should be shown on one single page.
+% If this option is activated multiple pages are supported. Each page will be cropped to its content plus the selected border (as long either \opt{preview} or \opt{crop} are enabled).
+% A set of environments which hold a single page must either be given as option value or declared using \Macro\standaloneenv{<environment name>, \ldots}.
+% No typeset material should be used outside such environments.
+% Note that this option is enabled automatically by \Macro\standaloneenv if either \opt{crop} or \opt{preview} is enabled.
+% However, it needs to be set explicitly as class option if the \opt{ignorerest} option is also set.
+% If environment names are provided as option values the option is set to `|true|' and the environments are passed to \Macro\standaloneenv which is executed at the begin of the
+% document environment, where all mentioned environments should be already defined.
 %
 % \DescribeKey{ignorerest}'=true|false'
 % This option is only meaningful when both \opt{multi} and \opt{crop} are enabled.
