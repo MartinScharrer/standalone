@@ -743,6 +743,9 @@
 % as well as the \opt{border} class option. The \opt{multi}'='{<environment>, \ldots} option is supported and will make the |page=|\meta{number} option of \Macro\includegraphics
 % work with \Macro\includestandalone. This means, that one particular page can be selected, while all other environments are skipped.
 % By default the first page is taken (if \opt{multi} was used). The special value of |-1| will include all pages from the source file (but not from the image).
+% Because \opt{multi} option will assume that either \opt{crop} or \opt{preview} is enabled and will always ignore other content like with \Key{ignorerest}'=true'.
+% These three class option will be ignored by the package, which might lead to different behaviour between standalone and main-document mode, but only for uncommon cases 
+% where \opt{multi} is used without declaring environments and with disabled cropping (\opt{crop}/\opt{preview}).
 %
 % This is an extended feature, which requires substantial amount of extra code and some advanced techniques to switch the font size.
 % It might not work correctly under all circumstances. Because of this it is disabled by default.
