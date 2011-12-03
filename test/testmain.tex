@@ -4,18 +4,19 @@
 \usepackage{tikz}
 \usepackage{standalone}
 
+\fboxsep=0pt
 \listfiles
 \begin{document}
   %\usebox\testsb
   \par
-  \input{test}
-  \input{./test}
-  \input{test}
+  \fbox{\input{test}}%
+  \fbox{\input{./test}}%
+  \fbox{\input{test}}%
   \par
-  \input{test2}
+  \fbox{\input{test2}}%
   \par
-  \input{test4}
+  \fbox{\input{test4}}%
   \par
-  \input{test5}
+  \fbox{\input{test5}}%
 \end{document}
 
