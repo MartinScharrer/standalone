@@ -6,8 +6,11 @@
 
 \fboxsep=0pt
 \listfiles
+%\let\fbox\relax
+%\makeatletter
+%\let\sa@substbox\relax
+%\makeatother
 \begin{document}
-  %\usebox\testsb
   \par
   \fbox{\input{test}}%
   \fbox{\input{./test}}%
@@ -18,5 +21,6 @@
   \fbox{\input{test4}}%
   \par
   \fbox{\input{test5}}%
+  \par
 \end{document}
 

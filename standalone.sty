@@ -916,13 +916,28 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\sa@gobbleline}
-% Gobbles the rest of the input line. This is required when skipping the body of a file to also skip
-% everything on the same line after |\begin{document}|.
+% \begin{macro}{\sa@gobbleend}
+% Gobbles an end-of-line character after the |\end{document}| which is already in the input buffer.
+% The \Macro\@ifnextchar macro will also remove all leading spaces.
+% The test assumes |\endlinechar=`^^J| in affect, but also work ('false' clause) otherwise without issues.
 %    \begin{macrocode}
-\def\sa@gobbleline#1^^J{}%
+\def\sa@gobbleend{%
+    \@ifnextchar^^J{\@gobble}{}%
+}%
 %    \end{macrocode}
 % \end{macro}
+%
+%
+% \begin{macro}{\sa@substbox}
+% The substitute for the content if skipped. Having no content at all can lead to errors caused by e.g.\ an outer
+% \Macro\resizebox.
+%    \begin{macrocode}
+\def\sa@substbox{%
+    \leavevmode\hbox to 1pt{\vbox to 1pt{}}%
+}%
+%    \end{macrocode}
+% \end{macro}
+%
 %
 % \begin{macro}{\standaloneignore}
 % \changes{v0.3}{2010/03/26}{New macro}
@@ -1028,9 +1043,9 @@
         \def\next{%
           \endgroup
           \PackageWarning{standalone}{Running 'standalone' package in sub-preamble print mode. All body content of file `\currfilepath' is ignored!}{}{}%
-          \hbox to 1pt{\vbox to 1pt{}}%
+          \sa@substbox
           \endinput
-          %\sa@gobbleline
+          \sa@gobbleend
         }%
       \else
       \expandafter
@@ -1047,9 +1062,9 @@
           \immediate\write\@mainaux{%
             \@percentchar\space standalone package info: Rerun LaTeX!
           }%
-          \hbox to 1pt{\vbox to 1pt{}}%
+          \sa@substbox
           \endinput
-          %\sa@gobbleline
+          \sa@gobbleend
         }%
       \fi
       \fi
