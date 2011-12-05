@@ -916,14 +916,18 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\sa@gobbleend}
-% Gobbles an end-of-line character after the |\end{document}| which is already in the input buffer.
-% The \Macro\@ifnextchar macro will also remove all leading spaces.
-% The test assumes |\endlinechar=`^^J| in affect, but also work ('false' clause) otherwise without issues.
+% \begin{macro}{\sa@endinput}
+% Ends the input file and discards all remaining material on the same line.
+% The comment character is disabled to ensure that there is always a end-of-line character present.
 %    \begin{macrocode}
-\def\sa@gobbleend{%
-    \@ifnextchar^^J{\@gobble}{}%
+\def\sa@endinput{%
+    \@makeother\%%
+    \sa@@endinput
 }%
+\def\sa@@endinput#1^^J{%
+    \endgroup
+    \endinput
+}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1041,11 +1045,9 @@
       \global\@namedef{sa@written@\currfilepath}{}%
       \ifsa@printsubpreambles
         \def\next{%
-          \endgroup
           \PackageWarning{standalone}{Running 'standalone' package in sub-preamble print mode. All body content of file `\currfilepath' is ignored!}{}{}%
           \sa@substbox
-          \endinput
-          \sa@gobbleend
+          \sa@endinput
         }%
       \else
       \expandafter
@@ -1057,14 +1059,12 @@
         %\expandafter\show\csname prevsubpreamble@\currfilepath\endcsname
         %\expandafter\show\csname     subpreamble@\currfilepath\endcsname
         \def\next{%
-          \endgroup
           \PackageWarning{standalone}{Sub-preamble of file '\currfilepath' has changed. Content will be ignored. Please rerun LaTeX!}{}{}%
           \immediate\write\@mainaux{%
             \@percentchar\space standalone package info: Rerun LaTeX!
           }%
           \sa@substbox
-          \endinput
-          \sa@gobbleend
+          \sa@endinput
         }%
       \fi
       \fi
