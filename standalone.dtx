@@ -147,7 +147,7 @@
 %
 % When the sub-file is compiled on its own the |\documentclass| and \env{document} environment will be active as normal. The main file, however,
 % will skip everything from the |\documentclass| till the |\begin{document}|. The (now fake) \env{document} environment is redefined to be a simple
-% TeX-group. Any code after the |\end{document}| will be ignored. The real \env{document} environment of the main file will be unaffected and will work as normal.
+% TeX-group. Any code lines after the |\end{document}| will be ignored. The real \env{document} environment of the main file will be unaffected and will work as normal.
 %
 % The packages required by each sub-file can be transfered automatically to the main document preamble using the options
 % listed in \autoref{sec:pkgoptions}.
@@ -181,6 +181,7 @@
 % Creating a basic standalone is straight-forward: Create a normal \LaTeX\ document which uses the \cls{standalone} as document class.
 % The preamble should load all required packages and libraries for the content. The content, usually a single picture environment like \env{tikzpicture},
 % is placed in the \env{document} body. Empty lines before and after the picture should be avoided.
+% Also the |\begin{document}| and |\end{document}| should each stand on a source line of their own.
 %
 % \par\noindent
 % \begin{minipage}{\textwidth}\small
