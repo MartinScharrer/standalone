@@ -25,10 +25,10 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesFile{standalone.dtx}[%
 %<=*DATE>
-    2011/11/29
+    2011/12/05
 %<=/DATE>
 %<=*VERSION>
-    v1.0alpha1
+    v1.0beta1
 %<=/VERSION>
     DTX file of the standalone bundle]
 \documentclass[a4paper,11pt]{ydoc}
@@ -173,6 +173,20 @@
 % Usually a minimal example which recreate the issue is immensely helpful in analysing and solving any bug.
 % Please look for existing related issue tickets first and check the FAQ/troubleshooting in \autoref{sec:classfaq} first.
 % Issues related to the \opt{preview} class option should be compared with a direct use of the underlying \pkg{preview}
+%
+% \subsection{Version update and backwards compatibility}
+% The default behaviour of v1.x of the \cls{standalone} class is slightly different as the one of v0.x, but should result in the same output for the majority of standalone files.
+% In previous versions the \opt{preview} option was enabled by default, but since v1.0 the new, similar \opt{clip} option is now used.
+% This change should improve several use cases, like avoid creating a paragraph due to a trailing empty line and issues with TikZ pattern under XeLaTeX.
+% However, paragraph breaks are now ignored by default, which should be no issue at all for picture and similar environments which are the main target of the \cls{standalone} class.
+% Additionally, the default border has been changed from the \pkg{preview} default of 0.50001bp to no border (0pt).
+% Both of these settings can be changed back to the old default by adding \Macro\standaloneconfig{preview,border=0.50001bp} in the configuration file.
+%
+% One true incompatibility between v0.x and v1.x is the load point of the class configuration file.
+% In v0.x the configuration file was loaded after all options where processed in order to have all if-switches their final value.
+% In v1.x the configuration file is now loaded directly before the given class options are processed. This allows to easily set default options for all standalone files.
+% Code which relies on if-switches (like \Macro{ifstandalone} and \Macro{ifstandalonebeamer}) should be placed inside a \Macro\AtEndOfClass{<code>} macro.
+% This change might require an update of personal configuration files.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
