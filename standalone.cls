@@ -315,6 +315,8 @@
         \let\sa@endvarwidth\@empty
     \fi
 }
+\let\sa@varwidth\@empty
+\let\sa@endvarwidth\@empty
 %    \end{macrocode}
 % \end{key}
 %

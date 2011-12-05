@@ -288,6 +288,9 @@
 % The used maximal width (which is provided to the underlying \env{minipage} environment) is \Macro\linewidth by default, but can be set 
 % by provided a width as value to the option. Doing so will also switch the option on.
 %
+% If the \opt{clip} option is used the content is placed in restricted horizontal mode which ignores paragraph breaks.
+% Using the \opt{varwidth} option paragraph breaks are enabled again.
+%
 % A drawback of this option is that the content will be limited to the given width, i.e.\ wider picture environment will be cropped to the width at the right
 % side. In such cases either a larger width should be selected, the option be switch off, any paragraph breaks should be avoided (no trailing empty lines) or one of the 
 % specific picture options like \opt{tikz} should be used instead.
