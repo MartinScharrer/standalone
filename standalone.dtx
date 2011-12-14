@@ -176,7 +176,7 @@
 %
 % \subsection{Version update and backwards compatibility}
 % The default behaviour of v1.x of the \cls{standalone} class is slightly different as the one of v0.x, but should result in the same output for the majority of standalone files.
-% In previous versions the \opt{preview} option was enabled by default, but since v1.0 the new, similar \opt{clip} option is now used.
+% In previous versions the \opt{preview} option was enabled by default, but since v1.0 the new, similar \opt{crop} option is now used.
 % This change should improve several use cases, like avoid creating a paragraph due to a trailing empty line and issues with TikZ pattern under XeLaTeX.
 % However, paragraph breaks are now ignored by default, which should be no issue at all for picture and similar environments which are the main target of the \cls{standalone} class.
 % Additionally, the default border has been changed from the \pkg{preview} default of 0.50001bp to no border (0pt).
@@ -302,7 +302,7 @@
 % The used maximal width (which is provided to the underlying \env{minipage} environment) is \Macro\linewidth by default, but can be set 
 % by provided a width as value to the option. Doing so will also switch the option on.
 %
-% If the \opt{clip} option is used the content is placed in restricted horizontal mode which ignores paragraph breaks.
+% If the \opt{crop} option is used the content is placed in restricted horizontal mode which ignores paragraph breaks.
 % Using the \opt{varwidth} option paragraph breaks are enabled again.
 %
 % A drawback of this option is that the content will be limited to the given width, i.e.\ wider picture environment will be cropped to the width at the right
