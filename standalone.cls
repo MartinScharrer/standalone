@@ -177,6 +177,7 @@
 \newif\ifsa@varwidth
 \newif\ifsa@ignorerest
 \newif\ifsa@tikz
+\newif\ifsa@pstricks
 \newif\ifsa@convert
 \newif\ifsa@float
 %    \end{macrocode}
@@ -327,6 +328,17 @@
     \sa@boolean{tikz}{#1}%
     \ifsa@tikz
         \setkeys{standalone.cls}{multi=tikzpicture,varwidth=false}%
+    \fi
+}
+%    \end{macrocode}
+% \end{key}
+%
+% \begin{key}{standalone.cls}{pstricks}
+%    \begin{macrocode}
+\sa@clsoption{pstricks}[true]{%
+    \sa@boolean{pstricks}{#1}%
+    \ifsa@pstricks
+        \setkeys{standalone.cls}{multi=pspicture,varwidth=false}%
     \fi
 }
 %    \end{macrocode}
@@ -750,10 +762,18 @@
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsubsection{TikZ Option}
 %
-% Loads \pkg{tikz} and makes the \env{tikzpicture} environment and standalone environment.
 %    \begin{macrocode}
 \ifsa@tikz
     \RequirePackage{tikz}
+\fi
+%    \end{macrocode}
+%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsubsection{pstricks Option}
+%
+%    \begin{macrocode}
+\ifsa@pstricks
+    \RequirePackage{pstricks}
 \fi
 %    \end{macrocode}
 %
@@ -769,7 +789,7 @@
 % Note: The used options are in the config file.
 %    \begin{macrocode}
 \RequirePackage{preview}
-\ifsa@tikz\else
+\ifsa@multi\else
     \@ifundefined{endstandalone}{%
         \renewenvironment{standalone}
             {\preview\sa@varwidth}
