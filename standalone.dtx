@@ -25,10 +25,10 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesFile{standalone.dtx}[%
 %<=*DATE>
-    2011/12/05
+    2011/12/21
 %<=/DATE>
 %<=*VERSION>
-    v1.0beta1
+    v1.0
 %<=/VERSION>
     DTX file of the standalone bundle]
 \documentclass[a4paper,11pt]{ydoc}
@@ -177,10 +177,11 @@
 % \subsection{Version update and backwards compatibility}
 % The default behaviour of v1.x of the \cls{standalone} class is slightly different as the one of v0.x, but should result in the same output for the majority of standalone files.
 % In previous versions the \opt{preview} option was enabled by default, but since v1.0 the new, similar \opt{crop} option is now used.
-% This change should improve several use cases, like avoid creating a paragraph due to a trailing empty line and issues with TikZ pattern under XeLaTeX.
+% This change should improve several use-cases, like avoiding the creation of a paragraph due to a trailing empty line and issues with TikZ patterns under XeLaTeX.
 % However, paragraph breaks are now ignored by default, which should be no issue at all for picture and similar environments which are the main target of the \cls{standalone} class.
 % Additionally, the default border has been changed from the \pkg{preview} default of 0.50001bp to no border (0pt).
-% Both of these settings can be changed back to the old default by adding \Macro\standaloneconfig{preview,border=0.50001bp} in the configuration file.
+% Both of these settings can be changed back to the old default by adding \Macro\standaloneconfig{preview,border=0.50001bp} in the configuration file
+% or explicitly stating these options as class options.
 %
 % One true incompatibility between v0.x and v1.x is the load point of the class configuration file.
 % In v0.x the configuration file was loaded after all options where processed in order to have all if-switches their final value.
@@ -188,8 +189,29 @@
 % Code which relies on if-switches (like \Macro{ifstandalone} and \Macro{ifstandalonebeamer}) should be placed inside a \Macro\AtEndOfClass{<code>} macro.
 % This change might require an update of personal configuration files.
 %
+%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \subsection{Similar packages and classes}
+% The following packages, libraries and/or classes target the same or similar applications as the \bundle{standalone} bundle and are mentioned here for easy comparison, so that the user can decide
+% which suits them best.
+%
+% The \pkg{docmute} package is written for the same basic task as the \cls{standalone} package. However, no sub-preamble processing other than the removal is support. It also
+% doesn't provide a special class or configuration file.
+%
+% The \pkg{subfile} package and class are written for the same application to allow subfiles to be compiled standalone. However, the \cls{class} class will import the preamble from a given main file,
+% while \pkg{standalone} is designed more for the opposite direction where the preamble of subfiles can be imported to the main document. Therefore a \cls{standalone} file can be more easily included
+% into several documents, like a paper (scientific publication), a corresponding presentation and then a thesis, while \cls{subfile} is designed for a one-to-one relationship.
+% At the time of the writing \pkg{subfile} is not part of TeXLive due to a missing license statement.
+%
+% The \lib{external} library of \pkg{tikz} allows to externalize \env{tikzpictures} from an main document. Its build feature is similar to the one provided by \cls{standalone}.
+% However, both work form different directions: \cls{standalone} allows to include external \env{tikzpictures} to be included in a main file while ignoring the preamble while
+% \lib{external} writes them from the main file to temporary external files. The user must decide which workflow is better suited for him/her.
+% Also \cls{standalone} is working independently of \pkg{tikz} and supports other picture environments like \pkg{pstricks} or any other \TeX\ material.
+%
+%
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \clearpage
 % \section{Usage of the \cls{standalone} class}
 % \subsection{Basic usage}
 % Creating a basic standalone is straight-forward: Create a normal \LaTeX\ document which uses the \cls{standalone} as document class.
@@ -670,6 +692,7 @@
 %
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \clearpage
 % \section{Usage of the \pkg{standalone} package}
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsection{Basic usage}
@@ -684,16 +707,6 @@
 % package must be loaded by the any parent \cls{standalone} file. These parent files can still be used inside other \LaTeX\ documents if these load the \pkg{standalone} package themselves.
 %
 % See \autoref{sec:pkgoptions} for a list of package options which enable further features.
-%
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \subsection{Similar packages}
-% The \pkg{docmute} package by T.M.\ Trzeciak is written for the same basic task as the \cls{standalone} package. However, no sub-preamble processing other than the removal is support. It also
-% doesn't provide a special class or configuration file.
-%
-% The \lib{external} library of \pkg{tikz} allows to externalize \env{tikzpictures} from an main document. Its build feature is similar to the one provided by \cls{standalone}.
-% However, both work form different directions: \cls{standalone} allows to include external \env{tikzpictures} to be included in a main file while ignoring the preamble while
-% \lib{external} writes them from the main file to temporary external files. The user must decide which workflow is better suited for him/her.
-% Also \cls{standalone} is working independently of \pkg{tikz} and supports other picture environments like \pkg{pstricks} or any other \TeX\ material.
 %
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \subsection{Package options}\label{sec:pkgoptions}
@@ -848,7 +861,6 @@
 % If the build process fails a warning is issued and the source code will be included instead. It should be noted that failure detection is not perfect and might lead to false positives or negatives.
 %
 % \begin{table}
-% \vspace*{-10ex}%
 % \makeatletter
 % \def\showbuildvar#1{{%
 %   \expandafter\let\expandafter\@tempa\csname sa@build@#1\endcsname
