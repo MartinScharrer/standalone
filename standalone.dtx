@@ -43,7 +43,7 @@
 \RecordChanges
 \colorlet{keydesc}{opt}
 \OnlyDescription
-\lstset{numbers=none}
+\lstset{numbers=none,columns=fullflexible}
 \begin{document}
   \DocInput{\jobname.dtx}
   \PrintChanges
@@ -220,7 +220,7 @@
 % Also the |\begin{document}| and |\end{document}| should each stand on a source line of their own.
 %
 % \par\noindent
-% \begin{minipage}{\textwidth}\small
+% \begin{minipage}{\textwidth}
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Basic use of the \cls{standalone} class.},numbers=none]
 %   \documentclass{standalone}
 %   \usepackage{somepackage}
@@ -239,7 +239,7 @@
 % For PSTricks pictures an corresponding \opt{pstricks} option is provided.
 %
 % \par\noindent
-% \begin{minipage}{\textwidth}\small
+% \begin{minipage}{\textwidth}
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Basic use of the \cls{standalone} class.},numbers=none]
 %   \documentclass[tikz]{standalone}
 %   %\usetikzlibrary{calc}
@@ -440,7 +440,7 @@
 % The listings~\ref{lst:beamer}--\ref{lst:beamerrepl} shows a beamer standalone example and its effective code in standalone and main document mode.
 %
 % \par\bigskip\noindent
-% \begin{minipage}{\textwidth}\noindent\small
+% \begin{minipage}{\textwidth}\noindent
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,numbers=none,caption={Use of \texttt{standalone} class with \texttt{beamer} option.},label=lst:beamer]
 %   % Use of 'standalone' class with a beamer overlay:
 %   \documentclass[beamer]{standalone}
@@ -458,7 +458,7 @@
 % \end{minipage}
 %
 % \par\bigskip\noindent
-% \begin{minipage}{\textwidth}\noindent\small
+% \begin{minipage}{\textwidth}\noindent
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,numbers=none,caption={Effective beamer code if compiled standalone.}]
 %   \documentclass{beamer}
 %   <beamer code from standalone.cfg file>
@@ -473,7 +473,7 @@
 % \end{minipage}
 %
 % \par\bigskip\noindent
-% \begin{minipage}{\textwidth}\noindent\small
+% \begin{minipage}{\textwidth}\noindent
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,numbers=none,caption={Effective code if included in a beamer presentation.},label=lst:beamerrepl]
 %   \begingroup
 %     \only<1>{ One }%
@@ -627,7 +627,7 @@
 % It must be used if this switch is required before the |\documentclass| of a standalone file.
 %
 % \noindent
-% \begin{minipage}{\textwidth}\noindent\small
+% \begin{minipage}{\textwidth}\noindent
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,numbers=none,caption={Usage of 'standalone.tex'.}]
 %   \input{standalone} % use before any '\documentclass'
 %   \ifstandalone
@@ -926,7 +926,7 @@
 % \setcounter{lstlisting}{0}
 %
 % \par\noindent
-% \begin{minipage}{\textwidth}\small
+% \begin{minipage}{\textwidth}
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Use of \emph{standalone} package.}]
 %   % Main file
 %   % Real document class:
@@ -952,7 +952,7 @@
 % \end{minipage}
 %
 % \par\noindent
-% \begin{minipage}{\textwidth}\small
+% \begin{minipage}{\textwidth}
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Use of \emph{standalone} class.}]
 %   % A sub-file (e.g. picture) using the 'standalone' class:
 %   % Use 'standalone' as document class:
@@ -972,7 +972,7 @@
 % \end{minipage}
 %
 % \par\noindent
-% \begin{minipage}{\textwidth}\small
+% \begin{minipage}{\textwidth}
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Effective code if compiled standalone.}]
 %   \documentclass{article}
 %
@@ -995,7 +995,7 @@
 % \end{minipage}
 %
 % \par\noindent
-% \begin{minipage}{\textwidth}\small
+% \begin{minipage}{\textwidth}
 % \begin{lstlisting}[language={[latex]tex},gobble=4,frame=lines,caption={Effective code if included in a main document.}]
 %   \begingroup
 %   \begin{tikzpicture}
