@@ -1239,7 +1239,7 @@
                 \sa@convert@failuremsg{standalone}{#1}{}%
             \fi
         \else
-            \ClassInfo{standalone}{Conversion successfull.}%
+            \ClassInfo{standalone}{Conversion successful.}%
         \fi
     \else
         \sa@convert@failuremsg{standalone}{#1}{}%

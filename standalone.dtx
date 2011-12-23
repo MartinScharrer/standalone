@@ -508,7 +508,7 @@
 % By default conversion is disabled (\Key{convert}'=false'). If enabled without providing own settings (\Key{convert}, \Key{convert}'=true')
 % the following default settings are used: PNG format, a density of 300dpi, no explicit size and the output file name is given by \Macro\jobname, i.e.\ the name of the \LaTeX\ document.
 % Using the \opt{convert} option with any value other than |false| will enabled it.
-% All normal conversation settings are listed in \autoref{tab:convopt}, while \autoref{tab:advconvopt} lists the more advanced options which e.g.\ can be used to modify the conversation command directly.
+% All normal conversion settings are listed in \autoref{tab:convopt}, while \autoref{tab:advconvopt} lists the more advanced options which e.g.\ can be used to modify the conversion command directly.
 %
 % \begin{table}
 % \vspace*{-10ex}%
@@ -591,7 +591,7 @@
 %
 % \subsubsection{Conversion process}
 % The conversion process is currently implemented in the following way to allow the normal compilation and subsequent conversion using only one (manual) compiler run.
-% Because the document must be fully compiled before the conversation can occur the \cls{standalone} executes the same \LaTeX\ compiler (e.g.\ texttt{pdflatex}) again as
+% Because the document must be fully compiled before the conversion can occur the \cls{standalone} executes the same \LaTeX\ compiler (e.g.\ texttt{pdflatex}) again as
 % a sub-process which compiles the current document fully. This is done when the \cls{standalone} class is loaded, so that the main compiler instance is still at \Macro\documentclass
 % and has not yet itself opened the output file for writing. After the document got compiled using the sub-process the external conversion tool will be executed.
 % If required intermediate conversions like \texttt{dvips} are also executed beforehand.
