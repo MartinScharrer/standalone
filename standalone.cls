@@ -419,8 +419,8 @@
 %
 % \begin{key}{standalone.cls}{convert}
 %    \begin{macrocode}
-\sa@clsoption{convert}[true]{%
-    \setkeys{standalone.cls/convert}{#1}%
+\sa@clsoption{convert}[]{%
+    \setkeys{standalone.cls/convert}{true,#1}%
 }
 %    \end{macrocode}
 % \end{key}
