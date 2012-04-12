@@ -176,6 +176,7 @@
 \newif\ifsa@multi
 \newif\ifsa@varwidth
 \newif\ifsa@ignorerest
+\newif\ifsa@ignoreempty
 \newif\ifsa@tikz
 \newif\ifsa@pstricks
 \newif\ifsa@convert
@@ -285,6 +286,18 @@
 \sa@clsoption{ignorerest}[true]{%
     \sa@boolean{ignorerest}{#1}%
 }
+%    \end{macrocode}
+% \end{key}
+%
+%
+% \begin{key}{standalone.cls}{ignoreempty}
+% Boolean to control if empty boxes/pages should be ignored.
+% This is intended mostly for the \opt{multi} option and currently only works with \opt{crop} but not with \opt{preview}.
+%    \begin{macrocode}
+\sa@clsoption{ignoreempty}[true]{%
+    \sa@boolean{ignoreempty}{#1}%
+}
+\sa@ignoreemptytrue
 %    \end{macrocode}
 % \end{key}
 %
@@ -984,6 +997,16 @@
 % using the output format dependent \Macro\sa@placebox macro.
 %    \begin{macrocode}
 \def\sa@handlebox{%
+    \ifcase
+        0%
+        \ifsa@ignoreempty
+            \ifdim\wd\sa@box=\z@
+            \ifdim\ht\sa@box=\z@
+            \ifdim\dp\sa@box=\z@
+                1%
+            \fi\fi\fi
+        \fi
+    \relax
     \sbox\sa@box{%
 %    \end{macrocode}
 % add left border
@@ -1012,6 +1035,7 @@
         \hskip\sa@border@right
     }%
     \sa@placebox
+    \fi
 }
 %    \end{macrocode}
 % \end{macro}
