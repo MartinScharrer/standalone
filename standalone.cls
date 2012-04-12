@@ -181,6 +181,7 @@
 \newif\ifsa@pstricks
 \newif\ifsa@convert
 \newif\ifsa@float
+\newif\ifsa@math
 %    \end{macrocode}
 %
 % The \cs{ifstandalonebeamer} switch is in the user-level.
@@ -297,7 +298,6 @@
 \sa@clsoption{ignoreempty}[true]{%
     \sa@boolean{ignoreempty}{#1}%
 }
-\sa@ignoreemptytrue
 %    \end{macrocode}
 % \end{key}
 %
@@ -310,6 +310,62 @@
 }
 %    \end{macrocode}
 % \end{key}
+%
+%
+% \begin{key}{standalone.cls}{math}
+% Boolean to control if multiple pages are used.
+%    \begin{macrocode}
+\sa@clsoption{math}[true]{%
+    \sa@boolean{math}{#1}%
+    \ifsa@math
+        \setkeys{standalone.cls}{multi=true,ignoreempty=true,border=0.50001bp}%
+    \fi
+}
+\AtBeginDocument{\ifsa@math\sa@math\fi}
+%    \end{macrocode}
+% \end{key}
+%
+% \begin{macro}{\sa@math}
+% Enables a simple support for multiple math equations.
+% Displaymath is typeset as in-text math but with \cs{displaystyle} in effect.
+% This allows \Macro\(, \Macro\), \Macro\[ and \Macro\] as well as \env{math} and \env{displaymath}.
+% To simply typeset multiple equations two environments \env{multimath} and \env{multidisplaymath}
+% are defined which use \Macro\\ as a delimiter. Every equation will be placed on a tight page on its own.
+% To allow a trailing \Macro\\ the \opt{ignoreempty} is automatically enabled.
+%    \begin{macrocode}
+\def\sa@math{%
+    \standaloneenv{math}%
+    \def\({\begingroup\math}%
+    \def\){\endmath\endgroup}%
+    \def\[{\(\displaystyle}%
+    \def\]{\)}%
+    \def\displaymath{\math\displaystyle}%
+    \def\enddisplaymath{\endmath}%
+    \newcommand*\multimathsep{%
+        \endmath
+        \math
+        \let\\\multimathsep
+    }%
+    \newenvironment{multimath}{%
+        \math
+        \let\\\multimathsep
+    }{%
+        \endmath
+    }%
+    \newcommand*\multidisplaymathsep{%
+        \endmath
+        \math\displaystyle
+        \let\\\multidisplaymathsep
+    }%
+    \newenvironment{multidisplaymath}{%
+        \math\displaystyle
+        \let\\\multidisplaymathsep
+    }{%
+        \endmath
+    }%
+}
+%    \end{macrocode}
+% \end{macro}
 %
 %
 % \begin{key}{standalone.cls}{varwidth}
