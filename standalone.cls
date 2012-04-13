@@ -646,6 +646,23 @@
 %    \end{macrocode}
 % \end{key}
 %
+% \begin{key}{standalone.cls/convert}{command}
+%    \begin{macrocode}
+\sa@convertoption{command}{%
+    \def\sa@convert@command{#1}%
+}
+%    \end{macrocode}
+% \end{key}
+%
+% \begin{key}{standalone.cls/convert}{pdf2svg}
+%    \begin{macrocode}
+\sa@convertoption{pdf2svg}[]{%
+    \def\sa@convert@command{pdf2svg \infile\space\outfile}%
+    \sa@convertvar{outext}{.svg}
+}
+%    \end{macrocode}
+% \end{key}
+%
 % \begin{key}{standalone.cls/convert}{imagemagick}
 %    \begin{macrocode}
 \sa@convertoption{imagemagick}[]{%
