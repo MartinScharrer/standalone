@@ -1,7 +1,7 @@
 LaTeX class and package 'standalone'
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Copyright (c) 2010-2011 by Martin Scharrer <martin@scharrer-online.de>
-WWW: http://latex.scharrer-online.de/standalone/
+Copyright (c) 2010-2012 by Martin Scharrer <martin@scharrer-online.de>
+Repository: http://bitbucket.org/martin_scharrer/standalone
 
 Allows TeX pictures or other TeX code in sub-files to be compiled standalone
 or as part of a main document.
