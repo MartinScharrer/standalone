@@ -210,6 +210,14 @@
 %    \end{macrocode}
 % \end{key}
 %
+% \begin{key}{standalone.cls}{margin}
+% Alias for \opt{border}.
+%    \begin{macrocode}
+\sa@clsoption{margin}{%
+    \sa@readborder#1 {} {} {} {} \@nnil
+}
+%    \end{macrocode}
+% \end{key}
 %
 % \begin{macro}{\sa@boolean}[2]{name of if-switch}{`true' or `false'}
 % Sets if-switches.
