@@ -1,6 +1,6 @@
 % \iffalse meta-comment
 %<=*COPYRIGHT>
-%% Copyright (C) 2011 by Martin Scharrer <martin@scharrer-online.de>
+%% Copyright (C) 2011-2012 by Martin Scharrer <martin@scharrer-online.de>
 %% ---------------------------------------------------------------------------
 %% This work may be distributed and/or modified under the
 %% conditions of the LaTeX Project Public License, either version 1.3
@@ -14,8 +14,9 @@
 %%
 %% The Current Maintainer of this work is Martin Scharrer.
 %%
-%% This work consists of the files <+name+>.dtx and <+name+>.ins
-%% and the derived filebase <+name+>.sty.
+%% This work consists of the files standalone.dtx and standalone.ins
+%% and the derived filebase standalone.sty, standalone.cls and 
+%% standalone.cfg.
 %%
 %<=/COPYRIGHT>
 % \fi
@@ -25,10 +26,10 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesFile{standalone.dtx}[%
 %<=*DATE>
-    2012/04/13
+    2012/05/05
 %<=/DATE>
 %<=*VERSION>
-    v1.0b
+    v1.1
 %<=/VERSION>
     DTX file of the standalone bundle]
 \documentclass[a4paper,11pt]{ydoc}
@@ -42,7 +43,7 @@
 \CodelineIndex
 \RecordChanges
 \colorlet{keydesc}{opt}
-\OnlyDescription
+%\OnlyDescription
 \lstset{numbers=none,columns=fullflexible}
 \begin{document}
   \DocInput{\jobname.dtx}
@@ -52,7 +53,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{3368}
+% \CheckSum{3555}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -75,6 +76,7 @@
 % \changes{v0.3}{2010/03/26}{Added package options to automatically copy sub-preamble code to the main preamble.}
 % \changes{v0.3a}{2010/03/27}{Fixed bug related to line endings in \texttt{.sta} file. Listed sub-files now have \texttt{.tex} as default extension.}
 % \changes{v0.4}{2011/02/28}{Added option 'border' for easy adjustments of the preview border.}
+% \changes{v1.1}{2012/05/05}{Fixed conversion issue with MiKTeX.}
 %
 % \GetFileInfo{\jobname.dtx}
 %
