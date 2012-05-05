@@ -688,7 +688,10 @@
 % \end{key}
 %
 %    \begin{macrocode}
+\sa@convertvar{latexoptions}{ -shell-escape }
 \sa@convertvar{subjobname}{\jobname}
+\sa@convertvar{mainfile}{\jobname}
+\sa@convertvar{quote}{'}
 \sa@convertvar{size}{}
 \sa@convertvar{inname}{\subjobname}
 \sa@convertvar{infile}{\inname\inext}
@@ -1314,7 +1317,10 @@
     }{%
         \def\filemodbefore{}%
     }}}}%
-    \immediate\write18{\sa@convert@latex\space -jobname '\sa@convert@subjobname' '\noexpand\expandafter\def\noexpand\csname sa@internal@run\noexpand\endcsname{1}\noexpand\input{\jobname}'}%
+    \immediate\write18{\sa@convert@latex\space\sa@convert@latexoptions\space
+        -jobname \sa@convert@quote\sa@convert@subjobname\sa@convert@quote\space
+        \sa@convert@quote\string\expandafter\string\def\string\csname\space
+        sa@internal@run\string\endcsname{1}\string\input{\jobname}\sa@convert@quote}%
     \edef\sa@convert@precommand{\sa@convert@precommand}%
     \ifx\sa@convert@precommand\@empty\else
         \immediate\write18{\sa@convert@precommand}%
@@ -1356,6 +1362,7 @@
 % Provide the internal macros to the user level.
 %    \begin{macrocode}
 \let\subjobname\sa@convert@subjobname
+\let\mainfile\sa@convert@mainfile
 \let\infile\sa@convert@infile
 \let\inext\sa@convert@inext
 \let\inname\sa@convert@inname
@@ -1368,6 +1375,7 @@
 \let\outname\sa@convert@outname
 \let\outfile\sa@convert@outfile
 \let\percent\@percentchar
+\let\quote\sa@convert@quote
 %    \end{macrocode}
 %
 %
