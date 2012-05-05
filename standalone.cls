@@ -1360,7 +1360,7 @@
                 \sa@convert@failuremsg{standalone}{#1}{}%
             \fi
         \else
-            \ClassInfo{standalone}{Conversion successful.}%
+            \typeout{Class standalone:^^JOutput written on \outfile.}%
         \fi
     \else
         \sa@convert@failuremsg{standalone}{#1}{}%
