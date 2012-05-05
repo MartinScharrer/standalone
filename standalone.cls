@@ -701,7 +701,8 @@
 \sa@convertvar{latexoptions}{ -shell-escape }
 \sa@convertvar{subjobname}{\jobname}
 \sa@convertvar{mainfile}{\jobname}
-\sa@convertvar{quote}{'}
+\sa@convertvar{quote}{}
+\let\sa@convert@quote\relax
 \sa@convertvar{size}{}
 \sa@convertvar{inname}{\subjobname}
 \sa@convertvar{infile}{\inname\inext}
@@ -847,6 +848,47 @@
     \disable@keys{standalone.cls}{multi}%
 }
 %    \end{macrocode}
+%
+% Set correct quoting character for conversion option if none was set.
+%    \begin{macrocode}
+\ifsa@convert
+\ifx\sa@convert@quote\relax
+\begingroup
+\@tempswafalse
+%    \end{macrocode}
+% If \Macro\pdftexbanner is not defined (XeLaTeX) the distribution can not
+% be determined and double quotes are set to ensure proper operation under MiKTeX.
+%    \begin{macrocode}
+\expandafter\ifx\csname pdftexbanner\endcsname\relax
+    \@tempswatrue
+\else
+%    \end{macrocode}
+% Test if there is a `|MiKTeX|' in \Macro\pdftexbanner.
+%    \begin{macrocode}
+\def\MiKTeX{MiKTeX}
+\@onelevel@sanitize\MiKTeX
+\expandafter\def\expandafter\testmiktex\expandafter#\expandafter1\MiKTeX#2\relax{%
+        \ifx\empty#2\empty
+             \@tempswafalse
+        \else
+             \@tempswatrue
+        \fi
+}
+\expandafter\expandafter
+\expandafter\testmiktex\expandafter\pdftexbanner\MiKTeX\relax\relax
+
+\fi
+\expandafter
+\endgroup
+\if@tempswa
+\def\sa@convert@quote{"}
+\else
+\def\sa@convert@quote{'}
+\fi
+\fi
+\fi
+%    \end{macrocode}
+%
 %
 % Loads the class given by the |class| option with the rest of the options.
 %    \begin{macrocode}
