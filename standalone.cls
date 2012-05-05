@@ -568,6 +568,16 @@
 %    \end{macrocode}
 % \end{key}
 %
+% \begin{key}{standalone.cls/convert}{realmainfile}
+%    \begin{macrocode}
+\sa@convertoption{realmainfile}[]{%
+    \RequirePackage{currfile-abspath}%
+    \getmainfile
+    \let\sa@convert@mainfile\themainfile
+}
+%    \end{macrocode}
+% \end{key}
+%
 %
 % \begin{key}{standalone.cls/convert}{jpg}
 %    \begin{macrocode}
@@ -1320,7 +1330,7 @@
     \immediate\write18{\sa@convert@latex\space\sa@convert@latexoptions\space
         -jobname \sa@convert@quote\sa@convert@subjobname\sa@convert@quote\space
         \sa@convert@quote\string\expandafter\string\def\string\csname\space
-        sa@internal@run\string\endcsname{1}\string\input{\jobname}\sa@convert@quote}%
+        sa@internal@run\string\endcsname{1}\string\input{\sa@convert@mainfile}\sa@convert@quote}%
     \edef\sa@convert@precommand{\sa@convert@precommand}%
     \ifx\sa@convert@precommand\@empty\else
         \immediate\write18{\sa@convert@precommand}%
