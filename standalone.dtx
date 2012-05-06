@@ -266,7 +266,11 @@
 % Options might switch other options on or off. For example, mutual exclusive options will disable each other. The order of the option is obeyed
 % and later options will prevail over earlier ones.
 %
-% Certain class options can also be changed inside the preamble or document body using \Macro\standaloneconfig{<options>}.
+% By default the \opt{crop} option with \opt{border}|=0| is enabled. In versions prior to v1.0 the option \opt{preview} was the default. This chance
+% was deemed required and should not affect most documents. However, in some cases resetting the \opt{preview} option
+% might be required.
+%
+% Certain class options can also be set inside the preamble or document body using \Macro\standaloneconfig{<options>}.
 %
 % \DescribeKey{class}'='<class name>
 % Specifies the underlying class which is loaded by the \cls{standalone} class.
@@ -276,16 +280,20 @@
 %
 % \DescribeKey{crop}'=true|false'
 % If enabled this option crops the content to its natural size plus a specified border. This is done by saving the content in a box register and resizing
-% the page size relative to the box dimensions.
-% This option is mutual exclusive with the similar \opt{preview} option and will therefore disable it.
+% the page size relative to the box dimensions. This option is enabled by default (since v1.0).
+% This option is mutually exclusive with the similar \opt{preview} option and will therefore disable it.
+% If both options are used the last one will be enabled and the other will be disabled.
 % Also \Key{float}'=false' will be set by \Key{crop}'=true' in order to avoid issues with floating environments.
 %
 % \DescribeKey{preview}'=true|false'
 % If enabled this option loads the \pkg{preview} package with the \opt{tightpage} option
 % and wraps the content into a \env{preview} environment. This crops the content to its natural size plus a specified border.
 % Issues with the \pkg{preview} options and TikZ shadings under XeLaTeX have been reported. In this cases the \opt{crop} option should be used instead.
+% Note that this option was enabled by default for versions before v1.0, but since then \opt{crop} is enabled by
+% default.
 %
-% This option is mutual exclusive with the similar \opt{crop} option and will therefore disable it.
+% This option is mutually exclusive with the similar \opt{crop} option and will therefore disable it.
+% If both options are used the last one will be enabled and the other will be disabled.
 % Also \Key{float}'=false' will be set by \Key{preview}'=true' in order to avoid issues with floating environments.
 %
 % \DescribeKey{border}'='<length (all sides)>
@@ -295,6 +303,7 @@
 % An alternative name of this option is \opt{margin}.
 % The border can either be given using a single value for all sides, separately for the horizontal and vertical borders or for all sides separately.
 % Multiple values are separated by spaces, which require the whole value to be wrapped in braces.
+% By default a border of |0pt| is set.
 %
 % This option can be changed during the document using \Macro\standaloneconfig and will affect all following pages.
 %
