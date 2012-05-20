@@ -1347,9 +1347,9 @@
 %    \end{macrocode}
 %
 %    \begin{macrocode}
+\let\sa@convert@stop\stop
 \begingroup
 \let\on@line\@gobble
-\global\let\sa@convert@stop\stop
 %    \end{macrocode}
 %
 % \begin{macro}{\sa@convert}[1]{error message on failure}
@@ -1370,17 +1370,29 @@
     }{%
         \def\filemodbefore{}%
     }}}}%
-    \immediate\write18{\sa@convert@latex\space\sa@convert@latexoptions\space
-        -jobname \sa@convert@quote\sa@convert@subjobname\sa@convert@quote\space
-        \sa@convert@quote\string\expandafter\string\def\string\csname\space
-        sa@internal@run\string\endcsname{1}\string\input{\sa@convert@mainfile}\sa@convert@quote}%
     \edef\@tempa{\jobname}
     \edef\@tempb{\sa@convert@subjobname}
     \@onelevel@sanitize\@tempa
     \@onelevel@sanitize\@tempb
-    \ifx\@tempa\@tempb\else
+    \@tempswafalse
+    \ifx\@tempa\@tempb
+        \@tempswatrue
+        \edef\infile@filemodbefore{\csname pdffilemoddate\endcsname{\infile}}%
+    \else
         \global\let\sa@convert@stop\relax
     \fi
+    \immediate\write18{\sa@convert@latex\space\sa@convert@latexoptions\space
+        -jobname \sa@convert@quote\sa@convert@subjobname\sa@convert@quote\space
+        \sa@convert@quote\string\expandafter\string\def\string\csname\space
+        sa@internal@run\string\endcsname{1}\string\input{\sa@convert@mainfile}\sa@convert@quote}%
+    \if@tempswa
+        \edef\infile@filemodafter{\csname pdffilemoddate\endcsname{\infile}}%
+        \ifx\infile@filemodbefore\infile@filemodafter
+            \global\let\sa@convert@stop\relax
+        \fi
+    \fi
+%    \end{macrocode}
+%    \begin{macrocode}
     \edef\sa@convert@precommand{\sa@convert@precommand}%
     \ifx\sa@convert@precommand\@empty\else
         \immediate\write18{\sa@convert@precommand}%
@@ -1458,8 +1470,8 @@
 \endgroup
 %    \end{macrocode}
 %    \begin{macrocode}
+\expandafter\sa@convert@stop
 \fi
-\csname sa@convert@stop\endcsname
 %    \end{macrocode}
 %
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
