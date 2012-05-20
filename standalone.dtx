@@ -26,10 +26,10 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesFile{standalone.dtx}[%
 %<=*DATE>
-    2012/05/05
+    2012/05/20
 %<=/DATE>
 %<=*VERSION>
-    v1.1
+    v1.1a
 %<=/VERSION>
     DTX file of the standalone bundle]
 \documentclass[a4paper,11pt]{ydoc}
@@ -43,7 +43,7 @@
 \CodelineIndex
 \RecordChanges
 \colorlet{keydesc}{opt}
-%\OnlyDescription
+\OnlyDescription
 \lstset{numbers=none,columns=fullflexible}
 \begin{document}
   \DocInput{\jobname.dtx}
@@ -53,7 +53,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{3555}
+% \CheckSum{3603}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -77,6 +77,8 @@
 % \changes{v0.3a}{2010/03/27}{Fixed bug related to line endings in \texttt{.sta} file. Listed sub-files now have \texttt{.tex} as default extension.}
 % \changes{v0.4}{2011/02/28}{Added option 'border' for easy adjustments of the preview border.}
 % \changes{v1.1}{2012/05/05}{Fixed conversion issue with MiKTeX.}
+% \changes{v1.1a}{2012/05/20}{Failed conversion now always creates a normal output file. Some requested changes in the
+% manual.}
 %
 % \GetFileInfo{\jobname.dtx}
 %
