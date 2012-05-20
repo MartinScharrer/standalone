@@ -1349,6 +1349,7 @@
 %    \begin{macrocode}
 \begingroup
 \let\on@line\@gobble
+\global\let\sa@convert@stop\stop
 %    \end{macrocode}
 %
 % \begin{macro}{\sa@convert}[1]{error message on failure}
@@ -1373,6 +1374,13 @@
         -jobname \sa@convert@quote\sa@convert@subjobname\sa@convert@quote\space
         \sa@convert@quote\string\expandafter\string\def\string\csname\space
         sa@internal@run\string\endcsname{1}\string\input{\sa@convert@mainfile}\sa@convert@quote}%
+    \edef\@tempa{\jobname}
+    \edef\@tempb{\sa@convert@subjobname}
+    \@onelevel@sanitize\@tempa
+    \@onelevel@sanitize\@tempb
+    \ifx\@tempa\@tempb\else
+        \global\let\sa@convert@stop\relax
+    \fi
     \edef\sa@convert@precommand{\sa@convert@precommand}%
     \ifx\sa@convert@precommand\@empty\else
         \immediate\write18{\sa@convert@precommand}%
@@ -1439,6 +1447,7 @@
 \relax% 0
     \sa@convert@failuremsg
         {standalone}{Shell escape disabled! Cannot convert file '\infile'.}{}%
+    \global\let\sa@convert@stop\relax
 \or% 1
     \sa@convert{Conversion unsuccessful!\MessageBreak 
                 There might be something wrong with your\MessageBreak
@@ -1447,10 +1456,10 @@
     \sa@convert{Conversion failed! Please ensure that shell escape\MessageBreak is enabled (e.g. use '-shell-escape').}%
 \fi
 \endgroup
-\expandafter\stop
 %    \end{macrocode}
 %    \begin{macrocode}
 \fi
+\csname sa@convert@stop\endcsname
 %    \end{macrocode}
 %
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
