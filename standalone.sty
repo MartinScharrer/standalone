@@ -918,12 +918,15 @@
 %
 % \begin{macro}{\sa@endinput}
 % Ends the input file and discards all remaining material on the same line.
-% The comment character is disabled to ensure that there is always a end-of-line character present.
+% To avoid issues with some user input like |%| after |\begin{document}| or
+% a changed |\endlinechar| it is reset and any remaining text is discarded
+% verbatim. This might also read the next line if the EOL of the current
+% one got already commented out.
 %    \begin{macrocode}
 \def\sa@endinput{%
     \endlinechar`^^J\relax
-    \@makeother\%%
-    \@makeother\^^A%
+    \let\do\@makeother
+    \dospecials
     \sa@@endinput
 }%
 \def\sa@@endinput#1^^J{%
