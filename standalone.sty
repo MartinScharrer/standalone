@@ -921,7 +921,7 @@
 % The comment character is disabled to ensure that there is always a end-of-line character present.
 %    \begin{macrocode}
 \def\sa@endinput{%
-    \endlinechar`^^J%
+    \endlinechar`^^J\relax
     \@makeother\%%
     \@makeother\^^A%
     \sa@@endinput
@@ -999,7 +999,7 @@
       }{}%
     \global\@namedef{subpreamble@\currfilepath}{}%
     \ifsa@printsubpreambles
-      \endlinechar=`\^^J%
+      \endlinechar=`\^^J\relax
     \else
       \endlinechar=\m@ne
     \fi
