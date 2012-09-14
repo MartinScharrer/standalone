@@ -921,9 +921,9 @@
 % The comment character is disabled to ensure that there is always a end-of-line character present.
 %    \begin{macrocode}
 \def\sa@endinput{%
+    \endlinechar`^^J%
     \@makeother\%%
     \@makeother\^^A%
-    \endlinechar`^^J%
     \sa@@endinput
 }%
 \def\sa@@endinput#1^^J{%
