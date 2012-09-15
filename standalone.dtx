@@ -45,6 +45,7 @@
 \colorlet{keydesc}{opt}
 \OnlyDescription
 \lstset{numbers=none,columns=fullflexible}
+\def\Eurl#1{\edef\temp{{#1}}\expandafter\url\temp}
 \begin{document}
   \DocInput{\jobname.dtx}
   \PrintChanges
@@ -123,6 +124,78 @@
 % \tableofcontents
 % \end{multicols}
 %
+% \section{Installation}
+% This package is part of the two main \LaTeX\ distributions \emph{TeX Live} and \emph{MikTeX} and can be easily installed
+% with their package managers. It is also provided as TDS ZIP file on CTAN which can be used for a manual install.
+% Other packages are also required as described in \autoref{sec:dep}.
+%
+% \subsection{Installation with TeX Live}
+% Using a normal TeX Live the package is easily installed using the package manager \texttt{tlmgr}.
+% The command \texttt{tlmgr install \csname @package\endcsname} will install it and \texttt{tlmgr update \csname
+% @package\endcsname} can be used to update it.
+%
+% Because the Ubuntu/Debian version of TeX Live may not include \texttt{tlmgr} a manual install of the package is
+% required. The author recommends to manually install the vanilla version of TeX Live instead which will include 
+% regular package updates.
+%
+% \subsection{Installation with MikTeX}
+% The package can be easily installed using the MikTeX package manager as described by
+% \url{http://docs.miktex.org/manual/pkgmgt.html}. The MikTeX package name is identical to the normal package name.
+%
+% \subsection{Manual Installation from CTAN}
+% The package is also available on the Comprehensive TeX Archive Network (CTAN), both as the DTX/INS files and as TDS
+% ZIP file, which can be used for a manual install. A manual install is only required if the used distribution does not
+% include the (required version of the) package.
+%
+%
+% \subsubsection{Installation from TDS ZIP file}
+% The TDS (\TeX\ Directory Structur) ZIP file includes all package files in the final form and relative location.
+% It can be downloaded from CTAN: \Eurl{http://mirrors.ctan.org/install/macros/latex/contrib/\csname @package\endcsname.tds.zip} and from the Bitbucket project site \Eurl{https://bitbucket.org/martin_scharrer/standalone/downloads/\csname @package\endcsname.tds.zip}.
+% It needs only to be unzipped in a TEXMF directory. Under Linux/Unix this is usually the user TEXMF directory
+% \path{~/texmf}. 
+% Under Windows it is usually \path{C:\Users\<user name>\texmf} (Windows Vista/7) or \path{C:\Documents and
+% Settings\<user name>\texmf} (Windows XP). 
+% Under Mac OS X it is usually \path{/Users/<user name>/Library/texmf}.
+% Alternatively a system local directory can be used which is usually given by the environment variable 
+% \texttt{TEXMFLOCAL}.
+% After the files are copied to this location the file name database of \TeX\ might need to be updated.
+% This can be done with TeX Live by running \texttt{texhash <path>} or \texttt{mktexlsr <path>}.
+% MikTeX provides a graphical interface to refresh its file name database as described by 
+% \url{http://docs.miktex.org/manual/configuring.html#fndbupdate}.
+%
+%
+% \subsubsection{Installation from DTX File}
+% The package is also provided as DTX (Documented TeX file) which is accompanied by an INS (Install) file
+% under \Eurl{http://www.ctan.org/tex-archive/macros/latex/contrib/\csname @package\endcsname}.
+% To unpack all package files from the DTX file compile the INS file with |tex| once.
+% The manual can be compiled from the DTX file with |pdflatex|. This requires the \pkg{ydoc} bundle to be installed.
+%
+%
+% \subsection{Dependencies}\label{sec:dep}
+% The \cls{standalone} class and package require the \pkg{xkeyval} package.
+% The packages \pkg{ifpdf}, \pkg{ifluatex} and \pkg{ifxetex} are loaded if available, otherwise some fall-back code is used.
+% If enabled the class options \opt{varwidth}, \opt{preview} and \opt{beamer} require the package or class of the same name.
+%
+% The \pkg{standalone} package requires the \pkg{currfile} package (which in turn uses \pkg{filehook}) to track the correct file names of
+% sub-files included using |\input|.
+% For the compilation support for included standalone files the \pkg{gincltex} and \pkg{filemod} packages are also required.
+%
+% To compile the documentation of \cls{standalone} the \cls{ydoc} bundle is required.
+%
+% All of these packages are included in recent versions of the TeXLive or MikTeX distributions and are freely available on \href{http://www.ctan.org/}{CTAN}.
+%
+% \section{Bug reports, feature requests and other feedback}
+% Bug reports, feature requests and other feedback about the \cls{standalone} bundle can be sent to the author
+% either by email to \href{mailto:martin@scharrer-online.de?subject=standalone:%20}{martin@scharrer-online.de}
+% or using the issue tracker for the bundle under \href{https://bitbucket.org/martin_scharrer/standalone/issues}.
+% Bug reports should include the used version of \cls{standalone} as well as the used \LaTeX\ format (|pdflatex|, |latex|, |xelatex|, etc.) and distribution including its version.
+% Usually a minimal example which recreate the issue is immensely helpful in analysing and solving any bug.
+% Please look for existing related issue tickets first and check the FAQ/troubleshooting in \autoref{sec:classfaq} first.
+% Issues related to the \opt{preview} class option should be compared with a direct use of the underlying \pkg{preview} package.
+%
+%
+% \clearpage
+%
 % \section{Introduction}
 % Larger \LaTeX{} documents can be split into multiple \TeX\ files which are then included in a main document with \cs{include}
 % for e.g.\ chapter files or \cs{input} for e.g.\ \TeX-coded pictures. Keeping pictures in their own sub-files improves readability
@@ -155,28 +228,6 @@
 %
 % The packages required by each sub-file can be transfered automatically to the main document preamble using the options
 % listed in \autoref{sec:pkgoptions}.
-%
-% \subsection{Dependencies}
-% The \cls{standalone} class and package require the \pkg{xkeyval} package.
-% The packages \pkg{ifpdf}, \pkg{ifluatex} and \pkg{ifxetex} are loaded if available, otherwise some fall-back code is used.
-% If enabled the class options \opt{varwidth}, \opt{preview} and \opt{beamer} require the package or class of the same name.
-%
-% The \pkg{standalone} package requires the \pkg{currfile} package (which in turn uses \pkg{filehook}) to track the correct file names of
-% sub-files included using |\input|.
-% For the compilation support for included standalone files the \pkg{gincltex} and \pkg{filemod} packages are also required.
-%
-% To compile the documentation of \cls{standalone} the \cls{ydoc} bundle is required.
-%
-% All of these packages are included in recent versions of the TeXLive or MikTeX distributions and are freely available on \href{http://www.ctan.org/}{CTAN}.
-%
-% \subsection{Bug reports, feature requests and other feedback}
-% Bug reports, feature requests and other feedback about the \cls{standalone} bundle can be sent to the author
-% either by email to \href{mailto:martin@scharrer-online.de?subject=standalone:%20}{martin@scharrer-online.de}
-% or using the issue tracker for the bundle under \href{https://bitbucket.org/martin_scharrer/standalone/issues}.
-% Bug reports should include the used version of \cls{standalone} as well as the used \LaTeX\ format (|pdflatex|, |latex|, |xelatex|, etc.) and distribution including its version.
-% Usually a minimal example which recreate the issue is immensely helpful in analysing and solving any bug.
-% Please look for existing related issue tickets first and check the FAQ/troubleshooting in \autoref{sec:classfaq} first.
-% Issues related to the \opt{preview} class option should be compared with a direct use of the underlying \pkg{preview} package.
 %
 % \subsection{Version update and backwards compatibility}
 % The default behaviour of v1.x of the \cls{standalone} class is slightly different as the one of v0.x, but should result in the same output for the majority of standalone files.
