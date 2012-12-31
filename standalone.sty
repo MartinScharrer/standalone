@@ -433,8 +433,8 @@
 %    \begin{macrocode}
     \def\MiKTeX{MiKTeX}
     \@onelevel@sanitize\MiKTeX
-    \expandafter\def\expandafter\testmiktex\expandafter#\expandafter1\MiKTeX#2\relax{%
-            \ifx\empty#2\empty
+    \expandafter\def\expandafter\testmiktex\expandafter##\expandafter1\MiKTeX##2\relax{%
+            \ifx\empty##2\empty
                 \@tempswafalse
             \else
                 \@tempswatrue
@@ -442,7 +442,6 @@
     }
     \expandafter\expandafter
     \expandafter\testmiktex\expandafter\pdftexbanner\MiKTeX\relax\relax
-
     \fi
     \expandafter
     \endgroup
@@ -451,9 +450,9 @@
     \else
     \def\sa@build@quote{'}
     \fi
-    \fi
     \else
     \let\sa@build@quote\sa@convert@quote
+    \fi
     \fi
 }
 %    \end{macrocode}
