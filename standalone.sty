@@ -328,6 +328,14 @@
 %    \end{macrocode}
 % \end{key}
 %
+% \begin{key}{standalone.sty}{build}
+%    \begin{macrocode}
+\sa@pkgoption{build}[]{%
+    \setkeys{standalone.sty/build}{#1}%
+}
+%    \end{macrocode}
+% \end{key}
+%
 % \begin{macro}{\sa@buildvar}[2]{name}{initial value}
 % Wrapper to define \opt{build} variables.
 %    \begin{macrocode}
@@ -354,10 +362,18 @@
 % \end{key}
 %
 %
+% \begin{key}{standalone.sty/build}{quote}
+%    \begin{macrocode}
+\sa@buildvar{quote}{}
+\let\sa@build@quote\relax
+%    \end{macrocode}
+% \end{key}
+%
+%
 % \begin{key}{standalone.sty/build}{latexoptions}
 %    \begin{macrocode}
 \sa@buildvar{latexoptions}{%
-    -interaction=batchmode -shell-escape -jobname '\buildjobname'
+    -interaction=batchmode -shell-escape -jobname \quote\buildjobname\quote
 }
 %    \end{macrocode}
 % \end{key}
@@ -389,13 +405,57 @@
 \else
     \def\sa@graphicext{.eps}
     \def\sa@build@latex{latex}
-    \def\sa@build@postcommand{dvips -o '\file.eps' '\file.dvi'}
+    \def\sa@build@postcommand{dvips -o \quote\file.eps\quote\space \quote\file.dvi\quote}
 \fi\fi
 %    \end{macrocode}
 %
 %    \begin{macrocode}
 \ProcessOptionsX*<standalone.sty>\relax
 \disable@keys{standalone.sty}{subpreambles,print,sort}
+%    \end{macrocode}
+%
+% Set correct quoting character for build option if none was set.
+%    \begin{macrocode}
+\def\sa@setquote{%
+    \ifx\sa@build@quote\relax
+    \expandafter\ifx\csname sa@convert@quote\endcsname\relax
+    \begingroup
+    \@tempswafalse
+%    \end{macrocode}
+% If \Macro\pdftexbanner is not defined (XeLaTeX) the distribution can not
+% be determined and double quotes are set to ensure proper operation under MiKTeX.
+%    \begin{macrocode}
+    \expandafter\ifx\csname pdftexbanner\endcsname\relax
+        \@tempswatrue
+    \else
+%    \end{macrocode}
+% Test if there is a `|MiKTeX|' in \Macro\pdftexbanner.
+%    \begin{macrocode}
+    \def\MiKTeX{MiKTeX}
+    \@onelevel@sanitize\MiKTeX
+    \expandafter\def\expandafter\testmiktex\expandafter#\expandafter1\MiKTeX#2\relax{%
+            \ifx\empty#2\empty
+                \@tempswafalse
+            \else
+                \@tempswatrue
+            \fi
+    }
+    \expandafter\expandafter
+    \expandafter\testmiktex\expandafter\pdftexbanner\MiKTeX\relax\relax
+
+    \fi
+    \expandafter
+    \endgroup
+    \if@tempswa
+    \def\sa@build@quote{"}
+    \else
+    \def\sa@build@quote{'}
+    \fi
+    \fi
+    \else
+    \let\sa@build@quote\sa@convert@quote
+    \fi
+}
 %    \end{macrocode}
 %
 % In non-sorted print mode comments are preserved by default.
@@ -1699,6 +1759,8 @@
         \let\latex\sa@build@latex
         \let\latexoptions\sa@build@latexoptions
         \let\buildjobname\sa@build@jobname
+        \sa@setquote
+        \let\quote\sa@build@quote
         \immediate\write18{\sa@build@command}%
         \ifx\sa@build@postcommand\@empty\else
             \immediate\write18{\sa@build@postcommand}%

@@ -1,4 +1,4 @@
-CONTRIBUTION  = $(shell basename ${PWD})
+CONTRIBUTION  = standalone
 NAME          = Martin Scharrer
 EMAIL         = martin@scharrer.me
 DIRECTORY     = /macros/latex/contrib/${CONTRIBUTION}
@@ -68,7 +68,7 @@ doc: ${CONTRIBUTION}.pdf
 
 ${CONTRIBUTION}.pdf: ${DTXFILES} README ${INSFILES} ${LTXFILES}
 	${MAKE} --no-print-directory build
-	cp "${BUILDDIR}/$@" "$@"
+	${CP} "${BUILDDIR}/$@" "$@"
 
 ifneq (${BUILDDIR},build)
 build: ${BUILDDIR}
@@ -76,7 +76,7 @@ endif
 
 ${BUILDDIR}: ${MAINFILES}
 	-mkdir ${BUILDDIR} 2>/dev/null || true
-	cp ${MAINFILES} README ${BUILDDIR}/
+	${CP} ${MAINFILES} README ${BUILDDIR}/
 	$(foreach DTX,${DTXFILES}, tex '\input ydocincl\relax\includefiles{${DTX}}{${BUILDDIR}/${DTX}}' && rm -f ydocincl.log;)
 	cd ${BUILDDIR}; $(foreach INS, ${INSFILES}, tex ${INS};)
 	cd ${BUILDDIR}; $(foreach DTX, ${MAINDTX}, ${LATEXMK} ${DTX};)
@@ -100,47 +100,47 @@ distclean:
 install: $(addprefix ${BUILDDIR}/,${TDSFILES})
 ifneq ($(strip $(LTXFILES)),)
 	test -d "${LTXDIR}" || mkdir -p "${LTXDIR}"
-	cd ${BUILDDIR} && cp ${LTXFILES} "$(abspath ${LTXDIR})"
+	cd ${BUILDDIR} && ${CP} ${LTXFILES} "$(abspath ${LTXDIR})"
 endif
 ifneq ($(strip $(LTXSRCFILES)),)
 	test -d "${LTXSRCDIR}" || mkdir -p "${LTXSRCDIR}"
-	cd ${BUILDDIR} && cp ${LTXSRCFILES} "$(abspath ${LTXSRCDIR})"
+	cd ${BUILDDIR} && ${CP} ${LTXSRCFILES} "$(abspath ${LTXSRCDIR})"
 endif
 ifneq ($(strip $(LTXDOCFILES)),)
 	test -d "${LTXDOCDIR}" || mkdir -p "${LTXDOCDIR}"
-	cd ${BUILDDIR} && cp ${LTXDOCFILES} "$(abspath ${LTXDOCDIR})"
+	cd ${BUILDDIR} && ${CP} ${LTXDOCFILES} "$(abspath ${LTXDOCDIR})"
 endif
 ifneq ($(strip $(GENERICFILES)),)
 	test -d "${GENERICDIR}" || mkdir -p "${GENERICDIR}"
-	cd ${BUILDDIR} && cp ${GENERICFILES} "$(abspath ${GENERICDIR})"
+	cd ${BUILDDIR} && ${CP} ${GENERICFILES} "$(abspath ${GENERICDIR})"
 endif
 ifneq ($(strip $(GENSRCFILES)),)
 	test -d "${GENSRCDIR}" || mkdir -p "${GENSRCDIR}"
-	cd ${BUILDDIR} && cp ${GENSRCFILES} "$(abspath ${GENSRCDIR})"
+	cd ${BUILDDIR} && ${CP} ${GENSRCFILES} "$(abspath ${GENSRCDIR})"
 endif
 ifneq ($(strip $(GENDOCFILES)),)
 	test -d "${GENDOCDIR}" || mkdir -p "${GENDOCDIR}"
-	cd ${BUILDDIR} && cp ${GENDOCFILES} "$(abspath ${GENDOCDIR})"
+	cd ${BUILDDIR} && ${CP} ${GENDOCFILES} "$(abspath ${GENDOCDIR})"
 endif
 ifneq ($(strip $(PLAINFILES)),)
 	test -d "${PLAINDIR}" || mkdir -p "${PLAINDIR}"
-	cd ${BUILDDIR} && cp ${PLAINFILES} "$(abspath ${PLAINDIR})"
+	cd ${BUILDDIR} && ${CP} ${PLAINFILES} "$(abspath ${PLAINDIR})"
 endif
 ifneq ($(strip $(PLAINSRCFILES)),)
 	test -d "${PLAINSRCDIR}" || mkdir -p "${PLAINSRCDIR}"
-	cd ${BUILDDIR} && cp ${PLAINSRCFILES} "$(abspath ${PLAINSRCDIR})"
+	cd ${BUILDDIR} && ${CP} ${PLAINSRCFILES} "$(abspath ${PLAINSRCDIR})"
 endif
 ifneq ($(strip $(PLAINDOCFILES)),)
 	test -d "${PLAINDOCDIR}" || mkdir -p "${PLAINDOCDIR}"
-	cd ${BUILDDIR} && cp ${PLAINDOCFILES} "$(abspath ${PLAINDOCDIR})"
+	cd ${BUILDDIR} && ${CP} ${PLAINDOCFILES} "$(abspath ${PLAINDOCDIR})"
 endif
 ifneq ($(strip $(SCRIPTFILES)),)
 	test -d "${SCRIPTDIR}" || mkdir -p "${SCRIPTDIR}"
-	cd ${BUILDDIR} && cp ${SCRIPTFILES} "$(abspath ${SCRIPTDIR})"
+	cd ${BUILDDIR} && ${CP} ${SCRIPTFILES} "$(abspath ${SCRIPTDIR})"
 endif
 ifneq ($(strip $(SCRDOCFILES)),)
 	test -d "${SCRDOCDIR}" || mkdir -p "${SCRDOCDIR}"
-	cd ${BUILDDIR} && cp ${SCRDOCFILES} "$(abspath ${SCRDOCDIR})"
+	cd ${BUILDDIR} && ${CP} ${SCRDOCFILES} "$(abspath ${SCRDOCDIR})"
 endif
 	touch ${TEXMF}
 	-test -f ${TEXMF}/ls-R && texhash ${TEXMF} || true
