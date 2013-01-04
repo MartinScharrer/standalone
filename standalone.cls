@@ -174,6 +174,7 @@
 \newif\ifsa@preview
 \newif\ifsa@crop
 \newif\ifsa@multi
+\newif\ifsa@multido
 \newif\ifsa@varwidth
 \newif\ifsa@ignorerest
 \newif\ifsa@ignoreempty
@@ -320,8 +321,21 @@
 % \end{key}
 %
 %
+% \begin{key}{standalone.cls}{multido}
+% Boolean to control if the \Macro\multido macro from the \pkg{multido} package should be
+% loaded and redefined to create a separate page per iteration automatically.
+%    \begin{macrocode}
+\sa@clsoption{multido}[true]{%
+    \sa@boolean{multido}{#1}%
+    \ifsa@multido
+        \setkeys{standalone.cls}{multi=samultido}%
+    \fi
+}
+%    \end{macrocode}
+% \end{key}
+%
+%
 % \begin{key}{standalone.cls}{math}
-% Boolean to control if multiple pages are used.
 %    \begin{macrocode}
 \sa@clsoption{math}[true]{%
     \sa@boolean{math}{#1}%
@@ -849,6 +863,77 @@
 }
 %    \end{macrocode}
 %
+%
+% Loads the class given by the |class| option with the rest of the options.
+%    \begin{macrocode}
+\expandafter\expandafter\expandafter\LoadClass
+\expandafter\expandafter\expandafter[%
+\expandafter\@classoptionslist
+\expandafter]\expandafter{\sa@class}
+%    \end{macrocode}
+%
+%
+%
+% \subsubsection{Ignorerest Option}
+%
+% \begin{macro}{\sa@startignore}
+% Starts to box everything if \opt{ignorerest} option is set to true.
+% Afterwards the box is discarded so that the content is ignored.
+%    \begin{macrocode}
+\ifsa@ignorerest
+    \def\sa@startignore{\sa@boxit}
+\else
+    \let\sa@startignore\relax
+\fi
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \begin{macro}{\sa@stopignore}
+% Closes the ignore box if \opt{ignorerest} option is set to true.
+%    \begin{macrocode}
+\ifsa@ignorerest
+    \def\sa@stopignore{\endsa@boxit}
+\else
+    \let\sa@stopignore\relax
+\fi
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \subsubsection{Multido Option}
+%
+%    \begin{macrocode}
+\ifsa@multido
+\RequirePackage{multido}
+%    \end{macrocode}
+%
+% \begin{macro}{\multido@}
+% Redefine the internal macro of \Macro\multido and friends to produce
+% a seperate page for every iteration. This only affects the first level of \Macro\multido,
+% i.e. nesting is supported. The definition is compatible with the \opt{ignorerest} option.
+%    \begin{macrocode}
+\let\sa@orig@multido@\multido@
+\renewcommand{\multido@}[6]{%
+  \sa@stopignore
+  \sa@orig@multido@{#1}{#2}{#3}{#4}{#5}{%
+    \sa@startignore
+    \begin{samultido}%
+      \let\multido@\sa@orig@multido@
+      #6%
+    \end{samultido}%
+    \sa@stopignore
+  }%
+  \sa@startignore
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%    \begin{macrocode}
+\fi
+%    \end{macrocode}
+%
+%
 % Set correct quoting character for conversion option if none was set.
 %    \begin{macrocode}
 \ifsa@convert
@@ -887,15 +972,6 @@
 \fi
 \fi
 \fi
-%    \end{macrocode}
-%
-%
-% Loads the class given by the |class| option with the rest of the options.
-%    \begin{macrocode}
-\expandafter\expandafter\expandafter\LoadClass
-\expandafter\expandafter\expandafter[%
-\expandafter\@classoptionslist
-\expandafter]\expandafter{\sa@class}
 %    \end{macrocode}
 %
 %
@@ -1036,6 +1112,7 @@
 % \end{macro}
 %
 %
+%
 % \begin{environment}{standalone}
 % Redefine the \env{standalone} environment to box the content if \opt{multi} is off,
 % in order to use the whole content as single page. If \opt{multi} and \opt{ignorerest} are on
@@ -1044,17 +1121,13 @@
 %    \begin{macrocode}
 \renewenvironment{standalone}{%
     \ifsa@multi
-        \ifsa@ignorerest
-            \sa@boxit
-        \fi
+        \sa@startignore
     \else
         \sa@boxit
     \fi
 }{%
     \ifsa@multi
-        \ifsa@ignorerest
-            \endsa@boxit
-        \fi
+        \sa@stopignore
     \else
         \endsa@boxit
         \sa@handlebox
