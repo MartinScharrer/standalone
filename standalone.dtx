@@ -385,22 +385,19 @@
 %
 %
 % \DescribeKey{multido}'=true|false'
-% Often the \pkg{multido} package with its \Macro\multido macro is used
-% to produce several iterations of a diagram. Usually every iteration
-% should be placed on a seperate page. This option simplifies this task
-% be changing \Macro\multido to automatically wrap the content
-% (3rd argument) in a \opt{multi} environment. 
+% Often the \pkg{multido} package with its \Macro\multido macro is used to produce several iterations of a diagram.
+% Usually every iteration should be placed on a seperate page. This option simplifies this task be changing
+% \Macro\multido to automatically wrap the content (3rd argument) in a \opt{multi} environment.
+% This option will only work if the \Macro\multido macro is on the top level and not part of an environment like \env{pspicture}.
 %
-% For this the option sets the option \opt{multi}|=samultido|, loads the 
-% \pkg{multido} package and redefines its internal macro \Macro\multido@.
-% This is done to also support the other macros \Macro\mmultido,
-% \Macro\Multido and \Macro\MMultido.
+% The \opt{ignorerest} option is supported by \opt{multido} because special care is taken to not ignore the
+% \Macro\multido macros.
 %
-% The \opt{ignorerest} option is supported by \opt{multido} because special
-% care is taken to not ignore the \Macro\multido macros.
+% The nesting of \Macro\multido macros is supported and only the outer one will produce pages while the inner ones are
+% acting normally. The same is true for \Macro\multido inside any \opt{multi} environment.
 %
-% The nesting of \Macro\multido macros is supported and only the outer one
-% will produce pages while the inner ones are acting normally.
+% This option sets the option \opt{multi}|=samultido|, loads the \pkg{multido} package and redefines its internal macro
+% \Macro\multido@.  This is done to also support the other macros \Macro\mmultido, \Macro\Multido and \Macro\MMultido.
 %
 %
 % \DescribeKey{varwidth}'=true|false'
