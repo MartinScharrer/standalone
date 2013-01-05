@@ -54,7 +54,7 @@
 %</driver>
 % \fi
 %
-% \CheckSum{3667}
+% \CheckSum{3725}
 %
 % \CharacterTable
 %  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
@@ -382,6 +382,26 @@
 % It is recommended to keep this option disabled and only use it if really required.
 % It should be noted that which \opt{preview} such material is always ignored while not affecting local settings.
 % Therefore the \opt{ignorrest} option can be seen as a compatibility setting to make \opt{crop} act more like \opt{preview}, if this is required by the user.
+%
+%
+% \DescribeKey{multido}'=true|false'
+% Often the \pkg{multido} package with its \Macro\multido macro is used
+% to produce several iterations of a diagram. Usually every iteration
+% should be placed on a seperate page. This option simplifies this task
+% be changing \Macro\multido to automatically wrap the content
+% (3rd argument) in a \opt{multi} environment. 
+%
+% For this the option sets the option \opt{multi}|=samultido|, loads the 
+% \pkg{multido} package and redefines its internal macro \Macro\multido@.
+% This is done to also support the other macros \Macro\mmultido,
+% \Macro\Multido and \Macro\MMultido.
+%
+% The \opt{ignorerest} option is supported by \opt{multido} because special
+% care is taken to not ignore the \Macro\multido macros.
+%
+% The nesting of \Macro\multido macros is supported and only the outer one
+% will produce pages while the inner ones are acting normally.
+%
 %
 % \DescribeKey{varwidth}'=true|false'
 % \DescribeKey{varwidth}'='<width>
