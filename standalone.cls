@@ -699,6 +699,7 @@
 %    \begin{macrocode}
 \sa@convertoption{imagemagick}[]{%
     \def\sa@convert@command{\convertexe\space -density \density\space \infile\space \ifx\size\empty\else -resize \size\fi\space -quality 90 \outfile}%
+    \let\sa@convert@pageoffset\m@ne
 }
 %    \end{macrocode}
 % \end{key}
@@ -707,6 +708,7 @@
 %    \begin{macrocode}
 \sa@convertoption{ghostscript}[]{%
     \def\sa@convert@command{\gsexe\space -dSAFER -dBATCH -dNOPAUSE -sDEVICE=\gsdevice\space -r\density\space -sOutputFile=\outfile\space \infile}%
+    \let\sa@convert@pageoffset\z@
 }
 %    \end{macrocode}
 % \end{key}
@@ -722,7 +724,8 @@
 \sa@convertvar{infile}{\inname\inext}
 \sa@convertvar{outext}{.png}
 \sa@convertvar{outname}{\inname}
-\sa@convertvar{outfile}{\outname\ifsa@multi-\@percentchar d\fi\outext}
+\sa@convertvar{outfile}{\outname\ifsa@multi\sa@multi@pagemark\fi\outext}
+\def\sa@multi@pagemark{-\percent0d}%
 \sa@convertvar{density}{300}
 \sa@convertvar{gsdevice}{%
     \expandafter\ifx\csname sa@gsdevice@\outext\endcsname\relax
@@ -818,6 +821,10 @@
 \newcount\sa@internal
 %    \end{macrocode}
 %
+% Counter for total number of pages/\opt{multi} environments.
+%    \begin{macrocode}
+\newcounter{sapage}
+%    \end{macrocode}
 %
 % \begin{environment}{standalone}
 % The \env{standalone} environment is defined by default to be without effect.
@@ -1040,6 +1047,7 @@
     \fi
     \expandafter\def\csname #1\endcsname{%
         \ifnum\sa@internal=0
+            \addtocounter{sapage}\@ne
             \preview
             \sa@varwidth
         \fi
@@ -1152,6 +1160,7 @@
         \fi
         \expandafter\def\csname #1\endcsname{%
             \ifnum\sa@internal=0
+                \addtocounter{sapage}\@ne
                 \edef\@tempa{\endgroup
                     \noexpand\endsa@boxit
                     \begingroup
@@ -1182,6 +1191,7 @@
         \fi
         \expandafter\def\csname #1\endcsname{%
             \ifnum\sa@internal=0
+                \addtocounter{sapage}\@ne
                 \sa@boxit
             \fi
             \advance\sa@internal\@ne
@@ -1414,6 +1424,9 @@
 % \subsubsection{Conversion code}
 %    \begin{macrocode}
 \expandafter\ifx\csname sa@internal@run\endcsname\relax\else
+    \AtEndDocument{%
+        \immediate\write\@mainaux{\gdef\noexpand\sa@multi@numpages{\arabic{sapage}}}%
+    }
     \sa@convertfalse
 \fi
 \ifsa@convert
@@ -1443,8 +1456,8 @@
     }{%
         \def\filemodbefore{}%
     }}}}%
-    \edef\@tempa{\jobname}
-    \edef\@tempb{\sa@convert@subjobname}
+    \edef\@tempa{\jobname}%
+    \edef\@tempb{\sa@convert@subjobname}%
     \@onelevel@sanitize\@tempa
     \@onelevel@sanitize\@tempb
     \@tempswafalse
@@ -1458,6 +1471,36 @@
         -jobname \sa@convert@quote\sa@convert@subjobname\sa@convert@quote\space
         \sa@convert@quote\string\expandafter\string\def\string\csname\space
         sa@internal@run\string\endcsname{1}\string\input{\sa@convert@mainfile}\sa@convert@quote}%
+%
+    \begingroup
+    \gdef\sa@multi@numpages{1}%
+    \IfFileExists{\sa@convert@subjobname.aux}{%
+        \globaldefs=\m@ne
+        \@@input\sa@convert@subjobname.aux\relax
+        \globaldefs=\z@
+        \xdef\sa@multi@numpages{\sa@multi@numpages}%
+    }{}%
+    \endgroup
+    \setcounter{sapage}{\sa@multi@numpages}%
+    \addtocounter{sapage}\sa@convert@pageoffset
+    \ifnum\c@sapage=\z@
+        \def\sa@multi@pagemark{}%
+        \edef\sa@lastoutfile{\outfile}%
+    \else
+        \@tempcnta\z@
+        \loop\ifnum\value{sapage}>0
+            \advance\@tempcnta\@ne
+            \divide\c@sapage by 10\relax
+        \repeat
+        \edef\sa@multi@pagemark{-\percent0\the\@tempcnta d}%
+        \begingroup
+        \setcounter{sapage}{\sa@multi@numpages}%
+        \addtocounter{sapage}\sa@convert@pageoffset
+        \def\sa@multi@pagemark{-\arabic{sapage}}%
+        \xdef\sa@lastoutfile{\outfile}%
+        \endgroup
+    \fi
+%
     \if@tempswa
         \edef\infile@filemodafter{\csname pdffilemoddate\endcsname{\infile}}%
         \ifx\infile@filemodbefore\infile@filemodafter
@@ -1472,34 +1515,18 @@
     \fi
     \immediate\write18{\sa@convert@command}%
     \@tempswafalse
-    \IfFileExists{\outfile}{%
-        \@tempswatrue
-    }{%
-    \IfFileExists{\outname\outext}{%
-        \@tempswatrue
-        \def\outfile{\outname\outext}%
-    }{%
-    \IfFileExists{\outname-0\outext}{%
-        \@tempswatrue
-        \def\outfile{\outname-0\outext}%
-    }{%
-    \IfFileExists{\outname-1\outext}{%
-        \@tempswatrue
-        \def\outfile{\outname-1\outext}%
-    }{%
-    }}}}%
-    \if@tempswa
-        \edef\filemodafter{\csname pdffilemoddate\endcsname{\outfile}}%
+    \IfFileExists{\sa@lastoutfile}{%
+        \edef\filemodafter{\csname pdffilemoddate\endcsname{\sa@lastoutfile}}%
         \ifx\filemodbefore\filemodafter
             \expandafter\ifx\csname pdffilemoddate\endcsname\relax\else
                 \sa@convert@failuremsg{standalone}{#1}{}%
             \fi
         \else
-            \typeout{Class standalone:^^JOutput written on \outfile.}%
+            \typeout{Class standalone:^^JOutput written on \sa@lastoutfile.}%
         \fi
-    \else
+    }{%
         \sa@convert@failuremsg{standalone}{#1}{}%
-    \fi
+    }%
 }
 %    \end{macrocode}
 % \end{macro}
