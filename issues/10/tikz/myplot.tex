@@ -1,0 +1,12 @@
+\documentclass[tikz]{standalone}
+\usepackage{pgfplots} 
+
+\begin{document}
+\providecommand{\plotdataDir}{../data}
+
+\begin{tikzpicture}
+\begin{axis}
+\addplot table {\plotdataDir/myplot.csv};
+\end{axis}
+\end{tikzpicture}
+\end{document}
