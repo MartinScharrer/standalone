@@ -46,6 +46,13 @@
 \OnlyDescription
 \lstset{numbers=none,columns=fullflexible}
 \def\Eurl#1{\edef\temp{{#1}}\expandafter\url\temp}
+\IfFileExists{metalogo.sty}{%
+\usepackage{metalogo}%
+}%
+{%
+\providecommand{\XeLaTeX}{Xe\TeX}
+\providecommand{\XeLaTeX}{Xe\LaTeX}
+}
 \begin{document}
   \DocInput{\jobname.dtx}
   \PrintChanges
@@ -235,7 +242,7 @@
 % \subsection{Version update and backwards compatibility}
 % The default behaviour of v1.x of the \cls{standalone} class is slightly different as the one of v0.x, but should result in the same output for the majority of standalone files.
 % In previous versions the \opt{preview} option was enabled by default, but since v1.0 the new, similar \opt{crop} option is now used.
-% This change should improve several use-cases, like avoiding the creation of a paragraph due to a trailing empty line and issues with TikZ patterns under XeLaTeX.
+% This change should improve several use-cases, like avoiding the creation of a paragraph due to a trailing empty line and issues with TikZ patterns under \XeLaTeX.
 % However, paragraph breaks are now ignored by default, which should be no issue at all for picture and similar environments which are the main target of the \cls{standalone} class.
 % Additionally, the default border has been changed from the \pkg{preview} default of 0.50001bp to no border (0pt).
 % Both of these settings can be changed back to the old default by adding \Macro\standaloneconfig{preview,border=0.50001bp} in the configuration file
@@ -344,7 +351,7 @@
 % \DescribeKey{preview}'=true|false'
 % If enabled this option loads the \pkg{preview} package with the \opt{tightpage} option
 % and wraps the content into a \env{preview} environment. This crops the content to its natural size plus a specified border.
-% Issues with the \pkg{preview} options and TikZ shadings under XeLaTeX have been reported. In this cases the \opt{crop} option should be used instead.
+% Issues with the \pkg{preview} options and TikZ shadings under \XeLaTeX have been reported. In this cases the \opt{crop} option should be used instead.
 % Note that this option was enabled by default for versions before v1.0, but since then \opt{crop} is enabled by
 % default.
 %
@@ -863,7 +870,7 @@
 % Sets the mode for \Macro\includestandalone. Valid values are `|tex|' (use source file, default),
 % `|image|' (use existing image file produced by the source file), `\verb+image|tex+' (use image if available, source otherwise),
 % `|build|' (build image from source, then use it), `|buildmissing|' (only build image if it does not exist) 
-% and `|buildnew|' (only build image if source file is newer). See \autoref{sec:pkgmacros} for more details.
+% and `|buildnew|' (only build image if source file is newer; doesn't work with \XeLaTeX). See \autoref{sec:pkgmacros} for more details.
 % See also \autoref{sec:build} for further details.
 %
 % \DescribeKey{obeyclassoptions}'=true|false'
@@ -911,7 +918,7 @@
 % This macro can either include the source code in the same way as \Macro\input\relax (\Key{mode}'=tex'), include the output file (PDF, EPS) using \Macro\includegraphics\relax
 % (\Key{mode}'=image'), try first the output file and use the source file if it is available (\Key{mode}'=image|tex'),
 % build the output file from the source file either always (\Key{mode}'=build'), only if the image files does not exist (\Key{mode}'=buildmissing')
-% or only if the source file is newer (\Key{mode}'=buildnew').
+% or only if the source file is newer (\Key{mode}'=buildnew', which doesn't work on \XeLaTeX\ because some pdf\TeX\ macros are required for this).
 % See also the \autoref{sec:build} for further details.
 %
 % The \meta{file} argument must be the file name of the standalone source file \emph{without} the extension. The macro accepts the same \meta{options} as \Macro\includegraphics as well
