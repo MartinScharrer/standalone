@@ -1,0 +1,15 @@
+\documentclass[tikz]{standalone}
+\usepackage{expl3}
+\usepackage{xparse}
+
+\ExplSyntaxOn
+\NewDocumentCommand \makebold { m }
+  { \makebold:n {#1} }
+\cs_new:Npn \makebold:n #1 { \textbf {#1} }
+\ExplSyntaxOff
+
+\begin{document}
+  \begin{tikzpicture}
+    \node [draw] {\makebold{Hello world!}};
+  \end{tikzpicture}
+\end{document}
