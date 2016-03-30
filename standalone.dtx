@@ -601,6 +601,8 @@
 % the following default settings are used: PNG format, a density of 300dpi, no explicit size and the output file name is given by \Macro\jobname, i.e.\ the name of the \LaTeX\ document.
 % Using the \opt{convert} option with any value other than |false| will enabled it.
 % All normal conversion settings are listed in \autoref{tab:convopt}, while \autoref{tab:advconvopt} lists the more advanced options which e.g.\ can be used to modify the conversion command directly.
+% Note that macros used inside documentclass options must be protected from expansion. This can either be done wrapping the whole argument in an \Macro\unexpanded{..} (requires e-\TeX) 
+% or by using \Macro\noexpand in front of any macro.
 %
 % \begin{table}
 % \vspace*{-10ex}%
@@ -639,13 +641,14 @@
 %  \midrule
 %     command  &  Command line used for conversion. & (see |imagemagick|) \\
 %     imagemagick & Sets the convert command to use Image Magick: \newline\bigskip
-%                   \hspace*{-5em}\hbox{\vtop{\hbox{\strut|command={\convertexe\space -density \density\space |\vrule height 2\ht\strutbox width 0pt{}\egroup
-%                                      \hbox\bgroup\strut|         \infile\space \ifx\size\empty\else |\egroup
-%                                      \hbox\bgroup\strut|         -resize \size\fi\space -quality 90 \outfile}|}}\hss} \\
+%                   \hspace*{-5em}\hbox{\vtop{\hbox{\strut|command=\unexpanded{{\convertexe\space -density \density\space |\vrule height 2\ht\strutbox width 0pt{}}%
+%                                      \hbox{\strut|         \infile\space \ifx\size\empty\else |}%
+%                                      \hbox{\strut|         -resize \size\fi\space -quality 90 \outfile}}|}}\hss} \\
 %     convertexe  & Name of the executable of Image Magick. & (see \autoref{sec:convprogs})  \\
 %     ghostscript & Sets the convert command to use Ghostscript: \newline\bigskip
-%                   \hspace*{-5em}\hbox{\vtop{\hbox{\strut|command={\gsexe\space -dSAFER -dBATCH -dNOPAUSE -sDEVICE=\gsdevice\space|\vrule height 2\ht\strutbox width 0pt{}\egroup
-%                                      \hbox\bgroup\strut|         -r\density\space -sOutputFile=\outfile\space \infile}|}}\hss} \\
+%                   \hspace*{-5em}\hbox{\vtop{\hbox{\strut|command=\unexpanded{{\gsexe\space -dSAFER -dBATCH -dNOPAUSE|\vrule height 2\ht\strutbox width 0pt{}}%
+%                                      \hbox{\strut|         -sDEVICE=\gsdevice\space -r\density\space|}%
+%                                      \hbox{\strut|         -sOutputFile=\outfile\space \infile}}|}}\hss} \\
 %     gsexe       & Name of the executable of Ghostscript. & (see \autoref{sec:convprogs})  \\
 %     precommand  & Command to be executed before the actual conversion command.  & {\tabular[t]{@{}l@{}}|dvips \jobname| (DVI/PS),\\empty (PDF)\endtabular} \\
 %     gsdevice    & The output device to be used for ghostscript. Already set up for PNG and JPG output. & \parbox[t]{15em}{Uses known device if defined for output format, otherwise the output format itself.}\\
