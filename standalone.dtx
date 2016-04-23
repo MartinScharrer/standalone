@@ -822,7 +822,7 @@
 % With only the \opt{subpreambles} option set, the sub-preambles are simple read and executed unchanged. This includes the risk of option clashes if one package is loaded with different
 % options inside the sub-preambles and/or the main preamble. This is avoided by the \opt{sort} option, which accumulates all packages loaded by all sub-files together with their options.
 % The options are then marked to be loaded by the package using \LaTeX{}s \cs{PassOptionsToPackage} macro. The packages are loaded at the end of the preamble using the \cs{AtBeginDocument} hook.
-% This allows the user to load the same packages with own options in the main file, after the |subversion| package is loaded, without any option clashes.
+% This allows the user to load the same packages with own options in the main file, after the |standalone| package is loaded, without any option clashes.
 %
 % \DescribeKey{print}'=true|false'
 % While the \opt{sort} option is giving already good results, problems with the order of packages can still occur. Some packages provide, redefine or patch the same macros, so that they must be loaded in
