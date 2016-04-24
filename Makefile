@@ -176,8 +176,11 @@ ${TDSZIP}: ${TDSDIR}
 zip: ${CTAN_FILE}
 
 ${CTAN_FILE}: $(addprefix ${BUILDDIR}/,${CTANFILES}) ${TDSZIP}
+	-rm -rf ${CONTRIBUTION}/
+	mkdir ${CONTRIBUTION}/
+	cp $(addprefix ${BUILDDIR}/,${CTANFILES}) ${CONTRIBUTION}/
 	-${RM} $@
-	${ZIP} -j $@ $^
+	${ZIP} $@ ${CONTRIBUTION} ${TDSZIP}
 
 upload: VERSION = ${GETVERSION}
 
