@@ -1283,8 +1283,16 @@
   \relax
     \def\sa@placebox{%
         \newpage
-        \global\pdfpagewidth=\wd\sa@box
-        \global\pdfpageheight=\ht\sa@box
+        % Not necesary on LuaLaTeX > 0.85 because it doesn't define
+        % the PDF-specific globals.
+        \ifluatex\ifnum\luatexversion<85
+            \global\pdfpagewidth=\wd\sa@box
+            \global\pdfpageheight=\ht\sa@box
+        \fi\else
+          % Not LuaLaTeX at all, so still need this.
+          \global\pdfpagewidth=\wd\sa@box
+          \global\pdfpageheight=\ht\sa@box
+        \fi
         \global\paperwidth=\wd\sa@box
         \global\paperheight=\ht\sa@box
         \global\hsize=\wd\sa@box
