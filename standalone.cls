@@ -754,7 +754,7 @@
 \else
     \sa@convertvar{latex}{latex}
     \sa@convertvar{inext}{.ps}
-    \sa@convertvar{precommand}{dvips \jobname.dvi}
+    \sa@convertvar{precommand}{dvips \subjobname.dvi}
     \setkeys{standalone.cls/convert}{ghostscript}
 \fi\fi\fi
 %    \end{macrocode}
