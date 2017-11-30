@@ -69,6 +69,17 @@
 % Define if-switches for TeX formats.
 % This loads the corresponding packages if available, but falls back to some own code if they are not installed.
 %    \begin{macrocode}
+\expandafter\ifx\csname ShellEscape\endcsname\relax
+    \IfFileExists{shellesc.sty}{
+        \RequirePackage{shellesc}
+        \@ifpackagelater{shellesc}{2016/04/29}{
+        }{
+            \protected\def\ShellEscape{\immediate\write18 }
+        }
+    }{
+        \protected\def\ShellEscape{\immediate\write18 }
+    }
+\fi
 \expandafter\ifx\csname ifluatex\endcsname\relax
     \IfFileExists{ifluatex.sty}{
         \RequirePackage{ifluatex}
@@ -1748,7 +1759,21 @@
 % The state of the shell escape is checked.
 %    \begin{macrocode}
 \def\sa@buildgraphic#1{%
-    \ifeof18
+    \ifcase
+      \ifx\pdfshellescape\@undefined
+        \ifx\shellescape\@undefined
+          \ifx\directlua\@undefined
+            \z@
+          \else
+            \directlua{%
+              tex.sprint((status.shell_escape or os.execute()) .. " ")}
+          \fi
+        \else
+          \shellescape
+        \fi
+      \else
+        \pdfshellescape
+      \fi
         \PackageError{standalone}{Shell escape needed to create graphic! Use the '-shell-escape' option.}{}%
     \else
         \begingroup
@@ -1760,9 +1785,9 @@
         \let\buildjobname\sa@build@jobname
         \sa@setquote
         \let\quote\sa@build@quote
-        \immediate\write18{\sa@build@command}%
+        \ShellEscape{\sa@build@command}%
         \ifx\sa@build@postcommand\@empty\else
-            \immediate\write18{\sa@build@postcommand}%
+            \ShellEscape{\sa@build@postcommand}%
         \fi
         \IfFileExists{\outfile}{%
             \edef\filemodafter{\csname pdffilemoddate\endcsname{\outfile}}%

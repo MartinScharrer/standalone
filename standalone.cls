@@ -117,6 +117,17 @@
 % Define if-switches for TeX formats.
 % This loads the corresponding packages if available, but falls back to some own code if they are not installed.
 %    \begin{macrocode}
+\expandafter\ifx\csname ShellEscape\endcsname\relax
+    \IfFileExists{shellesc.sty}{
+        \RequirePackage{shellesc}
+        \@ifpackagelater{shellesc}{2016/04/29}{
+        }{
+            \protected\def\ShellEscape{\immediate\write18 }
+        }
+    }{
+        \protected\def\ShellEscape{\immediate\write18 }
+    }
+\fi
 \expandafter\ifx\csname ifluatex\endcsname\relax
     \IfFileExists{ifluatex.sty}{\@firstoftwo}{\@secondoftwo}{%
         \RequirePackage{ifluatex}
@@ -1272,8 +1283,21 @@
   \relax
     \def\sa@placebox{%
         \newpage
-        \global\pdfpagewidth=\wd\sa@box
-        \global\pdfpageheight=\ht\sa@box
+        \ifluatex
+          \ifnum\luatexversion<85
+            % LuaLaTeX < 0.85 does define the PDF-specific globals.
+            \global\pdfpagewidth=\wd\sa@box
+            \global\pdfpageheight=\ht\sa@box
+          \else
+            % LuaLaTeX >= 0.85 doesn't define the PDF-specific globals.
+            \global\pagewidth=\wd\sa@box
+            \global\pageheight=\ht\sa@box
+          \fi
+        \else
+          % Not LuaLaTeX at all, so still need this.
+          \global\pdfpagewidth=\wd\sa@box
+          \global\pdfpageheight=\ht\sa@box
+        \fi
         \global\paperwidth=\wd\sa@box
         \global\paperheight=\ht\sa@box
         \global\hsize=\wd\sa@box
@@ -1467,7 +1491,7 @@
     \else
         \global\let\sa@convert@stop\relax
     \fi
-    \immediate\write18{\sa@convert@latex\space\sa@convert@latexoptions\space
+    \ShellEscape{\sa@convert@latex\space\sa@convert@latexoptions\space
         -jobname \sa@convert@quote\sa@convert@subjobname\sa@convert@quote\space
         \sa@convert@quote\string\expandafter\string\def\string\csname\space
         sa@internal@run\string\endcsname{1}\string\input{\sa@convert@mainfile}\sa@convert@quote}%
@@ -1511,9 +1535,9 @@
 %    \begin{macrocode}
     \edef\sa@convert@precommand{\sa@convert@precommand}%
     \ifx\sa@convert@precommand\@empty\else
-        \immediate\write18{\sa@convert@precommand}%
+        \ShellEscape{\sa@convert@precommand}%
     \fi
-    \immediate\write18{\sa@convert@command}%
+    \ShellEscape{\sa@convert@command}%
     \@tempswafalse
     \IfFileExists{\sa@lastoutfile}{%
         \edef\filemodafter{\csname pdffilemoddate\endcsname{\sa@lastoutfile}}%
@@ -1554,7 +1578,22 @@
 %    \begin{macrocode}
 \ifcase0%
     \expandafter\ifx\csname pdfshellescape\endcsname\relax
-    \ifeof18 \else 3\fi
+    \ifcase
+      \ifx\pdfshellescape\@undefined
+        \ifx\shellescape\@undefined
+          \ifx\directlua\@undefined
+            \z@
+          \else
+            \directlua{%
+              tex.sprint((status.shell_escape or os.execute()) .. " ")}
+          \fi
+        \else
+          \shellescape
+        \fi
+      \else
+        \pdfshellescape
+      \fi
+    \else 3\fi
     \else\the\pdfshellescape\fi
 \relax% 0
     \sa@convert@failuremsg
