@@ -1302,13 +1302,8 @@
                 \advance\sa@internal\m@ne
                 \ifnum\sa@internal=0
                     \endsa@boxit
-		    \expandafter\ifx\csname sa@requestedpage\endcsname\relax
+                    \ifx\sa@requestedpage\@empty
 			\let\sa@requestedpage\sa@allpages
-		    \else
-		    	\edef\sa@requestedpage{\sa@requestedpage}%
-		    	\ifx\sa@requestedpage\empty
-			    \let\sa@requestedpage\sa@allpages
-			\fi
 		    \fi
                     \ifx\sa@requestedpage\sa@allpages
                         \usebox\sa@box
@@ -1555,16 +1550,7 @@
             \expandafter\endgroup
             \expandafter\@tempa\expandafter{\sa@subfile@options}%
             \sa@atendofclass
-            \ifpdf
-                \ifx\GPT@page\@empty\else
-                    \let\sa@requestedpage\GPT@page
-                \fi
-            \else
-            \ifxetex
-                \ifx\Gin@XeTeX@page\@empty\else
-                    \let\sa@requestedpage\Gin@XeTeX@page
-                \fi
-            \fi\fi
+	    \let\sa@requestedpage\Gin@page
             \sa@pagenum\z@
             \sa@beginbox
 % Determinate required size files (normal classes or KOMA Script).
