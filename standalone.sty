@@ -1302,6 +1302,14 @@
                 \advance\sa@internal\m@ne
                 \ifnum\sa@internal=0
                     \endsa@boxit
+		    \expandafter\ifx\csname sa@requestedpage\endcsname\relax
+			\let\sa@requestedpage\sa@allpages
+		    \else
+		    	\edef\sa@requestedpage{\sa@requestedpage}%
+		    	\ifx\sa@requestedpage\empty
+			    \let\sa@requestedpage\sa@allpages
+			\fi
+		    \fi
                     \ifx\sa@requestedpage\sa@allpages
                         \usebox\sa@box
                     \else
