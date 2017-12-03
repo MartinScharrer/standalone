@@ -709,7 +709,7 @@
 % \begin{key}{standalone.cls/convert}{imagemagick}
 %    \begin{macrocode}
 \sa@convertoption{imagemagick}[]{%
-    \def\sa@convert@command{\convertexe\space -density \density\space \infile\space \ifx\size\empty\else -resize \size\fi\space -quality 90 \outfile}%
+    \def\sa@convert@command{\convertexe\space -density \density\space -units PixelsPerInch \infile\space \ifx\size\empty\else -resize \size\fi\space -quality 90 \outfile}%
     \let\sa@convert@pageoffset\m@ne
 }
 %    \end{macrocode}
