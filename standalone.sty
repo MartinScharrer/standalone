@@ -917,10 +917,13 @@
 % Process |.sta| file from last run. All changes must be made by own macros which define the value globally.
 % Therefore the input is wrapped in a group. Some spaces or special line endings could process typeset content,
 % which causes errors inside the preamble. To be on the save side the input `content' is stored in a temp box.
+% The normal catcode of the `@' character is restored because comparing the previous subpreamble with the current one
+% would fail otherwise if the |standalone| package is loaded while |\makeatletter| is active.
 %    \begin{macrocode}
 \begingroup
   \setbox\@tempboxa\hbox{%
-  \InputIfFileExists{\jobname.sta}{}{\PackageInfo{standalone}{STA file not found!}{}{}}%
+    \makeatother
+    \InputIfFileExists{\jobname.sta}{}{\PackageInfo{standalone}{STA file not found!}{}{}}%
   }%
 \endgroup
 %    \end{macrocode}
