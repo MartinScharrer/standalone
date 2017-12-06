@@ -1371,10 +1371,14 @@
 %    \begin{macrocode}
 \def\sa@papersize{%
     \global\let\sa@papersize\relax
-    \special{papersize=\the\paperwidth,\the\paperheight}%
     \global\sa@yoffset=\paperheight
-    \special{ps::%
-        \@percentchar\@percentchar HiResBoundingBox: 0 0 \the\paperwidth\space\the\paperheight^^J%
+    \global\setbox\@begindvibox\vbox{%
+        \special{papersize=\the\paperwidth,\the\paperheight}%
+        \special{ps::%
+            \@percentchar\@percentchar HiResBoundingBox: 0 0 \the\paperwidth\space\the\paperheight^^J%
+        }%
+        \unvbox\@begindvibox
+        \special{papersize=\the\paperwidth,\the\paperheight}%
     }%
 }
 %    \end{macrocode}
