@@ -1453,7 +1453,7 @@
 %    \begin{macrocode}
 \expandafter\ifx\csname sa@internal@run\endcsname\relax\else
     \AtEndDocument{%
-        \immediate\write\@mainaux{\gdef\noexpand\sa@multi@numpages{\arabic{sapage}}}%
+        \immediate\write\@mainaux{\noexpand\@gobbletwo\noexpand\sa@multi@setnumpages{\arabic{sapage}}}%
     }
     \sa@convertfalse
 \fi
@@ -1501,14 +1501,25 @@
         sa@internal@run\string\endcsname{1}\string\input{\sa@convert@mainfile}\sa@convert@quote}%
 %
     \begingroup
-    \gdef\sa@multi@numpages{1}%
-    \IfFileExists{\sa@convert@subjobname.aux}{%
-        \globaldefs=\m@ne
-        \@@input\sa@convert@subjobname.aux\relax
-        \globaldefs=\z@
-        \xdef\sa@multi@numpages{\sa@multi@numpages}%
-    }{}%
+    \IfFileExists{\sa@convert@subjobname.aux}{\@tempswatrue}{\@tempswafalse}%
+    \if@tempswa
+      \newread\sa@read
+      \def\@tempa##1\sa@multi@setnumpages##2##3\@nnil{%
+        \def\@tempc{##2}%
+        \ifx\@tempc\@nnil\else
+          \gdef\sa@multi@numpages{##2}%
+        \fi
+      }%
+      \endlinechar=\m@ne
+      \immediate\openin\sa@read=\sa@convert@subjobname.aux\relax
+      \loop\unless\ifeof\sa@read
+        \read\sa@read to\@tempb
+        \expandafter\@tempa\@tempb\sa@multi@setnumpages\@nil\@empty\@nnil
+      \repeat
+      \immediate\closein\sa@read
+    \fi
     \endgroup
+%
     \setcounter{sapage}{\sa@multi@numpages}%
     \addtocounter{sapage}\sa@convert@pageoffset
     \ifnum\c@sapage=\z@
