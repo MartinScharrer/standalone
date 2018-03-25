@@ -1591,26 +1591,19 @@
 %
 %
 %    \begin{macrocode}
-\ifcase0%
+\edef\sa@shellescape{%
+    \ifluatex
+      \directlua{tex.write(status.shell_escape or 2)}%
+    \else\ifxetex
+      \the\shellescape
+    \else
     \expandafter\ifx\csname pdfshellescape\endcsname\relax
-    \ifcase
-      \ifx\pdfshellescape\@undefined
-        \ifx\shellescape\@undefined
-          \ifx\directlua\@undefined
-            \z@
-          \else
-            \directlua{%
-              tex.sprint((status.shell_escape or os.execute()) .. " ")}
-          \fi
-        \else
-          \shellescape
-        \fi
-      \else
-        \pdfshellescape
-      \fi
-    \else 3\fi
-    \else\the\pdfshellescape\fi
-\relax% 0
+      0%
+    \else
+      \the\pdfshellescape
+    \fi\fi\fi
+}%
+\ifcase\sa@shellescape\relax% 0
     \sa@convert@failuremsg
         {standalone}{Shell escape disabled! Cannot convert file '\infile'.}{}%
     \global\let\sa@convert@stop\relax
@@ -1619,7 +1612,8 @@
                 There might be something wrong with your\MessageBreak
                 conversation software or the file permissions!}%
 \else% 2 or 3
-    \sa@convert{Conversion failed! Please ensure that shell escape\MessageBreak is enabled (e.g. use '-shell-escape').}%
+    \sa@convert{Conversion failed! Please ensure that shell escape\MessageBreak
+                is enabled (e.g. use '-shell-escape').}%
 \fi
 \endgroup
 %    \end{macrocode}
