@@ -951,6 +951,15 @@
 \fi
 %    \end{macrocode}
 %
+% Load Lua\LaTeX{} compatibility packages for convert option.
+%    \begin{macrocode}
+\ifsa@convert
+\ifluatex
+%\RequirePackage{luatex85}
+\RequirePackage{pdftexcmds}
+\fi
+\fi
+%    \end{macrocode}
 %
 % Set correct quoting character for conversion option if none was set.
 %    \begin{macrocode}
@@ -1471,16 +1480,16 @@
 %    \begin{macrocode}
 \def\sa@convert#1{%
     \IfFileExists{\outfile}{%
-        \edef\filemodbefore{\csname pdffilemoddate\endcsname{\outfile}}%
+        \edef\filemodbefore{\csname pdf\ifluatex @\fi filemoddate\endcsname{\outfile}}%
     }{%
     \IfFileExists{\outname\outext}{%
-        \edef\filemodbefore{\csname pdffilemoddate\endcsname{\outname\outext}}%
+        \edef\filemodbefore{\csname pdf\ifluatex @\fi filemoddate\endcsname{\outname\outext}}%
     }{%
     \IfFileExists{\outname-0\outext}{%
-        \edef\filemodbefore{\csname pdffilemoddate\endcsname{\outname-0\outext}}%
+        \edef\filemodbefore{\csname pdf\ifluatex @\fi filemoddate\endcsname{\outname-0\outext}}%
     }{%
     \IfFileExists{\outname-1\outext}{%
-        \edef\filemodbefore{\csname pdffilemoddate\endcsname{\outname-1\outext}}%
+        \edef\filemodbefore{\csname pdf\ifluatex @\fi filemoddate\endcsname{\outname-1\outext}}%
     }{%
         \def\filemodbefore{}%
     }}}}%
@@ -1491,7 +1500,7 @@
     \@tempswafalse
     \ifx\@tempa\@tempb
         \@tempswatrue
-        \edef\infile@filemodbefore{\csname pdffilemoddate\endcsname{\infile}}%
+        \edef\infile@filemodbefore{\csname pdf\ifluatex @\fi filemoddate\endcsname{\infile}}%
     \else
         \global\let\sa@convert@stop\relax
     \fi
@@ -1541,7 +1550,7 @@
     \fi
 %
     \if@tempswa
-        \edef\infile@filemodafter{\csname pdffilemoddate\endcsname{\infile}}%
+        \edef\infile@filemodafter{\csname pdf\ifluatex @\fi filemoddate\endcsname{\infile}}%
         \ifx\infile@filemodbefore\infile@filemodafter
             \global\let\sa@convert@stop\relax
         \fi
@@ -1555,9 +1564,9 @@
     \ShellEscape{\sa@convert@command}%
     \@tempswafalse
     \IfFileExists{\sa@lastoutfile}{%
-        \edef\filemodafter{\csname pdffilemoddate\endcsname{\sa@lastoutfile}}%
+        \edef\filemodafter{\csname pdf\ifluatex @\fi filemoddate\endcsname{\sa@lastoutfile}}%
         \ifx\filemodbefore\filemodafter
-            \expandafter\ifx\csname pdffilemoddate\endcsname\relax\else
+            \expandafter\ifx\csname pdf\ifluatex @\fi filemoddate\endcsname\relax\else
                 \sa@convert@failuremsg{standalone}{#1}{}%
             \fi
         \else
