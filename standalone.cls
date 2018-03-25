@@ -1509,6 +1509,7 @@
         \sa@convert@quote\string\expandafter\string\def\string\csname\space
         sa@internal@run\string\endcsname{1}\string\input{\sa@convert@mainfile}\sa@convert@quote}%
 %
+    \def\sa@multi@numpages{0}%
     \begingroup
     \IfFileExists{\sa@convert@subjobname.aux}{\@tempswatrue}{\@tempswafalse}%
     \if@tempswa
@@ -1529,22 +1530,20 @@
     \fi
     \endgroup
 %
-    \setcounter{sapage}{\sa@multi@numpages}%
-    \addtocounter{sapage}\sa@convert@pageoffset
-    \ifnum\c@sapage=\z@
+    \@tempcnta\sa@multi@numpages\relax
+    \advance\@tempcnta\sa@convert@pageoffset\relax
+    \ifnum\@tempcnta=\z@
         \def\sa@multi@pagemark{}%
         \edef\sa@lastoutfile{\outfile}%
     \else
-        \@tempcnta\z@
-        \loop\ifnum\value{sapage}>0
-            \advance\@tempcnta\@ne
-            \divide\c@sapage by 10\relax
+        \@tempcntb\z@
+        \loop\ifnum\@tempcnta>0
+            \advance\@tempcntb\@ne
+            \divide\@tempcnta by 10\relax
         \repeat
-        \edef\sa@multi@pagemark{-\percent0\the\@tempcnta d}%
+        \edef\sa@multi@pagemark{-\percent0\the\@tempcntb d}%
         \begingroup
-        \setcounter{sapage}{\sa@multi@numpages}%
-        \addtocounter{sapage}\sa@convert@pageoffset
-        \def\sa@multi@pagemark{-\arabic{sapage}}%
+        \def\sa@multi@pagemark{-\the\@tempcnta}%
         \xdef\sa@lastoutfile{\outfile}%
         \endgroup
     \fi
