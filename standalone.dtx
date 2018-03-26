@@ -26,10 +26,10 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesFile{standalone.dtx}[%
 %<=*DATE>
-    2018/03/24
+    2018/03/26
 %<=/DATE>
 %<=*VERSION>
-    v1.3
+    v1.3a
 %<=/VERSION>
     DTX file of the standalone bundle]
 \documentclass[a4paper,11pt]{ydoc}
@@ -90,6 +90,10 @@
 % \changes{v1.1b}{2012/09/15}{Fixed issue with 'subpreambles' for Beamer documents.}
 % \changes{v1.2}{2012/12/31}{Fixed build issue with MiKTeX due to incorrect quoting character.}
 % \changes{v1.3}{2018/03/24}{Several fixes for new driver and LuaTeX versions. Other minor fixes in bundle and manual.}
+% \changes{v1.3a}{2018/03/26}{Improved shellescape code to ensure compatibility with all current LaTeX formats.
+% Added loading of LuaTeX compatibility packages.
+% Changed filemodedate code to support LuaTeX.
+% Fixes for option combination multi,convert.}
 %
 % \GetFileInfo{\jobname.dtx}
 %
