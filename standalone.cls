@@ -951,13 +951,11 @@
 \fi
 %    \end{macrocode}
 %
-% Load Lua\LaTeX{} compatibility packages for convert option.
+% Load Lua\LaTeX{} compatibility packages.
 %    \begin{macrocode}
-\ifsa@convert
 \ifluatex
-%\RequirePackage{luatex85}
+\RequirePackage{luatex85}
 \RequirePackage{pdftexcmds}
-\fi
 \fi
 %    \end{macrocode}
 %
