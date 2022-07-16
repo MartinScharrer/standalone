@@ -1,6 +1,6 @@
 CONTRIBUTION  = $(shell basename ${PWD})
 NAME          = Martin Scharrer
-EMAIL         = martin@scharrer-online.de
+EMAIL         = martin@scharrer.me
 DIRECTORY     = /macros/latex/contrib/${CONTRIBUTION}
 LICENSE       = free
 FREEVERSION   = lppl
@@ -175,12 +175,12 @@ ${TDSZIP}: ${TDSDIR}
 
 zip: ${CTAN_FILE}
 
-${CTAN_FILE}: $(addprefix ${BUILDDIR}/,${CTANFILES})
+${CTAN_FILE}: $(addprefix ${BUILDDIR}/,${CTANFILES}) ${TDSZIP}
 	-rm -rf ${CONTRIBUTION}/
 	mkdir ${CONTRIBUTION}/
 	cp $(addprefix ${BUILDDIR}/,${CTANFILES}) ${CONTRIBUTION}/
 	-${RM} $@
-	${ZIP} $@ ${CONTRIBUTION}
+	${ZIP} $@ ${CONTRIBUTION} ${TDSZIP}
 
 upload: VERSION = ${GETVERSION}
 
