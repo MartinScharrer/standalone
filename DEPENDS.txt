@@ -1,0 +1,10 @@
+hard xkeyval
+hard currfile
+hard adjustbox
+hard gincltex
+hard filemod
+soft varwidth
+soft shellesc
+soft ifluatex
+soft ifpdf
+soft ifxetex
