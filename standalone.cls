@@ -1468,7 +1468,7 @@
 %    \end{macrocode}
 %
 %    \begin{macrocode}
-\let\sa@convert@stop\stop
+\def\sa@convert@stop{\csname fi\endcsname\stop}%
 \begingroup
 \let\on@line\@gobble
 %    \end{macrocode}
