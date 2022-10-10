@@ -1,11 +1,12 @@
 LaTeX class and package 'standalone'
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Copyright (c) 2010-2018 by Martin Scharrer <martin@scharrer-online.de>
-Repository: http://bitbucket.org/martin_scharrer/standalone
+Copyright (c) 2010-2022 by Martin Scharrer <martin.scharrer@web.de>
+Repository: https://github.com/MartinScharrer/standalone
+Issues: https://github.com/MartinScharrer/standalone/issues
 
-Allows TeX pictures or other TeX code in sub-files to be compiled standalone
+Allows TeX diagrams or other TeX code in sub-files to be compiled standalone
 or as part of a main document.
-Provides support for pictures with beamer overlays.
+Provides support for diagrams with beamer overlays.
 
 Since v0.3 the package provides options to automatically or manually include
 all sub-files preambles in the main document preamble.
