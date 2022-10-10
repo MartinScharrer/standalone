@@ -1,14 +1,10 @@
-syntax: glob
-test/*.aux
-test/*.log
-test/*.nav
-test/*.out
-test/*.pdf
-test/*.snm
-test/*.sta
-test/*.stp
-test/*.toc
-test/*.vrb
+/build
+/standalone
+/tds
+standalone.zip
+standalone.tds.zip
+*.aux
+*.out
 .svn
 *.aux
 *.bbl
@@ -36,6 +32,5 @@ test/*.vrb
 *.zip
 *.tar.gz
 *.tar.bz
+*.synctex.gz
 ?
-build
-tds
