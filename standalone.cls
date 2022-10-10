@@ -1556,8 +1556,10 @@
 %    \begin{macrocode}
     \edef\sa@convert@precommand{\sa@convert@precommand}%
     \ifx\sa@convert@precommand\@empty\else
+		\message{Executing precommand:^^J\sa@convert@precommand^^J^^J}%
         \ShellEscape{\sa@convert@precommand}%
     \fi
+	\message{Executing command:^^J\sa@convert@command^^J^^J}%
     \ShellEscape{\sa@convert@command}%
     \@tempswafalse
     \IfFileExists{\sa@lastoutfile}{%
