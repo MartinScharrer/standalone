@@ -1534,16 +1534,16 @@
         \def\sa@multi@pagemark{}%
         \edef\sa@lastoutfile{\outfile}%
     \else
+        \begingroup
+        \def\sa@multi@pagemark{-\the\@tempcnta}%
+        \xdef\sa@lastoutfile{\outfile}%
+        \endgroup
         \@tempcntb\z@
         \loop\ifnum\@tempcnta>0
             \advance\@tempcntb\@ne
             \divide\@tempcnta by 10\relax
         \repeat
         \edef\sa@multi@pagemark{-\percent0\the\@tempcntb d}%
-        \begingroup
-        \def\sa@multi@pagemark{-\the\@tempcnta}%
-        \xdef\sa@lastoutfile{\outfile}%
-        \endgroup
     \fi
 %
     \if@tempswa
