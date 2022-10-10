@@ -173,14 +173,14 @@ ${TDSZIP}: ${TDSDIR}
 	-${RM} $@
 	cd ${TDSDIR} && ${ZIP} $(abspath $@) *
 
-zip: tdszip ${CTAN_FILE}
+zip: ${CTAN_FILE}
 
 ${CTAN_FILE}: $(addprefix ${BUILDDIR}/,${CTANFILES})
 	-rm -rf ${CONTRIBUTION}/
 	mkdir ${CONTRIBUTION}/
 	cp $(addprefix ${BUILDDIR}/,${CTANFILES}) ${CONTRIBUTION}/
 	-${RM} $@
-	${ZIP} $@ ${CONTRIBUTION} ${TDSZIP}
+	${ZIP} $@ ${CONTRIBUTION}
 
 upload: VERSION = ${GETVERSION}
 
