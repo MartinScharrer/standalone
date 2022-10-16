@@ -759,15 +759,6 @@
 %    \end{macrocode}
 % \end{key}
 %
-% \begin{key}{standalone.cls/convert}{graphicsmagick}
-%    \begin{macrocode}
-\sa@convertoption{graphicsmagick}[]{%
-    \def\sa@convert@command{\gmexe\space -density \density\space -units PixelsPerInch \infile\space \ifx\size\empty\else -resize \size\fi\space -quality 90 \outfile}%
-    \let\sa@convert@pageoffset\m@ne
-}
-%    \end{macrocode}
-% \end{key}%
-%
 % \begin{key}{standalone.cls/convert}{ghostscript}
 %    \begin{macrocode}
 \sa@convertoption{ghostscript}[]{%
@@ -885,7 +876,6 @@
     \@namedef{sa@convert@gsexe64}{gs}
 \fi
 \sa@convertvar{gsexe}{\@nameuse{sa@convert@gsexe32}}
-\sa@convertvar{gmexe}{gm convert}
 \sa@convertvar{imagemagickexe}{magick convert}
 \sa@convertvar{inkscapeexe}{inkscape}
 %    \end{macrocode}
@@ -1720,7 +1710,6 @@
 \let\gsdevice\sa@convert@gsdevice
 \let\convertexe\sa@convert@convertexe
 \let\gsexe\sa@convert@gsexe
-\let\gmexe\sa@convert@gmexe
 \let\imagemagickexe\sa@convert@imagemagickexe
 \let\inkscapeexe\sa@convert@inkscapeexe
 \let\gsexe\sa@convert@gsexe
