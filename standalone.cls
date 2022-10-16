@@ -756,6 +756,22 @@
 %    \end{macrocode}
 % \end{key}
 %
+% \begin{key}{standalone.cls/convert}{inkscape}
+%    \begin{macrocode}
+\sa@convertoption{inkscape}[]{%
+    \def\sa@convert@command{\inkscapeexe\space 
+        --pdf-poppler \sa@inkscape@bgcolor\space
+        --export-type="\expandafter\@gobble\outext"
+        --pdf-page=\pagenum\space
+        -o \outfile\space \infile}
+    \let\sa@convert@pageoffset\z@
+    \sa@convert@perpagetrue
+    \def\sa@multi@pagemark{\pagenum}%
+}
+\def\sa@inkscape@bgcolor{\ifx\sa@convert@bgcolor\@empty\else--actions="export-background:\sa@convert@bgcolor"\fi}
+%    \end{macrocode}
+% \end{key}
+%
 %    \begin{macrocode}
 \sa@convertvar{latexoptions}{ -shell-escape }
 \sa@convertvar{subjobname}{\jobname}
@@ -771,6 +787,7 @@
 \def\sa@multi@pagemark{-\percent0d}
 \def\sa@convert@pagenum{1}
 \sa@convertvar{density}{300}
+\sa@convertvar{bgcolor}{}
 \sa@convertvar{gsdevice}{%
     \expandafter\ifx\csname sa@gsdevice@\outext\endcsname\relax
         \expandafter\@gobble\outext
@@ -829,6 +846,7 @@
 \sa@convertvar{gsexe}{\@nameuse{sa@convert@gsexe32}}
 \sa@convertvar{gmexe}{gm convert}
 \sa@convertvar{imagemagickexe}{magick convert}
+\sa@convertvar{inkscapeexe}{inkscape}
 %    \end{macrocode}
 %
 % Define 'convertexe' as an older alternative to 'imagemagickexe'.
