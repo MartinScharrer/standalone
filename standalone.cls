@@ -876,16 +876,10 @@
     \@namedef{sa@convert@gsexe64}{gs}
 \fi
 \sa@convertvar{gsexe}{\@nameuse{sa@convert@gsexe32}}
-\sa@convertvar{imagemagickexe}{magick convert}
+\sa@convertvar{convertexe}{magick convert}
 \sa@convertvar{inkscapeexe}{inkscape}
 %    \end{macrocode}
 %
-% Define 'convertexe' as an older alternative to 'imagemagickexe'.
-%    \begin{macrocode}
-\define@key{standalone.cls/convert}{convertexe}{%
-    \@namedef{sa@convert@imagemagickexe}{##1}%
-}
-%    \end{macrocode}
 %
 %
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1710,7 +1704,6 @@
 \let\gsdevice\sa@convert@gsdevice
 \let\convertexe\sa@convert@convertexe
 \let\gsexe\sa@convert@gsexe
-\let\imagemagickexe\sa@convert@imagemagickexe
 \let\inkscapeexe\sa@convert@inkscapeexe
 \let\gsexe\sa@convert@gsexe
 \let\density\sa@convert@density
