@@ -577,6 +577,17 @@
 %    \end{macrocode}
 % \end{key}
 %
+% \begin{key}{standalone.cls/convert}{realmainfile}
+%    \begin{macrocode}
+\sa@convertoption{realmainfile}[]{%
+    \RequirePackage{currfile-abspath}%
+    \getmainfile
+    \let\sa@convert@mainfile\themainfile
+}
+%    \end{macrocode}
+% \end{key}
+%
+%
 % \begin{key}{standalone.cls/convert}{png}
 %    \begin{macrocode}
 \sa@convertoption{png}[]{%
@@ -589,16 +600,6 @@
 %    \begin{macrocode}
 \sa@clsoption{png}[]{%
     \setkeys{standalone.cls/convert}{png,#1}%
-}
-%    \end{macrocode}
-% \end{key}
-%
-% \begin{key}{standalone.cls/convert}{realmainfile}
-%    \begin{macrocode}
-\sa@convertoption{realmainfile}[]{%
-    \RequirePackage{currfile-abspath}%
-    \getmainfile
-    \let\sa@convert@mainfile\themainfile
 }
 %    \end{macrocode}
 % \end{key}
@@ -624,7 +625,7 @@
 % \begin{key}{standalone.cls/convert}{gif}
 %    \begin{macrocode}
 \sa@convertoption{gif}[]{%
-    \setkeys{standalone.cls/convert}{true,outext={.gif}}%
+    \setkeys{standalone.cls/convert}{true,imagemagick,outext={.gif}}%
 }
 %    \end{macrocode}
 % \end{key}
@@ -709,17 +710,42 @@
 % \begin{key}{standalone.cls/convert}{imagemagick}
 %    \begin{macrocode}
 \sa@convertoption{imagemagick}[]{%
-    \def\sa@convert@command{\convertexe\space -density \density\space -units PixelsPerInch \infile\space \ifx\size\empty\else -resize \size\fi\space -quality 90 \outfile}%
+    \def\sa@convert@command{\imagemagickexe\space -density \density\space -units PixelsPerInch \infile\space \ifx\size\empty\else -resize \size\fi\space -quality 90 \outfile}%
     \let\sa@convert@pageoffset\m@ne
 }
 %    \end{macrocode}
 % \end{key}
+%
+% \begin{key}{standalone.cls/convert}{graphicsmagick}
+%    \begin{macrocode}
+\sa@convertoption{graphicsmagick}[]{%
+    \def\sa@convert@command{\gmexe\space -density \density\space -units PixelsPerInch \infile\space \ifx\size\empty\else -resize \size\fi\space -quality 90 \outfile}%
+    \let\sa@convert@pageoffset\m@ne
+}
+%    \end{macrocode}
+% \end{key}%
 %
 % \begin{key}{standalone.cls/convert}{ghostscript}
 %    \begin{macrocode}
 \sa@convertoption{ghostscript}[]{%
     \def\sa@convert@command{\gsexe\space -dSAFER -dBATCH -dNOPAUSE -sDEVICE=\gsdevice\space -r\density\space -sOutputFile=\outfile\space \infile}%
     \let\sa@convert@pageoffset\z@
+}
+%    \end{macrocode}
+% \end{key}
+%
+% \begin{key}{standalone.cls/convert}{ghostscript32}
+%    \begin{macrocode}
+\sa@convertoption{ghostscript32}[]{%
+    \setkeys{standalone.cls/convert}{ghostscript,gsexe=\@nameuse{sa@convert@gsexe32}}%
+}
+%    \end{macrocode}
+% \end{key}
+%
+% \begin{key}{standalone.cls/convert}{ghostscript64}
+%    \begin{macrocode}
+\sa@convertoption{ghostscript64}[]{%
+    \setkeys{standalone.cls/convert}{ghostscript,gsexe=\@nameuse{sa@convert@gsexe64}}%
 }
 %    \end{macrocode}
 % \end{key}
@@ -749,19 +775,19 @@
     \sa@convertvar{latex}{lualatex}
     \sa@convertvar{inext}{.pdf}
     \sa@convertvar{precommand}{}
-    \setkeys{standalone.cls/convert}{imagemagick}
+    \setkeys{standalone.cls/convert}{ghostscript}
 \else
 \ifpdf
     \sa@convertvar{latex}{pdflatex}
     \sa@convertvar{inext}{.pdf}
     \sa@convertvar{precommand}{}
-    \setkeys{standalone.cls/convert}{imagemagick}
+    \setkeys{standalone.cls/convert}{ghostscript}
 \else
 \ifxetex
     \sa@convertvar{latex}{xelatex}
     \sa@convertvar{inext}{.pdf}
     \sa@convertvar{precommand}{}
-    \setkeys{standalone.cls/convert}{imagemagick}
+    \setkeys{standalone.cls/convert}{ghostscript}
 \else
     \sa@convertvar{latex}{latex}
     \sa@convertvar{inext}{.ps}
@@ -770,8 +796,7 @@
 \fi\fi\fi
 %    \end{macrocode}
 %
-% Test for windows to avoid using the 'convert' executable there.
-% It is also the FAT-to-NTFS conversion tool!
+% Test for windows to set executable correctly.
 %    \begin{macrocode}
 \begingroup
 \ifluatex
@@ -787,13 +812,23 @@
 \fi
 \if@tempswa
     \endgroup
-    \sa@convertvar{convertexe}{imgconvert}
-    \sa@convertvar{gsexe}{gswin32c}
+    \@namedef{sa@convert@gsexe32}{gswin32c}
+    \@namedef{sa@convert@gsexe64}{gswin64c}
 \else
     \endgroup
-    \sa@convertvar{convertexe}{convert}
-    \sa@convertvar{gsexe}{gs}
+    \@namedef{sa@convert@gsexe32}{gs}
+    \@namedef{sa@convert@gsexe64}{gs}
 \fi
+\sa@convertvar{gsexe}{\@nameuse{sa@convert@gsexe32}}
+\sa@convertvar{gmexe}{gm convert}
+\sa@convertvar{imagemagickexe}{magick convert}
+%    \end{macrocode}
+%
+% Define 'convertexe' as an older alternative to 'imagemagickexe'.
+%    \begin{macrocode}
+\define@key{standalone.cls/convert}{convertexe}{%
+    \@namedef{sa@convert@imagemagickexe}{##1}%
+}
 %    \end{macrocode}
 %
 %
@@ -1587,6 +1622,10 @@
 \let\inname\sa@convert@inname
 \let\gsdevice\sa@convert@gsdevice
 \let\convertexe\sa@convert@convertexe
+\let\gsexe\sa@convert@gsexe
+\let\gmexe\sa@convert@gmexe
+\let\imagemagickexe\sa@convert@imagemagickexe
+\let\inkscapeexe\sa@convert@inkscapeexe
 \let\gsexe\sa@convert@gsexe
 \let\density\sa@convert@density
 \let\size\sa@convert@size
