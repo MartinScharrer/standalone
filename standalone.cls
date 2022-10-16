@@ -771,8 +771,12 @@
 % \begin{key}{standalone.cls/convert}{ghostscript}
 %    \begin{macrocode}
 \sa@convertoption{ghostscript}[]{%
-    \def\sa@convert@command{\gsexe\space -dSAFER -dBATCH -dNOPAUSE -sDEVICE=\gsdevice\space -r\density\space -sOutputFile=\outfile\space \infile}%
-    \let\sa@convert@pageoffset\z@
+    \def\sa@convert@command{\gsexe\space -dSAFER -dBATCH -dNOPAUSE 
+        \ifsa@convert@perpage-sPageList=\pagenum\fi\space
+        -sDEVICE=\gsdevice\space
+        -r\density\space 
+        -sOutputFile=\outfile\space \infile
+    }%
 }
 %    \end{macrocode}
 % \end{key}
