@@ -676,6 +676,12 @@
 %    \end{macrocode}
 % \end{key}
 %
+% \begin{key}{standalone.cls/convert}{perpage}
+% Boolean key to indicate to run the convert command once per page.
+%    \begin{macrocode}
+\define@boolkey[sa]{convert}{perpage}{}
+%    \end{macrocode}
+% \end{key}
 %
 % \begin{key}{standalone.cls/convert}{gsdevice}
 %    \begin{macrocode}
@@ -762,7 +768,8 @@
 \sa@convertvar{outext}{.png}
 \sa@convertvar{outname}{\inname}
 \sa@convertvar{outfile}{\outname\ifsa@multi\sa@multi@pagemark\fi\outext}
-\def\sa@multi@pagemark{-\percent0d}%
+\def\sa@multi@pagemark{-\percent0d}
+\def\sa@convert@pagenum{1}
 \sa@convertvar{density}{300}
 \sa@convertvar{gsdevice}{%
     \expandafter\ifx\csname sa@gsdevice@\outext\endcsname\relax
@@ -1502,6 +1509,13 @@
 \ifsa@convert
 %    \end{macrocode}
 %
+% Disable \Macro\sa@convert@perpage if 'multi' option is not set.
+%    \begin{macrocode}
+\ifsa@multi\else
+\sa@convert@perpagefalse
+\fi
+%    \end{macrocode}
+%
 %    \begin{macrocode}
 \def\sa@convert@stop{\csname fi\endcsname\stop}%
 \begingroup
@@ -1565,6 +1579,9 @@
 %
     \@tempcnta\sa@multi@numpages\relax
     \advance\@tempcnta\sa@convert@pageoffset\relax
+    \ifsa@convert@perpage
+    \def\sa@multi@pagemark{-\pagenum}%
+    \else
     \ifnum\@tempcnta=\z@
         \def\sa@multi@pagemark{}%
         \edef\sa@lastoutfile{\outfile}%
@@ -1580,6 +1597,7 @@
         \repeat
         \edef\sa@multi@pagemark{-\percent0\the\@tempcntb d}%
     \fi
+    \fi
 %
     \if@tempswa
         \edef\infile@filemodafter{\csname pdf\ifluatex @\fi filemoddate\endcsname{\infile}}%
@@ -1594,20 +1612,40 @@
 		\message{Executing precommand:^^J\sa@convert@precommand^^J^^J}%
         \ShellEscape{\sa@convert@precommand}%
     \fi
+    \ifsa@convert@perpage
+      \begingroup
+      \@tempcnta\sa@multi@numpages\relax
+      \advance\@tempcnta\@ne
+      \@tempcntb\@ne
+      \def\pagenum{\the\@tempcntb}%
+      \loop\ifnum\@tempcntb<\@tempcnta
+        \sa@execute@convert@command
+        \sa@checkoutfile{\outfile}{#1}%    
+        \advance\@tempcntb\@ne
+      \repeat    
+      \endgroup
+    \else
+      \sa@execute@convert@command
+      \sa@checkoutfile{\sa@lastoutfile}{#1}%
+    \fi
+    \@tempswafalse
+}
+\def\sa@execute@convert@command{%
 	\message{Executing command:^^J\sa@convert@command^^J^^J}%
     \ShellEscape{\sa@convert@command}%
-    \@tempswafalse
-    \IfFileExists{\sa@lastoutfile}{%
-        \edef\filemodafter{\csname pdf\ifluatex @\fi filemoddate\endcsname{\sa@lastoutfile}}%
+}
+\def\sa@checkoutfile#1#2{%
+    \IfFileExists{#1}{%
+        \edef\filemodafter{\csname pdf\ifluatex @\fi filemoddate\endcsname{#1}}%
         \ifx\filemodbefore\filemodafter
             \expandafter\ifx\csname pdf\ifluatex @\fi filemoddate\endcsname\relax\else
-                \sa@convert@failuremsg{standalone}{#1}{}%
+                \sa@convert@failuremsg{standalone}{#2}{}%
             \fi
         \else
-            \typeout{Class standalone:^^JOutput written on \sa@lastoutfile.}%
+            \typeout{Class standalone:^^JOutput written on #1.}%
         \fi
     }{%
-        \sa@convert@failuremsg{standalone}{#1}{}%
+        \sa@convert@failuremsg{standalone}{#2}{}%
     }%
 }
 %    \end{macrocode}
@@ -1632,6 +1670,7 @@
 \let\outext\sa@convert@outext
 \let\outname\sa@convert@outname
 \let\outfile\sa@convert@outfile
+\let\pagenum\sa@convert@pagenum
 \let\percent\@percentchar
 \let\quote\sa@convert@quote
 %    \end{macrocode}
