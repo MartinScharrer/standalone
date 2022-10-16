@@ -753,8 +753,13 @@
 % \begin{key}{standalone.cls/convert}{imagemagick}
 %    \begin{macrocode}
 \sa@convertoption{imagemagick}[]{%
-    \def\sa@convert@command{\imagemagickexe\space -density \density\space -units PixelsPerInch \infile\space \ifx\size\empty\else -resize \size\fi\space -quality 90 \outfile}%
-    \let\sa@convert@pageoffset\m@ne
+    \def\sa@convert@command{\convertexe\space 
+        -density \density\space
+        -units PixelsPerInch 
+        \infile\ifsa@convert@perpage[\prevpagenum]\fi\space
+        -scene 1
+        \ifx\size\empty\else -resize \size\fi\space
+        -quality 90 \outfile}%
 }
 %    \end{macrocode}
 % \end{key}
@@ -796,7 +801,6 @@
         --export-type="\expandafter\@gobble\outext"
         --pdf-page=\pagenum\space
         -o \outfile\space \infile}
-    \let\sa@convert@pageoffset\z@
     \sa@convert@perpagetrue
     \def\sa@multi@pagemark{\pagenum}%
 }
@@ -1621,7 +1625,6 @@
     \endgroup
 %
     \@tempcnta\sa@multi@numpages\relax
-    \advance\@tempcnta\sa@convert@pageoffset\relax
     \ifsa@convert@perpage
     \def\sa@multi@pagemark{-\pagenum}%
     \else
@@ -1658,13 +1661,13 @@
     \ifsa@convert@perpage
       \begingroup
       \@tempcnta\sa@multi@numpages\relax
-      \advance\@tempcnta\@ne
-      \@tempcntb\@ne
+      \@tempcntb\z@
       \def\pagenum{\the\@tempcntb}%
       \loop\ifnum\@tempcntb<\@tempcnta
+        \edef\prevpagenum{\pagenum}%
+        \advance\@tempcntb\@ne
         \sa@execute@convert@command
         \sa@checkoutfile{\outfile}{#1}%    
-        \advance\@tempcntb\@ne
       \repeat    
       \endgroup
     \else
