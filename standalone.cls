@@ -639,6 +639,40 @@
 % \end{key}
 %
 %
+% \begin{key}{standalone.cls/convert}{svg}
+%    \begin{macrocode}
+\sa@convertoption{svg}[]{%
+    \setkeys{standalone.cls/convert}{true,inkscape,outext={.svg}}%
+}
+%    \end{macrocode}
+% \end{key}
+%
+% \begin{key}{standalone.cls}{svg}
+%    \begin{macrocode}
+\sa@clsoption{svg}[]{%
+    \setkeys{standalone.cls/convert}{svg,#1}%
+}
+%    \end{macrocode}
+% \end{key}
+%
+%
+% \begin{key}{standalone.cls/convert}{emf}
+%    \begin{macrocode}
+\sa@convertoption{emf}[]{%
+    \setkeys{standalone.cls/convert}{true,inkscape,outext={.emf}}%
+}
+%    \end{macrocode}
+% \end{key}
+%
+% \begin{key}{standalone.cls}{emf}
+%    \begin{macrocode}
+\sa@clsoption{emf}[]{%
+    \setkeys{standalone.cls/convert}{emf,#1}%
+}
+%    \end{macrocode}
+% \end{key}
+%
+%
 % \begin{key}{standalone.cls/convert}{onfailure}
 %    \begin{macrocode}
 \sa@convertoption{onfailure}{%
