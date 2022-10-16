@@ -194,6 +194,7 @@
 \newif\ifsa@convert
 \newif\ifsa@float
 \newif\ifsa@math
+\newif\ifsa@convert@perpage
 %    \end{macrocode}
 %
 % The \cs{ifstandalonebeamer} switch is in the user-level.
@@ -713,7 +714,9 @@
 % \begin{key}{standalone.cls/convert}{perpage}
 % Boolean key to indicate to run the convert command once per page.
 %    \begin{macrocode}
-\define@boolkey[sa]{convert}{perpage}{}
+\sa@convertoption{perpage}[true]{%
+    \sa@boolean{convert@perpage}{#1}%
+}
 %    \end{macrocode}
 % \end{key}
 %
