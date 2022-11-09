@@ -809,17 +809,20 @@
 % \end{key}
 %
 %    \begin{macrocode}
-\sa@convertvar{latexoptions}{ -shell-escape }
+\sa@convertvar{latexoptions}{ -shell-escape \ifx\outputdir\empty\else-output-directory \sa@convert@quote\outputdir\sa@convert@quote\fi\space}
 \sa@convertvar{subjobname}{\jobname}
 \sa@convertvar{mainfile}{\jobname}
 \sa@convertvar{quote}{}
 \let\sa@convert@quote\relax
 \sa@convertvar{size}{}
 \sa@convertvar{inname}{\subjobname}
-\sa@convertvar{infile}{\inname\inext}
+\sa@convertvar{infile}{\indir\inname\inext}
+\sa@convertvar{outputdir}{}
+\sa@convertvar{indir}{\outputdir}
+\sa@convertvar{outdir}{\outputdir}
 \sa@convertvar{outext}{.png}
 \sa@convertvar{outname}{\inname}
-\sa@convertvar{outfile}{\outname\ifsa@multi\sa@multi@pagemark\fi\outext}
+\sa@convertvar{outfile}{\outdir\outname\ifsa@multi\sa@multi@pagemark\fi\outext}
 \def\sa@multi@pagemark{-\percent0d}
 \def\sa@convert@pagenum{1}
 \sa@convertvar{density}{300}
@@ -1704,6 +1707,9 @@
 \let\infile\sa@convert@infile
 \let\inext\sa@convert@inext
 \let\inname\sa@convert@inname
+\let\indir\sa@convert@indir
+\let\outdir\sa@convert@outdir
+\let\outputdir\sa@convert@outputdir
 \let\gsdevice\sa@convert@gsdevice
 \let\convertexe\sa@convert@convertexe
 \let\gsexe\sa@convert@gsexe
