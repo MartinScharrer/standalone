@@ -26,10 +26,10 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesFile{standalone.dtx}[%
 %<=*DATE>
-    2022/10/10
+    2022/11/11
 %<=/DATE>
 %<=*VERSION>
-    v1.3b
+    v1.4
 %<=/VERSION>
     DTX file of the standalone bundle]
 \documentclass[a4paper,11pt]{ydoc}
@@ -95,6 +95,7 @@
 % Changed filemodedate code to support LuaTeX.
 % Fixes for option combination multi,convert.}
 % \changes{v1.3b}{2022/10/10}{Fixed incorrect/unwanted messages for conversion feature. Updated project URLs in documentation. Added dependency list file.}
+% \changes{v1.4}{2022/11/11}{Updated conversion feature.}
 %
 % \GetFileInfo{\jobname.dtx}
 %
@@ -624,6 +625,7 @@
 % \begin{table}
 % \vspace*{-10ex}%
 % \belowcaptionskip=\abovecaptionskip
+
 % \caption[Conversion Options]{Conversion Options (to be used in the value of \opt{convert} class option)}\label{tab:convopt}
 % \hbox to \textwidth{\hss%
 % \begin{tabular}{>{\ttfamily}lp{\dimexpr.7\textwidth\relax}l}
@@ -639,17 +641,28 @@
 %  subjobname  &  The jobname used for the internal \LaTeX\ run  & |\jobname| \\
 %     inext    &  Input file extension including the leading dot  & |.pdf| or |.ps| \\
 %     inname   &  Name base of input file (i.e.\ file name without extension)  & |\subjobname| \\
-%     infile   &  Input file name  & |\inname\inext| \\
+%     infile   &  Input file name  & |\indir\inname\inext| \\
 %     outext   &  Output file extension including the leading dot  & |.png| \\
 %     outname  &  Name base of output file  & |\inname| \\
-%     outfile  &  Output file name  & |\outname\outext| \\
+%     outfile  &  Output file name  & |\outdir\outname\outext| \\
+%  \midrule
+%   outputdir  &  Directory to be used for the \LaTeX\ compilers |-output-directory| option. 
+%                 This will cause that all \LaTeX\ output files from the internal run will be created and read-back from the given directory. 
+%                 This option shall be set if the main \LaTeX\ compiler run is called with the |-output-directory| option but can also be used on its own.
+%                 If not empty the directory must end with a slash `/'. & (empty) \\
+%      outdir  &  Output directory where the conversion result shall be created. If not empty the directory must end with a slash `/'.  & |\outputdir| \\
+%       indir  &  Input directory, e.g.\ where the PDF is created. If not empty the directory must end with a slash `/'.  & |\outputdir| \\
 %  \bottomrule\noalign{\smallskip}
 %  \multicolumn{3}{l}{%
 %   \strut Note: the settings (except 'true' and 'false') can also be used as macros in other settings.
 %   }%
-% \end{tabular}
-% \hss}
-% \medskip
+% \end{tabular}%
+% \hss}%
+% \end{table}
+%
+% \begin{table}
+% \vspace*{-10ex}%
+% \belowcaptionskip=\abovecaptionskip
 % \caption{Advanced Conversion Options}\label{tab:advconvopt}
 % \hbox to \textwidth{\hss%
 % \begin{tabular}{>{\ttfamily}lp{\dimexpr.6\textwidth\relax}l}
@@ -657,6 +670,7 @@
 %  \multicolumn{1}{l}{Sub-Option}  &  Description & Default value \\
 %  \midrule
 %     command  &  Command line used for conversion. & (see |imagemagick|) \\
+%     perpage     & Boolean value. If set to |true| (default if used without a value) the conversion command is called once per page. Needs the \opt{multi} option to be enabled. \\
 %     imagemagick & Sets the convert command to use Image Magick: \newline\bigskip
 %                   \hspace*{-5em}\hbox{\vtop{\hbox{\strut|command=\unexpanded{{\convertexe\space -density \density\space |\vrule height 2\ht\strutbox width 0pt{}}%
 %                                      \hbox{\strut|         \infile\space \ifx\size\empty\else |}%
@@ -666,13 +680,16 @@
 %                   \hspace*{-5em}\hbox{\vtop{\hbox{\strut|command=\unexpanded{{\gsexe\space -dSAFER -dBATCH -dNOPAUSE|\vrule height 2\ht\strutbox width 0pt{}}%
 %                                      \hbox{\strut|         -sDEVICE=\gsdevice\space -r\density\space|}%
 %                                      \hbox{\strut|         -sOutputFile=\outfile\space \infile}}|}}\hss} \\
+%     ghostscript32 & Sets the convert command to use Ghostscript and |gsexe| to the 32-bit executable. \\
+%     ghostscript64 & Sets the convert command to use Ghostscript and |gsexe| to the 64-bit executable. \\
 %     gsexe       & Name of the executable of Ghostscript. & (see \autoref{sec:convprogs})  \\
-%     precommand  & Command to be executed before the actual conversion command.  & {\tabular[t]{@{}l@{}}|dvips \subjobname| (DVI/PS),\\empty (PDF)\endtabular} \\
 %     gsdevice    & The output device to be used for ghostscript. Already set up for PNG and JPG output. & \parbox[t]{15em}{Uses known device if defined for output format, otherwise the output format itself.}\\
+%     precommand  & Command to be executed before the actual conversion command.  & {\tabular[t]{@{}l@{}}|dvips \subjobname| (DVI/PS),\\empty (PDF)\endtabular} \\
 %     onfailure   & Sets if an type of `message' which should be triggered on conversion failure:  |error|, |warning|, |info| or |ignore|. & |warning| \\
+%
 %  \bottomrule
-% \end{tabular}
-% \hss}
+% \end{tabular}%
+% \hss}%
 % \end{table}
 %
 % \subsubsection{Conversion software}\label{sec:convprogs}
