@@ -882,7 +882,7 @@
     \@namedef{sa@convert@gsexe32}{gs}
     \@namedef{sa@convert@gsexe64}{gs}
 \fi
-\sa@convertvar{gsexe}{\@nameuse{sa@convert@gsexe32}}
+\sa@convertvar{gsexe}{\@nameuse{sa@convert@gsexe64}}
 \sa@convertvar{convertexe}{magick convert}
 \sa@convertvar{inkscapeexe}{inkscape}
 %    \end{macrocode}
