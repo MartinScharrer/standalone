@@ -469,6 +469,10 @@
 %
 % \DescribeKey{convert}'='{<conversion options>}
 % \DescribeKey{png}'='{<conversion options>}
+% \DescribeKey{jpg}'='{<conversion options>}
+% \DescribeKey{gif}'='{<conversion options>}
+% \DescribeKey{svg}'='{<conversion options>}
+% \DescribeKey{emf}'='{<conversion options>}
 % These options allow to enable and configure the conversion feature. See \autoref{sec:convert} for the full description.
 %
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -607,146 +611,6 @@
 % Because it can be assumed that the bundle configuration file resides inside a \file{standalone} directory, therefore it can be loaded from a user configuration file using
 % \Macro\input{standalone/standalone.cfg}.
 %
-%
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \subsection{Conversion to images}\label{sec:convert}
-% Using the \opt{convert} class option the standalone file can be easily converted to an raster image. This is done by executing an external program to convert the output file (PDF or PS) to
-% an image (recommended is the lossless PNG format, but also others are supported).
-%
-% \subsubsection{Conversion settings}
-% Conversion settings can be given as the value of the \Key{convert}'='{<settings>} option.
-% By default conversion is disabled (\Key{convert}'=false'). If enabled without providing own settings (\Key{convert}, \Key{convert}'=true')
-% the following default settings are used: PNG format, a density of 300dpi, no explicit size and the output file name is given by \Macro\jobname, i.e.\ the name of the \LaTeX\ document.
-% Using the \opt{convert} option with any value other than |false| will enabled it.
-% All normal conversion settings are listed in \autoref{tab:convopt}, while \autoref{tab:advconvopt} lists the more advanced options which e.g.\ can be used to modify the conversion command directly.
-% Note that macros used inside documentclass options must be protected from expansion. This can either be done wrapping the whole argument in an \Macro\unexpanded{..} (requires e-\TeX) 
-% or by using \Macro\noexpand in front of any macro.
-%
-% \begin{table}
-% \vspace*{-10ex}%
-% \belowcaptionskip=\abovecaptionskip
-
-% \caption[Conversion Options]{Conversion Options (to be used in the value of \opt{convert} class option)}\label{tab:convopt}
-% \hbox to \textwidth{\hss%
-% \begin{tabular}{>{\ttfamily}lp{\dimexpr.7\textwidth\relax}l}
-%  \toprule
-%  \multicolumn{1}{l}{Sub-Option}  &  Description & Default value \\
-%  \midrule
-%   (no value) &  Conversion enabled with default settings   & ./. \\
-%     true     &  Conversion enabled (with default settings if no other options are given)  & (no value) \\
-%     false    &  Conversion disabled   & (no value) \\
-%  \midrule
-%     density  &  Sets the density in dots-per-inch (dpi). Can be a single numerical value or `\meta{X}|x|\meta{Y}'.  & |300| \\
-%     size     &  Sets the size of the image. Can be a single numerical value or `\meta{X}|x|\meta{Y}'. If empty the size is determined by the density setting and the size of the PDF. & (empty) \\
-%  subjobname  &  The jobname used for the internal \LaTeX\ run  & |\jobname| \\
-%     inext    &  Input file extension including the leading dot  & |.pdf| or |.ps| \\
-%     inname   &  Name base of input file (i.e.\ file name without extension)  & |\subjobname| \\
-%     infile   &  Input file name  & |\indir\inname\inext| \\
-%     outext   &  Output file extension including the leading dot  & |.png| \\
-%     outname  &  Name base of output file  & |\inname| \\
-%     outfile  &  Output file name  & |\outdir\outname\outext| \\
-%  \midrule
-%   outputdir  &  Directory to be used for the \LaTeX\ compilers |-output-directory| option. 
-%                 This will cause that all \LaTeX\ output files from the internal run will be created and read-back from the given directory. 
-%                 This option shall be set if the main \LaTeX\ compiler run is called with the |-output-directory| option but can also be used on its own.
-%                 If not empty the directory must end with a slash `/'. & (empty) \\
-%      outdir  &  Output directory where the conversion result shall be created. If not empty the directory must end with a slash `/'.  & |\outputdir| \\
-%       indir  &  Input directory, e.g.\ where the PDF is created. If not empty the directory must end with a slash `/'.  & |\outputdir| \\
-%  \bottomrule\noalign{\smallskip}
-%  \multicolumn{3}{l}{%
-%   \strut Note: the settings (except 'true' and 'false') can also be used as macros in other settings.
-%   }%
-% \end{tabular}%
-% \hss}%
-% \end{table}
-%
-% \begin{table}
-% \vspace*{-10ex}%
-% \belowcaptionskip=\abovecaptionskip
-% \caption{Advanced Conversion Options}\label{tab:advconvopt}
-% \hbox to \textwidth{\hss%
-% \begin{tabular}{>{\ttfamily}lp{\dimexpr.6\textwidth\relax}l}
-%  \toprule
-%  \multicolumn{1}{l}{Sub-Option}  &  Description & Default value \\
-%  \midrule
-%     command  &  Command line used for conversion. & (see |imagemagick|) \\
-%     perpage     & Boolean value. If set to |true| (default if used without a value) the conversion command is called once per page. Needs the \opt{multi} option to be enabled. \\
-%     imagemagick & Sets the convert command to use Image Magick: \newline\bigskip
-%                   \hspace*{-5em}\hbox{\vtop{\hbox{\strut|command=\unexpanded{{\convertexe\space -density \density\space |\vrule height 2\ht\strutbox width 0pt{}}%
-%                                      \hbox{\strut|         \infile\space \ifx\size\empty\else |}%
-%                                      \hbox{\strut|         -resize \size\fi\space -quality 90 \outfile}}|}}\hss} \\
-%     convertexe  & Name of the executable of Image Magick. & (see \autoref{sec:convprogs})  \\
-%     ghostscript & Sets the convert command to use Ghostscript: \newline\bigskip
-%                   \hspace*{-5em}\hbox{\vtop{\hbox{\strut|command=\unexpanded{{\gsexe\space -dSAFER -dBATCH -dNOPAUSE|\vrule height 2\ht\strutbox width 0pt{}}%
-%                                      \hbox{\strut|         -sDEVICE=\gsdevice\space -r\density\space|}%
-%                                      \hbox{\strut|         -sOutputFile=\outfile\space \infile}}|}}\hss} \\
-%     ghostscript32 & Sets the convert command to use Ghostscript and |gsexe| to the 32-bit executable. \\
-%     ghostscript64 & Sets the convert command to use Ghostscript and |gsexe| to the 64-bit executable. \\
-%     gsexe       & Name of the executable of Ghostscript. & (see \autoref{sec:convprogs})  \\
-%     gsdevice    & The output device to be used for ghostscript. Already set up for PNG and JPG output. & \parbox[t]{15em}{Uses known device if defined for output format, otherwise the output format itself.}\\
-%     precommand  & Command to be executed before the actual conversion command.  & {\tabular[t]{@{}l@{}}|dvips \subjobname| (DVI/PS),\\empty (PDF)\endtabular} \\
-%     onfailure   & Sets if an type of `message' which should be triggered on conversion failure:  |error|, |warning|, |info| or |ignore|. & |warning| \\
-%
-%  \bottomrule
-% \end{tabular}%
-% \hss}%
-% \end{table}
-%
-% \subsubsection{Conversion software}\label{sec:convprogs}
-% The conversion requires an external image converter program to be installed. By default the two following tools are supported and either of them must be installed in order to use the conversion feature.
-% In order for an external program to be executed the \texttt{-shell-escape} option\footnote{Maybe named differently depending on the used \LaTeX\ distribution} must be used for the 
-% compiler executable, e.g.\ \texttt{pdflatex -shell-escape filename}. Without this option no conversion is possible.
-%
-% By default the conversion program of \href{http://www.imagemagick.org/}{Image Magick} is used for PDF \LaTeX\ files, which is freely available for Unix/Linux, Mac and MS Windows.
-% Under Ubuntu Linux it can be installed using the shell command `\texttt{sudo apt-get install imagemagick}'.
-% The conversion executable is simply called `|convert|'. However, there is another program with the same name provided by MS Windows itself which
-% converts old FAT filesystems to NTFS! It has been suggested to rename the Image Magick executable to `|imgconvert|' instead.
-% By default \cls{standalone} uses `|imgconvert|' as executable if MS Windows is detected and `|convert|' otherwise.
-% The executable name can be change manually using the `|convertexe|' conversion option or by using
-% \codeline{\AlsoMacro\standaloneconfig{'convert='{'convertexe='{convert}}}}
-% in the configuration file `|standalone.cfg|'.
-%
-% Another conversion program is \href{http://pages.cs.wisc.edu/~ghost/}{Ghostscript} which is a very common PostScript interpreter which also supports PDF.
-% It is used by default for DVI/PS files.
-% Under Ubuntu Linux it is most likely already installed but otherwise can be installed using `|sudo apt-get install ghostscript|' or
-% `|sudo apt-get install gs|'.
-% It can convert both to various output formats and is freely available for Unix/Linux, Max OS X and MS Windows.
-% It requires to set the correct output device which is not always fully identical to the output format (e.g.\ `|png16m|' for a PNG (with 16 million colors)).
-% The devices for PNG and JPG are already configured.
-% Other devices can be configured using the \Key{defgsdevice}'='{<.extension>}{<device>} conversion setting.
-% The Ghostscript executable is usually named `|gs|' under Linux/Unix and `|gswin32c|' under MS Windows and configured this way by default,
-% but this may be changed using the |gsexe| setting.
-%
-%
-% \subsubsection{Conversion process}
-% The conversion process is currently implemented in the following way to allow the normal compilation and subsequent conversion using only one (manual) compiler run.
-% Because the document must be fully compiled before the conversion can occur the \cls{standalone} executes the same \LaTeX\ compiler (e.g.\ texttt{pdflatex}) again as
-% a sub-process which compiles the current document fully. This is done when the \cls{standalone} class is loaded, so that the main compiler instance is still at \Macro\documentclass
-% and has not yet itself opened the output file for writing. After the document got compiled using the sub-process the external conversion tool will be executed.
-% If required intermediate conversions like \texttt{dvips} are also executed beforehand.
-% Finally the main compiler run is terminated without producing any output, keeping the output file generated by the sub-process intact.
-% A drawback of this implementation is that the log file created by the sub-process is overwritten by the main process and does not hold meaningful information.
-% This can be compensated by setting a different jobname for the sub-process using the \Key{subjobname} conversion setting.
-%
-% \subsubsection{Conversion examples}
-%
-% PDF/PS is rastered with 600x100dpi and then converted to JPG:\\*[\smallskipamount]
-% |  \documentclass[convert={density=600x100,outext=.jpg}]{standalone}|
-%
-% \par\medskip\noindent
-% Produces BMP with 400x400px (one side might be meder if content is not quadratic in shape):\\*[\smallskipamount]
-% |  \documentclass[convert={outext=.bmp,size=400}]{standalone}|
-%
-% \par\medskip\noindent
-% Produces TIFF G4 output file using Ghostscript with a density of 72dpi:\\*[\smallskipamount]
-% |  \documentclass[convert={ghostscript,gsdevice=tiffg4,|\\*
-% |                 outext=.tiff,density=72}]{standalone}|
-%
-% \par\medskip\noindent
-% Produces PNG (default) with a size of 640px (suitable to be uploaded on StackExchange sites without the image getting downscaled):\\*[\smallskipamount]
-% |  \documentclass[convert={size=640}]{standalone}|
-%
-%
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % \subsection{Simple TeX File}
@@ -818,6 +682,173 @@
 % In order for the image conversion to work an external conversion software must be installed. By default either Image Magkick or GhostScript is used. Please insure that either or both of these softwares are installed.
 % Installation guide for your operating system should be easily available on the Internet. The \LaTeX\ compiler option |-shell-escape| must be used to allow this external software to be executed from within the \LaTeX\ code.
 % If this two points are fulfilled but the conversion does still not work, please check the log file. The lines in question start with `|runsystem|' (at least with \TeX\ Live 2011).
+%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \section{Conversion to images}\label{sec:convert}
+% Using the \opt{convert} class option the standalone file can be easily converted to an raster image. This is done by executing an external program to convert the output file (PDF or PS) to
+% an image (recommended is the lossless PNG format, but also others are supported).
+%
+% \subsection{Conversion settings}
+% Conversion settings can be given as the value of the \Key{convert}'='{<settings>} option.
+% By default conversion is disabled (\Key{convert}'=false'). If enabled without providing own settings (\Key{convert}, \Key{convert}'=true')
+% the following default settings are used: PNG format, a density of 300dpi, no explicit size and the output file name is given by \Macro\jobname, i.e.\ the name of the \LaTeX\ document.
+% Using the \opt{convert} option with any value other than |false| will enabled it.
+% All normal conversion settings are listed in \autoref{tab:convopt}, while \autoref{tab:advconvopt} lists the more advanced options which e.g.\ can be used to modify the conversion command directly.
+% Note that macros used inside documentclass options must be protected from expansion. This can either be done wrapping the whole argument in an \Macro\unexpanded{..} (requires e-\TeX) 
+% or by using \Macro\noexpand in front of any macro.
+%
+% \begin{table}
+% \vspace*{-10ex}%
+% \belowcaptionskip=\abovecaptionskip
+% \caption[Conversion Options]{Conversion Options (to be used in the value of \opt{convert} class option)}\label{tab:convopt}
+% \hbox to \textwidth{\hss%
+% \begin{tabular}{>{\ttfamily}lp{\dimexpr.7\textwidth\relax}l}
+%  \toprule
+%  \multicolumn{1}{l}{Sub-Option}  &  Description & Default value \\
+%  \midrule
+%   (no value) &  Conversion enabled with default settings   & ./. \\
+%     true     &  Conversion enabled (with default settings if no other options are given)  & (no value) \\
+%     false    &  Conversion disabled   & (no value) \\
+%  \midrule
+%     png      &  Selects PNG output format & \\
+%     jpg      &  Selects JPG output format & \\
+%     gif      &  Selects GIF output format using \emph{ImageMagick}. & \\
+%     svg      &  Selects SVG output format using \emph{Inkscape}. & \\
+%     emf      &  Selects EMF output format using \emph{Inkscape}. & \\
+%  \midrule
+%     density  &  Sets the density in dots-per-inch (dpi). Can be a single numerical value or `\meta{X}|x|\meta{Y}'.  & |300| \\
+%     size     &  Sets the size of the image. Can be a single numerical value or `\meta{X}|x|\meta{Y}'. If empty the size is determined by the density setting and the size of the PDF. & (empty) \\
+%  subjobname  &  The jobname used for the internal \LaTeX\ run  & |\jobname| \\
+%     inext    &  Input file extension including the leading dot  & |.pdf| or |.ps| \\
+%     inname   &  Name base of input file (i.e.\ file name without extension)  & |\subjobname| \\
+%     infile   &  Input file name  & |\indir\inname\inext| \\
+%     outext   &  Output file extension including the leading dot  & |.png| \\
+%     outname  &  Name base of output file  & |\inname| \\
+%     outfile  &  Output file name  & |\outdir\outname\outext| \\
+%  \midrule
+%   outputdir  &  Directory to be used for the \LaTeX\ compilers |-output-directory| option. 
+%                 This will cause that all \LaTeX\ output files from the internal run will be created and read-back from the given directory. 
+%                 This option shall be set if the main \LaTeX\ compiler run is called with the |-output-directory| option but can also be used on its own.
+%                 If not empty the directory must end with a slash `/'. & (empty) \\
+%      outdir  &  Output directory where the conversion result shall be created. If not empty the directory must end with a slash `/'.  & |\outputdir| \\
+%       indir  &  Input directory, e.g.\ where the PDF is created. If not empty the directory must end with a slash `/'.  & |\outputdir| \\
+%  \bottomrule\noalign{\smallskip}
+%  \multicolumn{3}{l}{%
+%   \strut Note: the settings (except 'true' and 'false') can also be used as macros in other settings.
+%   }%
+% \end{tabular}%
+% \hss}%
+% \end{table}
+%
+% \begin{table}
+% \vspace*{-10ex}%
+% \belowcaptionskip=\abovecaptionskip
+% \caption{Advanced Conversion Options}\label{tab:advconvopt}
+% \hbox to \textwidth{\hss%
+% \begin{tabular}{>{\ttfamily}lp{\dimexpr.6\textwidth\relax}l}
+%  \toprule
+%  \multicolumn{1}{l}{Sub-Option}  &  Description & Default value \\
+%  \midrule
+%     command  &  Command line used for conversion. & (see |imagemagick|) \\
+%     perpage     & Boolean value. If set to |true| (default if used without a value) the conversion command is called once per page. Needs the \opt{multi} option to be enabled. \\
+%     imagemagick & Sets the convert command to use Image Magick: \newline\bigskip
+%                   \hspace*{-5em}\hbox{\vtop{\hbox{\strut|command=\unexpanded{{\convertexe\space -density \density\space |\vrule height 2\ht\strutbox width 0pt{}}%
+%                                      \hbox{\strut|         \infile\space \ifx\size\empty\else |}%
+%                                      \hbox{\strut|         -resize \size\fi\space -quality 90 \outfile}}|}}\hss} \\
+%     convertexe  & Name of the executable of Image Magick. & (see \autoref{sec:convprogs})  \\
+%     ghostscript & Sets the convert command to use Ghostscript: \newline\bigskip
+%                   \hspace*{-5em}\hbox{\vtop{\hbox{\strut|command=\unexpanded{{\gsexe\space -dSAFER -dBATCH -dNOPAUSE|\vrule height 2\ht\strutbox width 0pt{}}%
+%                                      \hbox{\strut|         -sDEVICE=\gsdevice\space -r\density\space|}%
+%                                      \hbox{\strut|         -sOutputFile=\outfile\space \infile}}|}}\hss} \\
+%     ghostscript32 & Sets the convert command to use Ghostscript and |gsexe| to the 32-bit executable. \\
+%     ghostscript64 & Sets the convert command to use Ghostscript and |gsexe| to the 64-bit executable. \\
+%     gsexe       & Name of the executable of Ghostscript. & (see \autoref{sec:convprogs})  \\
+%     gsdevice    & The output device to be used for ghostscript. Already set up for PNG and JPG output. & \parbox[t]{15em}{Uses known device if defined for output format, otherwise the output format itself.}\\
+%     precommand  & Command to be executed before the actual conversion command.  & {\tabular[t]{@{}l@{}}|dvips \subjobname| (DVI/PS),\\empty (PDF)\endtabular} \\
+%     onfailure   & Sets if an type of `message' which should be triggered on conversion failure:  |error|, |warning|, |info| or |ignore|. & |warning| \\
+%
+%  \bottomrule
+% \end{tabular}%
+% \hss}%
+% \end{table}
+%
+% \subsection{Conversion software}\label{sec:convprogs}
+% The conversion requires an external image converter program to be installed. The two following tools are supported.
+% In order for an external program to be executed the \texttt{-shell-escape} option\footnote{Maybe named differently depending on the used \LaTeX\ distribution} must be used for the 
+% compiler executable, e.g.\ \texttt{pdflatex -shell-escape filename}. Without this option no conversion is possible as \LaTeX\ will block calls to the shell.
+%
+% By default the conversion program \href{https://pages.cs.wisc.edu/~ghost/}{Ghostscript} is used, which is a very common PostScript interpreter which also supports PDF.
+% Under Ubuntu Linux it is most likely already installed but otherwise can be installed using `\texttt{sudo apt-get install ghostscript}' or
+% `\texttt{sudo apt-get install gs}'.
+% It can convert both to various output formats and is freely available for Unix/Linux, Max OS X and MS Windows.
+% It requires to set the correct output device which is not always fully identical to the output format (e.g.\ `|png16m|' for a PNG (with 16 million colors)).
+% The devices for PNG and JPG are already configured.
+% Other devices can be configured using the \Key{defgsdevice}'='{<.extension>}{<device>} conversion setting.
+% The Ghostscript executable is usually named `|gs|' under Linux/Unix and `|gswin64c|' (32-bit version: `|gswin32c|') under MS Windows and configured this way by default,
+% but this may be changed using the |gsexe| setting. By default the 64-bit version is used, which can be changed to the 32-bit version using the \opt{ghostscript32} convert option.
+%
+% Also supported is the conversion program \href{https://www.imagemagick.org/}{Image Magick}, which is freely available for Unix/Linux, Mac and MS Windows.
+% For PDF input it will however use \emph{Ghostscript} internally, but adds more output filetypes like the GIF format.
+% Under Ubuntu Linux it can be installed using the shell command `\texttt{sudo apt-get install imagemagick}'.
+% The conversion executable was orinally called `|convert|', which clashed with a MS Windows FAT-to-NTFS converter.
+% Newer version name the executable `|magick|' where the convert command must be given as an argument: `|magick convert|'.
+% If needed the executable name can be change manually using the `|convertexe|' conversion option or by using
+% \codeline{\AlsoMacro\standaloneconfig{'convert='{'convertexe='{...}}}} in the configuration file `|standalone.cfg|'.
+%
+% Furthermore the vector graphics software \href{https://inkscape.org/}{Inkscape} is supported. 
+% It allows the conversion from PDF files to SVG, useful for web publishing, and to EMF, which is useful for including the diagrams in MS Office.
+% It is also freely available for MS Windows, Linux and macOS.
+%
+% \subsection{Conversion process}
+% The conversion process is currently implemented in the following way to allow the normal compilation and subsequent conversion using only one (manual) compiler run.
+% Because the document must be fully compiled before the conversion can occur the \cls{standalone} executes the same \LaTeX\ compiler (e.g.\ texttt{pdflatex}) again as
+% a sub-process which compiles the current document fully. This is done when the \cls{standalone} class is loaded, so that the main compiler instance is still at \Macro\documentclass
+% and has not yet itself opened the output file for writing. After the document got compiled using the sub-process the external conversion tool will be executed.
+% If required intermediate conversions like \texttt{dvips} are also executed beforehand.
+% Finally the main compiler run is terminated without producing any output, keeping the output file generated by the sub-process intact.
+% A drawback of this implementation is that the log file created by the sub-process is overwritten by the main process and does not hold meaningful information.
+% This can be compensated by setting a different jobname for the sub-process using the \Key{subjobname} conversion setting.
+%
+% \subsection{Conversion examples}
+%
+% \par\medskip\noindent
+% Produces PNG (default) with a size of 640px (suitable to be uploaded on StackExchange sites without the image getting downscaled):\\*[\smallskipamount]
+% |  \documentclass[convert={size=640}]{standalone}|
+%
+% \par\medskip\noindent
+% Produces EMF, a vector format suitable for inclusion in MS Word or other MS Office software. Text content will be rendered as curves and will not be able to be copied
+% as text. This needs \emph{Inkscape} to be installed as other conversion softwares do not support this output format.\\*[\smallskipamount]
+% |  \documentclass[emf]{standalone}|\\
+% or \\
+% |  \documentclass[convert={emf}]{standalone}|
+%
+% \par\medskip\noindent
+% Produces SVG, a vector format suitable for inclusion in websites. Text content will be rendered as curves and will not be able to be copied
+% as text. This needs \emph{Inkscape} to be installed as other conversion softwares do not support this output format.\\*[\smallskipamount]
+% |  \documentclass[svg]{standalone}|\\
+% or \\
+% |  \documentclass[convert={svg}]{standalone}|
+%
+% \par\medskip\noindent
+% Produces GIF with a size of 640px. This needs \emph{ImageMagick} to be installed as other conversion softwares do not support this output format.\\*[\smallskipamount]
+% |  \documentclass[gif={size=640}]{standalone}|\\
+% or \\
+% |  \documentclass[convert={gif,size=640}]{standalone}|
+%
+% \par\medskip\noindent
+% PDF/PS is rastered with 600x100dpi and then converted to JPG (not recommended):\\*[\smallskipamount]
+% |  \documentclass[convert={density=600x100,outext=.jpg}]{standalone}|
+%
+% \par\medskip\noindent
+% Produces BMP with 400x400px (one side might be meder if content is not quadratic in shape):\\*[\smallskipamount]
+% |  \documentclass[convert={outext=.bmp,size=400}]{standalone}|
+%
+% \par\medskip\noindent
+% Produces TIFF G4 output file using Ghostscript with a density of 72dpi:\\*[\smallskipamount]
+% |  \documentclass[convert={ghostscript,gsdevice=tiffg4,|\\*
+% |                 outext=.tiff,density=72}]{standalone}|
+%
 %
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
