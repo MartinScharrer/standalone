@@ -237,8 +237,8 @@
 % The package \cls{standalone} can be used in the main document to skip all extra preambles in included files. The main file must load all packages
 % and settings required by the sub-files. Several package options are provided to collect the preambles of the sub-files automatically and execute them from the main file.
 %
-% A \cls{standalone} class is also provided to minimise the extra preamble code needed in this files.
-% It's usage is optional, but simplifies and standardises how picture files are compiled standalone.
+% A \cls{standalone} class is also provided to minimise the extra preamble code needed in these files.
+% It usage is optional, but simplifies and standardises how picture files are compiled standalone.
 % The class uses by default the \opt{crop} option to create an output file which only contains the picture with no extra
 % margins, page numbers or anything else. 
 % A configuration file \file{standalone.cfg} read by the class allows the user to adjust settings and macros easily
@@ -319,7 +319,7 @@
 % Page number and other header or footer material will be suppressed.
 %
 % For pictures drawn with TikZ a dedicated \opt{tikz} option is provided which loads the \pkg{tikz} package and also configures the \env{tikzpicture} environment to create a single cropped page.
-% For PSTricks pictures an corresponding \opt{pstricks} option is provided.
+% For PSTricks pictures a corresponding \opt{pstricks} option is provided.
 %
 % \par\noindent
 % \begin{minipage}{\textwidth}
@@ -369,7 +369,7 @@
 % \DescribeKey{preview}'=true|false'
 % If enabled this option loads the \pkg{preview} package with the \opt{tightpage} option
 % and wraps the content into a \env{preview} environment. This crops the content to its natural size plus a specified border.
-% Issues with the \pkg{preview} options and TikZ shadings under \XeLaTeX have been reported. In this cases the \opt{crop} option should be used instead.
+% Issues with the \pkg{preview} option and TikZ shadings under \XeLaTeX{} have been reported. In this cases the \opt{crop} option should be used instead.
 % Note that this option was enabled by default for versions before v1.0, but since then \opt{crop} is enabled by
 % default.
 %
