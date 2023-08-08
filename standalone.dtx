@@ -237,8 +237,8 @@
 % The package \cls{standalone} can be used in the main document to skip all extra preambles in included files. The main file must load all packages
 % and settings required by the sub-files. Several package options are provided to collect the preambles of the sub-files automatically and execute them from the main file.
 %
-% A \cls{standalone} class is also provided to minimise the extra preamble code needed in this files.
-% It's usage is optional, but simplifies and standardises how picture files are compiled standalone.
+% A \cls{standalone} class is also provided to minimise the extra preamble code needed in these files.
+% Its usage is optional, but simplifies and standardises how picture files are compiled standalone.
 % The class uses by default the \opt{crop} option to create an output file which only contains the picture with no extra
 % margins, page numbers or anything else. 
 % A configuration file \file{standalone.cfg} read by the class allows the user to adjust settings and macros easily
@@ -319,7 +319,7 @@
 % Page number and other header or footer material will be suppressed.
 %
 % For pictures drawn with TikZ a dedicated \opt{tikz} option is provided which loads the \pkg{tikz} package and also configures the \env{tikzpicture} environment to create a single cropped page.
-% For PSTricks pictures an corresponding \opt{pstricks} option is provided.
+% For PSTricks pictures a corresponding \opt{pstricks} option is provided.
 %
 % \par\noindent
 % \begin{minipage}{\textwidth}
@@ -369,7 +369,7 @@
 % \DescribeKey{preview}'=true|false'
 % If enabled this option loads the \pkg{preview} package with the \opt{tightpage} option
 % and wraps the content into a \env{preview} environment. This crops the content to its natural size plus a specified border.
-% Issues with the \pkg{preview} options and TikZ shadings under \XeLaTeX have been reported. In this cases the \opt{crop} option should be used instead.
+% Issues with the \pkg{preview} option and TikZ shadings under \XeLaTeX{} have been reported. In this cases the \opt{crop} option should be used instead.
 % Note that this option was enabled by default for versions before v1.0, but since then \opt{crop} is enabled by
 % default.
 %
@@ -406,7 +406,7 @@
 % will not affect later code. Code in the preamble is not affected.
 % It is recommended to keep this option disabled and only use it if really required.
 % It should be noted that which \opt{preview} such material is always ignored while not affecting local settings.
-% Therefore the \opt{ignorrest} option can be seen as a compatibility setting to make \opt{crop} act more like \opt{preview}, if this is required by the user.
+% Therefore the \opt{ignorerest} option can be seen as a compatibility setting to make \opt{crop} act more like \opt{preview}, if this is required by the user.
 %
 %
 % \DescribeKey{multido}'=true|false'
@@ -433,7 +433,7 @@
 % but will always use the natural width of the content if it is smaller than the given maximum width.
 % The resulting effect is that the created paragraph will not cause any additional width and that multiple paragraphs can be included as part of the content.
 % The used maximal width (which is provided to the underlying \env{minipage} environment) is \Macro\linewidth by default, but can be set 
-% by provided a width as value to the option. Doing so will also switch the option on.
+% by providing a width as value to the option. Doing so will also switch the option on.
 %
 % If the \opt{crop} option is used the content is placed in restricted horizontal mode which ignores paragraph breaks.
 % Using the \opt{varwidth} option paragraph breaks are enabled again.
