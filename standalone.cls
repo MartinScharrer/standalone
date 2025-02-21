@@ -1399,6 +1399,7 @@
         \fi
         \global\paperwidth=\wd\sa@box
         \global\paperheight=\ht\sa@box
+        \special{papersize=\the\paperwidth,\the\paperheight}
         \global\hsize=\wd\sa@box
         \global\vsize=\ht\sa@box
         \global\@colht=\ht\sa@box
@@ -1410,6 +1411,7 @@
     \def\sa@placebox{%
         \global\paperwidth=\wd\sa@box
         \global\paperheight=\ht\sa@box
+        \special{papersize=\the\paperwidth,\the\paperheight}
         \global\@colht=\maxdimen
         \global\@colroom=\maxdimen
         \global\hsize=\maxdimen
