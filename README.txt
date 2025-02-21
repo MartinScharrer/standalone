@@ -1,7 +1,7 @@
 LaTeX class and package 'standalone'
 ====================================
 
-Copyright (c) 2010-2022 by Martin Scharrer <martin.scharrer@web.de>
+Copyright (c) 2010-2025 by Martin Scharrer <martin.scharrer@web.de>
 License: LaTeX Project Public License, v1.3 or later: http://www.latex-project.org/lppl.txt
 Repository: https://github.com/MartinScharrer/standalone
 Issues: https://github.com/MartinScharrer/standalone/issues
